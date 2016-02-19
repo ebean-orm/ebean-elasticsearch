@@ -1,0 +1,195 @@
+{
+  "took": 2,
+  "timed_out": false,
+  "_shards": {
+    "total": 5,
+    "successful": 5,
+    "failed": 0
+  },
+  "hits": {
+    "total": 5,
+    "max_score": 1.0,
+    "hits": [
+      {
+        "_index": "order",
+        "_type": "order",
+        "_id": "5",
+        "_score": 1.0,
+        "_source": {
+          "status": "NEW",
+          "orderDate": 1455787590528,
+          "customer": {
+            "id": 2,
+            "status": "NEW",
+            "name": "Cust NoAddress"
+          },
+          "whenCreated": 1455787590528,
+          "whenModified": 1455787590528,
+          "version": 1
+        }
+      },
+      {
+        "_index": "order",
+        "_type": "order",
+        "_id": "2",
+        "_score": 1.0,
+        "_source": {
+          "status": "SHIPPED",
+          "orderDate": 1455787590522,
+          "customer": {
+            "id": 2,
+            "status": "NEW",
+            "name": "Cust NoAddress"
+          },
+          "details": [
+            {
+              "id": 4,
+              "orderQty": 4,
+              "unitPrice": 10.5,
+              "product": {
+                "id": 1,
+                "sku": "C001"
+              },
+              "whenCreated": 1455787590522,
+              "whenModified": 1455787590522,
+              "version": 1
+            }
+          ],
+          "whenCreated": 1455787590522,
+          "whenModified": 1455787590522,
+          "version": 1
+        }
+      },
+      {
+        "_index": "order",
+        "_type": "order",
+        "_id": "4",
+        "_score": 1.0,
+        "_source": {
+          "status": "NEW",
+          "orderDate": 1455787590527,
+          "customer": {
+            "id": 1,
+            "status": "NEW",
+            "name": "Rob"
+          },
+          "whenCreated": 1455787590527,
+          "whenModified": 1455787590527,
+          "version": 1
+        }
+      },
+      {
+        "_index": "order",
+        "_type": "order",
+        "_id": "1",
+        "_score": 1.0,
+        "_source": {
+          "status": "NEW",
+          "orderDate": 1455787590510,
+          "customer": {
+            "id": 1,
+            "status": "NEW",
+            "name": "Rob"
+          },
+          "details": [
+            {
+              "id": 1,
+              "orderQty": 5,
+              "unitPrice": 10.5,
+              "product": {
+                "id": 1,
+                "sku": "C001"
+              },
+              "whenCreated": 1455787590516,
+              "whenModified": 1455787590516,
+              "version": 1
+            },
+            {
+              "id": 2,
+              "orderQty": 3,
+              "unitPrice": 1.1,
+              "product": {
+                "id": 2,
+                "sku": "DSK1"
+              },
+              "whenCreated": 1455787590517,
+              "whenModified": 1455787590517,
+              "version": 1
+            },
+            {
+              "id": 3,
+              "orderQty": 1,
+              "unitPrice": 2.0,
+              "product": {
+                "id": 3,
+                "sku": "C002"
+              },
+              "whenCreated": 1455787590518,
+              "whenModified": 1455787590518,
+              "version": 1
+            }
+          ],
+          "whenCreated": 1455787590513,
+          "whenModified": 1455787590513,
+          "version": 1
+        }
+      },
+      {
+        "_index": "order",
+        "_type": "order",
+        "_id": "3",
+        "_score": 1.0,
+        "_source": {
+          "status": "COMPLETE",
+          "orderDate": 1455787590524,
+          "customer": {
+            "id": 1,
+            "status": "NEW",
+            "name": "Rob"
+          },
+          "details": [
+            {
+              "id": 5,
+              "orderQty": 3,
+              "unitPrice": 10.5,
+              "product": {
+                "id": 1,
+                "sku": "C001"
+              },
+              "whenCreated": 1455787590524,
+              "whenModified": 1455787590524,
+              "version": 1
+            },
+            {
+              "id": 6,
+              "orderQty": 40,
+              "unitPrice": 2.1,
+              "product": {
+                "id": 3,
+                "sku": "C002"
+              },
+              "whenCreated": 1455787590525,
+              "whenModified": 1455787590525,
+              "version": 1
+            },
+            {
+              "id": 7,
+              "orderQty": 5,
+              "unitPrice": 10.0,
+              "product": {
+                "id": 1,
+                "sku": "C001"
+              },
+              "whenCreated": 1455787590526,
+              "whenModified": 1455787590526,
+              "version": 1
+            }
+          ],
+          "whenCreated": 1455787590524,
+          "whenModified": 1455787590524,
+          "version": 1
+        }
+      }
+    ]
+  }
+}

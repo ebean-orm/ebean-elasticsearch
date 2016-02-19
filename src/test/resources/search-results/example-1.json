@@ -1,0 +1,43 @@
+{
+  "took" : 3,
+  "timed_out" : false,
+  "_shards" : {
+    "total" : 5,
+    "successful" : 5,
+    "failed" : 0
+  },
+  "hits" : {
+    "total" : 3,
+    "max_score" : 1.0,
+    "hits" : [ {
+      "_index" : "order",
+      "_type" : "order",
+      "_id" : "4",
+      "_score" : 1.0,
+      "fields" : {
+        "customer.name" : [ "Rob" ],
+        "status" : [ "NEW" ]
+      }
+    }, {
+      "_index" : "order",
+      "_type" : "order",
+      "_id" : "1",
+      "_score" : 1.0,
+      "fields" : {
+        "customer.name" : [ "Rob" ],
+        "details.product.id" : [ 1, 2, 3 ],
+        "status" : [ "NEW" ]
+      }
+    }, {
+      "_index" : "order",
+      "_type" : "order",
+      "_id" : "3",
+      "_score" : 1.0,
+      "fields" : {
+        "customer.name" : [ "Rob" ],
+        "details.product.id" : [ 1, 3, 1 ],
+        "status" : [ "COMPLETE" ]
+      }
+    } ]
+  }
+}
