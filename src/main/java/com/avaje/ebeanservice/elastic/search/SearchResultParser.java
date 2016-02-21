@@ -1,25 +1,28 @@
 package com.avaje.ebeanservice.elastic.search;
 
+import com.avaje.ebean.plugin.SpiBeanType;
 import com.avaje.ebean.text.json.EJson;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.Map;
 
 /**
  */
-public class SearchResultParser {
+public class SearchResultParser<T> {
 
-  //final SearchFieldsListener fieldsListener;
-  final SearchSourceListener sourceListener;
+  final BeanSourceListener<T> listener;
 
   final JsonParser parser;
+
   int documentLevel;
 
   long took;
   boolean timedOut;
   Map<String, Object> shards;
+  String scrollId;
 
   String field;
   long total;
@@ -31,13 +34,33 @@ public class SearchResultParser {
   double score;
   Map<String, Object> fields;
 
-  public SearchResultParser(JsonParser parser, SearchSourceListener sourceListener) {
+  public SearchResultParser(JsonParser parser, SpiBeanType<T> desc) {
     this.parser = parser;
-    //this.fieldsListener = fieldsListener;
-    this.sourceListener = sourceListener;
+    this.listener = new BeanSourceListener<T>(desc);
   }
 
-  public void read() throws IOException {
+  public String getScrollId() {
+    return scrollId;
+  }
+
+  /**
+   * Return true if all the hits have been read.
+   */
+  public boolean allHitsRead() {
+    return total == 0 || total == listener.size();
+  }
+
+  /**
+   * Return true if the total hits is zero.
+   */
+  public boolean zeroHits() {
+    return listener.size() == 0;
+  }
+
+  /**
+   * Return the JSON returning the list of beans.
+   */
+  public List<T> read() throws IOException {
 
     parser.nextToken();
     while (nextFieldName()) {
@@ -56,6 +79,8 @@ public class SearchResultParser {
           throw new IllegalStateException("Unexpected documentLevel "+ documentLevel);
       }
     }
+
+    return listener.getList();
   }
 
   /**
@@ -101,13 +126,12 @@ public class SearchResultParser {
   }
 
   private void readSource() throws IOException {
-    sourceListener.readSource(parser, id);
+    listener.readSource(parser, id);
   }
 
   private void readFields() throws IOException {
     fields = EJson.parseObject(parser);
-    sourceListener.readFields(fields, id, score);
-    //fieldsListener.process(fields, id, score, index, type);
+    listener.readFields(fields, id, score);
   }
 
   private void readLevel1() throws IOException {
@@ -133,6 +157,8 @@ public class SearchResultParser {
       timedOut = readBoolean();
     } else if ("_shards".equals(field)) {
       shards = EJson.parseObject(parser);
+    } else if ("_scroll_id".equals(field)) {
+      scrollId = readString();
     } else if ("hits".equals(field)) {
       // read object start
       parser.nextToken();

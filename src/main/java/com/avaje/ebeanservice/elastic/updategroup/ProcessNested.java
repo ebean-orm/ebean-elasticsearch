@@ -37,7 +37,7 @@ public class ProcessNested<T> {
     this.nested = nested;
     this.path = nested.getPath();
     this.nestedDoc = desc.docStoreNested(path);
-    this.targetDesc = desc.getTypeAtPath(path);
+    this.targetDesc = desc.getBeanTypeAtPath(path);
   }
 
   public void process() throws IOException {

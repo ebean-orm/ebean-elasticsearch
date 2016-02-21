@@ -54,9 +54,7 @@ public class BeanSourceListener<T> implements SearchSourceListener {
       SpiExpressionPath path = desc.expressionPath(entry.getKey());
       List<Object> value = (List<Object>)entry.getValue();
 
-      if (path.containsMany()) {
-       System.out.print("sd");
-      } else {
+      if (!path.containsMany()) {
         if (value.size() == 1) {
           path.set(bean, value.get(0));
         }
@@ -67,4 +65,9 @@ public class BeanSourceListener<T> implements SearchSourceListener {
   public List<T> getList() {
     return beans;
   }
+
+  public int size() {
+    return beans.size();
+  }
+
 }
