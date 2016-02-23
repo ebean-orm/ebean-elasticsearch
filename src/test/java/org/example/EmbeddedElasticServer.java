@@ -4,9 +4,6 @@ import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.node.Node;
 import org.elasticsearch.node.NodeBuilder;
 
-import java.util.HashMap;
-import java.util.Map;
-
 /**
  */
 public class EmbeddedElasticServer {
@@ -29,6 +26,10 @@ public class EmbeddedElasticServer {
         .node();
   }
 
+
+  public Node getNode() {
+    return node;
+  }
 
   public void stop() {
     node.close();

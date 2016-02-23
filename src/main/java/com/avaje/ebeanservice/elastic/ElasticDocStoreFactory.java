@@ -4,6 +4,7 @@ import com.avaje.ebean.DocumentStore;
 import com.avaje.ebean.config.DocStoreConfig;
 import com.avaje.ebean.config.ServerConfig;
 import com.avaje.ebean.plugin.SpiServer;
+import com.avaje.ebean.plugin.SpiServerPlugin;
 import com.avaje.ebeaninternal.server.deploy.BeanDescriptor;
 import com.avaje.ebeaninternal.server.deploy.meta.DeployBeanDescriptor;
 import com.avaje.ebeanservice.docstore.api.DocStoreBeanAdapter;
@@ -34,24 +35,25 @@ public class ElasticDocStoreFactory implements DocStoreFactory {
     Object objectMapper = serverConfig.getObjectMapper();
 
     DocStoreConfig docStoreConfig = serverConfig.getDocStoreConfig();
+
     JsonFactory jsonFactory = new JsonFactory();
     IndexQueueWriter indexQueueWriter = new BaseIndexQueueWriter(server, "eb_elastic_queue");
     IndexMessageSender messageSender = new BaseHttpMessageSender(docStoreConfig.getUrl());
 
     ElasticUpdateProcessor updateProcessor = new ElasticUpdateProcessor(indexQueueWriter, jsonFactory, objectMapper, messageSender, docStoreConfig.getBulkBatchSize());
 
-    DocumentStore docStore = new ElasticDocumentStore(server, updateProcessor, messageSender, jsonFactory);
+    ElasticDocumentStore docStore = new ElasticDocumentStore(server, updateProcessor, messageSender, jsonFactory);
 
     return new Components(updateProcessor, docStore);
   }
 
 
-  static class Components implements DocStoreIntegration {
+  static class Components implements DocStoreIntegration, SpiServerPlugin {
 
-    final DocStoreUpdateProcessor updateProcessor;
-    final DocumentStore documentStore;
+    final ElasticUpdateProcessor updateProcessor;
+    final ElasticDocumentStore documentStore;
 
-    Components(DocStoreUpdateProcessor updateProcessor, DocumentStore documentStore) {
+    Components(ElasticUpdateProcessor updateProcessor, ElasticDocumentStore documentStore) {
       this.updateProcessor = updateProcessor;
       this.documentStore = documentStore;
     }
@@ -64,6 +66,24 @@ public class ElasticDocStoreFactory implements DocStoreFactory {
     @Override
     public DocumentStore documentStore() {
       return documentStore;
+    }
+
+    @Override
+    public void configure(SpiServer server) {
+
+    }
+
+    @Override
+    public void online(boolean online) {
+
+      if (online) {
+        documentStore.onStartup();
+      }
+    }
+
+    @Override
+    public void shutdown() {
+
     }
   }
 }

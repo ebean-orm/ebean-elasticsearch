@@ -9,52 +9,43 @@ import com.avaje.ebean.plugin.SpiBeanType;
 import com.avaje.ebean.plugin.SpiServer;
 import com.avaje.ebeaninternal.api.SpiQuery;
 import com.avaje.ebeanservice.docstore.api.DocStoreQueryUpdate;
-import com.avaje.ebeanservice.docstore.api.DocumentNotFoundException;
-import com.avaje.ebeanservice.elastic.search.SearchResultParser;
+import com.avaje.ebeanservice.elastic.index.IndexService;
 import com.avaje.ebeanservice.elastic.support.ElasticBatchUpdate;
-import com.avaje.ebeanservice.elastic.support.IndexMessageResponse;
 import com.avaje.ebeanservice.elastic.support.IndexMessageSender;
 import com.avaje.ebeanservice.elastic.updategroup.ConvertToGroups;
 import com.avaje.ebeanservice.elastic.updategroup.ProcessGroup;
 import com.avaje.ebeanservice.elastic.updategroup.UpdateGroup;
 import com.fasterxml.jackson.core.JsonFactory;
-import com.fasterxml.jackson.core.JsonParser;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.Collection;
-import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Set;
 
 /**
  * ElasticSearch based document store.
  */
 public class ElasticDocumentStore implements DocumentStore {
 
-  private static final Logger logger = LoggerFactory.getLogger(ElasticDocumentStore.class);
 
   private final SpiServer server;
 
   private final ElasticUpdateProcessor updateProcessor;
 
-  private final IndexMessageSender messageSender;
+  private final ElasticQueryService queryService;
 
-  private final JsonFactory jsonFactory;
+  private final IndexService indexService;
 
   public ElasticDocumentStore(SpiServer server, ElasticUpdateProcessor updateProcessor, IndexMessageSender messageSender, JsonFactory jsonFactory) {
     this.server = server;
     this.updateProcessor = updateProcessor;
-    this.messageSender = messageSender;
-    this.jsonFactory = jsonFactory;
+    this.queryService = new ElasticQueryService(server, jsonFactory, messageSender);
+    this.indexService = new IndexService(server, jsonFactory);
   }
 
   @Override
   public void process(List<DocStoreQueueEntry> entries) throws IOException {
 
     Collection<UpdateGroup> groups = ConvertToGroups.groupByQueueId(entries);
-
     ElasticBatchUpdate txn = updateProcessor.createBatchUpdate(0);
 
     try {
@@ -117,136 +108,23 @@ public class ElasticDocumentStore implements DocumentStore {
 
   @Override
   public <T> void findEach(Query<T> query, QueryEachConsumer<T> consumer) {
-
-    Class<T> beanType = query.getBeanType();
-    SpiBeanType<T> desc = server.getBeanType(beanType);
-    Set<String> scrollIds = new LinkedHashSet<String>();
-    try {
-      JsonParser initialJson = postQuery(true, desc.getDocStoreIndexType(), desc.getDocStoreIndexName(), query.asElasticQuery());
-      SearchResultParser<T> initialParser = new SearchResultParser<T>(initialJson, desc);
-
-      List<T> list = initialParser.read();
-      for (T bean : list) {
-        consumer.accept(bean);
-      }
-
-      String scrollId = initialParser.getScrollId();
-      scrollIds.add(scrollId);
-
-      if (!initialParser.allHitsRead()) {
-        while (true) {
-          JsonParser moreJson = getScroll(scrollId);
-          SearchResultParser<T> moreParser = new SearchResultParser<T>(moreJson, desc);
-
-          List<T> moreList = moreParser.read();
-          for (T bean : moreList) {
-            consumer.accept(bean);
-          }
-
-          scrollId = moreParser.getScrollId();
-          scrollIds.add(scrollId);
-
-          if (moreParser.zeroHits()) {
-            break;
-          }
-        }
-      }
-
-    } catch (IOException e) {
-      throw new PersistenceIOException(e);
-
-    } finally {
-      clearScrollIds(scrollIds);
-    }
-
+    queryService.findEach(query, consumer);
   }
 
-  private void clearScrollIds(Set<String> scrollIds) {
-    try {
-      messageSender.clearScrollIds(scrollIds);
-    } catch (IOException e) {
-      logger.error("Error trying to clear scrollIds: "+scrollIds, e);
-    }
-  }
 
   @Override
   public <T> List<T> findList(Query<T> query) {
-
-    Class<T> beanType = query.getBeanType();
-    SpiBeanType<T> desc = server.getBeanType(beanType);
-
-    try {
-      JsonParser jp = postQuery(false, desc.getDocStoreIndexType(), desc.getDocStoreIndexName(), query.asElasticQuery());
-
-      SearchResultParser<T> resultParser = new SearchResultParser<T>(jp, desc);
-      return resultParser.read();
-
-    } catch (IOException e) {
-      throw new PersistenceIOException(e);
-    }
+    return queryService.findList(query);
   }
 
   @Override
   public <T> T getById(Class<T> beanType, Object id) {
-
-    SpiBeanType<T> desc = server.getBeanType(beanType);
-    if (desc == null) {
-      throw new IllegalArgumentException("Type [" + beanType + "] does not appear to be an entity bean type?");
-    }
-
-    try {
-      JsonParser parser = getSource(desc.getDocStoreIndexType(), desc.getDocStoreIndexName(), id);
-      T bean = desc.jsonRead(parser, null, null);
-      desc.setBeanId(bean, id);
-
-      return bean;
-
-    } catch (DocumentNotFoundException e) {
-      // this is treated like findUnique() so returning null
-      return null;
-
-    } catch (IOException e) {
-      throw new PersistenceIOException(e);
-    }
+    return queryService.getById(beanType, id);
   }
 
-  private JsonParser postQuery(boolean scroll, String indexType, String indexName, String jsonQuery) throws IOException, DocumentNotFoundException {
+  public void onStartup() {
 
 
-    IndexMessageResponse response = messageSender.postQuery(scroll, indexType, indexName, jsonQuery);
-    switch (response.getCode()) {
-      case 404:
-        throw new DocumentNotFoundException("404 for query?");
-      case 200:
-        return jsonFactory.createParser(response.getBody());
-      default:
-        throw new IOException("Unhandled response code " + response.getCode() + " body:" + response.getBody());
-    }
-  }
-
-  private JsonParser getSource(String indexType, String indexName, Object docId) throws IOException, DocumentNotFoundException {
-
-    IndexMessageResponse response = messageSender.getDocSource(indexType, indexName, docId.toString());
-    switch (response.getCode()) {
-      case 404:
-        throw new DocumentNotFoundException("404 for docId:" + docId);
-      case 200:
-        return jsonFactory.createParser(response.getBody());
-      default:
-        throw new IOException("Unhandled response code " + response.getCode() + " body:" + response.getBody());
-    }
-  }
-
-  private JsonParser getScroll(String scrollId) throws IOException, DocumentNotFoundException {
-
-    IndexMessageResponse response = messageSender.getScroll(scrollId);
-    switch (response.getCode()) {
-      case 404:
-        throw new DocumentNotFoundException("404 for scrollId:" + scrollId);
-      case 200:
-        return jsonFactory.createParser(response.getBody());
-      default:
-        throw new IOException("Unhandled response code " + response.getCode() + " body:" + response.getBody());
-    }
+    indexService.createIndexes();
   }
 }

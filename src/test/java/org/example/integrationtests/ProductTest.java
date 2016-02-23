@@ -2,6 +2,9 @@ package org.example.integrationtests;
 
 import com.avaje.ebean.Ebean;
 import com.avaje.ebean.Query;
+import org.elasticsearch.action.search.SearchRequestBuilder;
+import org.elasticsearch.client.Client;
+import org.elasticsearch.node.Node;
 import org.example.EmbeddedElasticServer;
 import org.example.domain.Country;
 import org.example.domain.Order;
@@ -26,6 +29,19 @@ public class ProductTest {
   public void testDb() throws InterruptedException {
 
     EmbeddedElasticServer server = new EmbeddedElasticServer();
+
+    Node node = server.getNode();
+
+    Client client = node.client();
+    SearchRequestBuilder searchRequestBuilder = client.prepareSearch("");
+    String rawJson = "";
+    searchRequestBuilder.setQuery(rawJson);
+
+//    client.execute(searchRequestBuilder);
+
+//    BulkRequestBuilder bulkRequestBuilder = client.prepareBulk();
+//    String raw = "";
+//    bulkRequestBuilder.add(raw);
 
 
     ResetBasicData.reset();

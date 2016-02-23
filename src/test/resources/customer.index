@@ -1,0 +1,103 @@
+{
+  "settings" : {
+    "number_of_shards" : 1,
+    "number_of_replicas" : 1
+  },
+  "mappings" : {
+    "customer" : {
+      "properties" : {
+        "status" : {
+          "type" : "string"
+        },
+        "name" : {
+          "type" : "string"
+        },
+        "smallNote" : {
+          "type" : "string"
+        },
+        "anniversary" : {
+          "type" : "long"
+        },
+        "billingAddress" : {
+          "properties" : {
+            "id" : {
+              "type" : "long"
+            },
+            "line1" : {
+              "type" : "string"
+            },
+            "line2" : {
+              "type" : "string"
+            },
+            "city" : {
+              "type" : "string"
+            },
+            "country" : {
+              "properties" : {
+                "code" : {
+                  "type" : "string"
+                },
+                "name" : {
+                  "type" : "string"
+                }
+              }
+            },
+            "whenCreated" : {
+              "type" : "long"
+            },
+            "whenModified" : {
+              "type" : "long"
+            },
+            "version" : {
+              "type" : "long"
+            }
+          }
+        },
+        "shippingAddress" : {
+          "properties" : {
+            "id" : {
+              "type" : "long"
+            },
+            "line1" : {
+              "type" : "string"
+            },
+            "line2" : {
+              "type" : "string"
+            },
+            "city" : {
+              "type" : "string"
+            },
+            "country" : {
+              "properties" : {
+                "code" : {
+                  "type" : "string"
+                },
+                "name" : {
+                  "type" : "string"
+                }
+              }
+            },
+            "whenCreated" : {
+              "type" : "long"
+            },
+            "whenModified" : {
+              "type" : "long"
+            },
+            "version" : {
+              "type" : "long"
+            }
+          }
+        },
+        "whenCreated" : {
+          "type" : "long"
+        },
+        "whenModified" : {
+          "type" : "long"
+        },
+        "version" : {
+          "type" : "long"
+        }
+      }
+    }
+  }
+}
