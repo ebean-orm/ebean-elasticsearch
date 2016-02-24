@@ -43,13 +43,19 @@ public class IndexMappingsBuilder {
 
       gen.writeStartObject();
 
-      docMapping.getShards();
-      docMapping.getReplicas();
+      int shards = docMapping.getShards();
+      int replicas = docMapping.getReplicas();
 
-      gen.writeObjectFieldStart("settings");
-      gen.writeNumberField("number_of_shards", docMapping.getShards());
-      gen.writeNumberField("number_of_replicas", docMapping.getReplicas());
-      gen.writeEndObject();
+      if (shards > 0 || replicas > 0) {
+        gen.writeObjectFieldStart("settings");
+        if (shards > 0) {
+          gen.writeNumberField("number_of_shards", shards);
+        }
+        if (replicas > 0) {
+          gen.writeNumberField("number_of_replicas", replicas);
+        }
+        gen.writeEndObject();
+      }
 
       gen.writeObjectFieldStart("mappings");
       gen.writeObjectFieldStart(docMapping.getType());
@@ -109,14 +115,14 @@ public class IndexMappingsBuilder {
             gen.writeStringField("null_value", options.getNullValue());
           }
           if (isTrue(options.getCode())) {
-            gen.writeStringField("index", "not_analysed");
+            gen.writeStringField("index", "not_analyzed");
 
           } else if (isTrue(options.getSortable())) {
             // add raw field option
             gen.writeObjectFieldStart("fields");
             gen.writeObjectFieldStart("raw");
             gen.writeStringField("type", "string");
-            gen.writeStringField("index", "not_analysed");
+            gen.writeStringField("index", "not_analyzed");
             gen.writeEndObject();
             gen.writeEndObject();
           }

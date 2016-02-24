@@ -2,6 +2,8 @@ package org.example.integrationtests;
 
 import com.avaje.ebean.Ebean;
 import com.avaje.ebean.EbeanServer;
+import com.avaje.ebean.Transaction;
+import com.avaje.ebean.annotation.DocStoreEvent;
 import org.example.domain.Address;
 import org.example.domain.Contact;
 import org.example.domain.Country;
@@ -22,6 +24,10 @@ public class ResetBasicData {
   private static EbeanServer server = Ebean.getServer(null);
 
   public static synchronized void reset() {
+    reset(true);
+  }
+
+  public static synchronized void reset(boolean updateDocStore) {
 
     if (runOnce) {
       return;
@@ -36,7 +42,10 @@ public class ResetBasicData {
     }
     //me.deleteAll();
 
-    server.beginTransaction();
+    Transaction transaction = server.beginTransaction();
+    if (!updateDocStore) {
+      transaction.setDocStoreUpdateMode(DocStoreEvent.IGNORE);
+    }
     try {
 
       me.insertCountries();

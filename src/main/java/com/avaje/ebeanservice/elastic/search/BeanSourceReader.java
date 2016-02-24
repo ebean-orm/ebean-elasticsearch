@@ -11,19 +11,19 @@ import java.util.Map;
 import java.util.Set;
 
 /**
+ * Reads the source and fields from an ElasticSearch search result and populates beans.
  */
-public class BeanSourceListener<T> implements SearchSourceListener {
+public class BeanSourceReader<T> implements SearchSourceListener {
 
-  final SpiBeanType<T> desc;
+  private final SpiBeanType<T> desc;
 
-  List<T> beans = new ArrayList<T>();
+  private final List<T> beans = new ArrayList<T>();
 
-  T currentBean;
+  private T currentBean;
 
-  public BeanSourceListener(SpiBeanType<T> desc) {
+  public BeanSourceReader(SpiBeanType<T> desc) {
     this.desc = desc;
   }
-
 
   @Override
   public void readSource(JsonParser parser, String id) throws IOException {
@@ -47,6 +47,7 @@ public class BeanSourceListener<T> implements SearchSourceListener {
 
   }
 
+  @SuppressWarnings("unchecked")
   private void applyFields(T bean, Map<String, Object> fields) {
 
     Set<Map.Entry<String, Object>> entries = fields.entrySet();

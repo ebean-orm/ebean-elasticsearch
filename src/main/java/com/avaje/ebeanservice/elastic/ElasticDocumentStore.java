@@ -35,11 +35,11 @@ public class ElasticDocumentStore implements DocumentStore {
 
   private final IndexService indexService;
 
-  public ElasticDocumentStore(SpiServer server, ElasticUpdateProcessor updateProcessor, IndexMessageSender messageSender, JsonFactory jsonFactory) {
+  public ElasticDocumentStore(SpiServer server, ElasticUpdateProcessor updateProcessor, IndexMessageSender sender, JsonFactory jsonFactory) {
     this.server = server;
     this.updateProcessor = updateProcessor;
-    this.queryService = new ElasticQueryService(server, jsonFactory, messageSender);
-    this.indexService = new IndexService(server, jsonFactory);
+    this.queryService = new ElasticQueryService(server, jsonFactory, sender);
+    this.indexService = new IndexService(server, jsonFactory, sender);
   }
 
   @Override
@@ -61,6 +61,49 @@ public class ElasticDocumentStore implements DocumentStore {
     }
   }
 
+  @Override
+  public void dropIndex(String newIndex) {
+    try {
+      indexService.dropIndex(newIndex);
+    } catch (IOException e) {
+      throw new PersistenceIOException(e);
+    }
+  }
+
+  @Override
+  public void createIndex(String indexName, String alias, String mappingResource) {
+    try {
+      indexService.createIndex(indexName, alias, mappingResource);
+    } catch (IOException e) {
+      throw new PersistenceIOException(e);
+    }
+  }
+
+  @Override
+  public long copyIndex(Class<?> beanType, String newIndex, long epochMillis) {
+    SpiBeanType<?> type = server.getBeanType(beanType);
+    checkMapped(type);
+    try {
+      ElasticBatchUpdate txn = updateProcessor.createBatchUpdate(0);
+      return queryService.copyIndexSince(type, newIndex, txn, epochMillis);
+
+    } catch (IOException e) {
+      throw new PersistenceIOException(e);
+    }
+  }
+
+  @Override
+  public long copyIndex(Class<?> beanType, String newIndex) {
+    return copyIndex(beanType, newIndex, 0);
+  }
+
+  @Override
+  public void indexAll(Class<?> beanType) {
+    SpiBeanType<?> type = server.getBeanType(beanType);
+    checkMapped(type);
+    Query<?> query = server.createQuery(beanType);
+    indexByQuery(query);
+  }
 
   @Override
   public <T> void indexByQuery(Query<T> query) {
@@ -74,9 +117,7 @@ public class ElasticDocumentStore implements DocumentStore {
     Class<T> beanType = spiQuery.getBeanType();
 
     SpiBeanType<T> beanDescriptor = server.getBeanType(beanType);
-    if (beanDescriptor == null) {
-      throw new IllegalArgumentException("Type [" + beanType + "] does not appear to be an entity bean type?");
-    }
+    checkMapped(beanDescriptor);
 
     try {
       DocStoreQueryUpdate<T> update = updateProcessor.createQueryUpdate(beanDescriptor, bulkBatchSize);
@@ -111,7 +152,6 @@ public class ElasticDocumentStore implements DocumentStore {
     queryService.findEach(query, consumer);
   }
 
-
   @Override
   public <T> List<T> findList(Query<T> query) {
     return queryService.findList(query);
@@ -124,7 +164,20 @@ public class ElasticDocumentStore implements DocumentStore {
 
   public void onStartup() {
 
+    try {
+      indexService.createIndexes();
 
-    indexService.createIndexes();
+    } catch (IOException e) {
+      throw new PersistenceIOException(e);
+    }
+  }
+
+  private void checkMapped(SpiBeanType<?> type) {
+    if (type == null) {
+      throw new IllegalStateException("No bean type mapping found?");
+    }
+    if (!type.isDocStoreMapped()) {
+      throw new IllegalStateException("No doc store mapping for bean type "+type.getFullName());
+    }
   }
 }

@@ -34,6 +34,9 @@ public class BaseIndexQueueWriter implements IndexQueueWriter {
   @Override
   public void queue(List<DocStoreQueueEntry> queueEntries) {
 
+    if (true) {
+      return;
+    }
     if (queueEntries.isEmpty()) {
       return;
     }

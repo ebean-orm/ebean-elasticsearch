@@ -1,44 +1,42 @@
 package com.avaje.ebeanservice.elastic.search;
 
-import com.avaje.ebean.plugin.SpiBeanType;
 import com.avaje.ebean.text.json.EJson;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
 
 import java.io.IOException;
-import java.util.List;
 import java.util.Map;
 
 /**
+ * Base parser for reading/processing search results.
  */
-public class SearchResultParser<T> {
+public abstract class BaseSearchResultParser {
 
-  final BeanSourceListener<T> listener;
+  protected final JsonParser parser;
 
-  final JsonParser parser;
+  protected int documentLevel;
 
-  int documentLevel;
+  protected long took;
+  protected boolean timedOut;
+  protected Map<String, Object> shards;
+  protected String scrollId;
 
-  long took;
-  boolean timedOut;
-  Map<String, Object> shards;
-  String scrollId;
+  protected String field;
+  protected long total;
+  protected double maxScore;
 
-  String field;
-  long total;
-  double maxScore;
+  protected String index;
+  protected String type;
+  protected String id;
+  protected double score;
 
-  String index;
-  String type;
-  String id;
-  double score;
-  Map<String, Object> fields;
-
-  public SearchResultParser(JsonParser parser, SpiBeanType<T> desc) {
+  public BaseSearchResultParser(JsonParser parser) {
     this.parser = parser;
-    this.listener = new BeanSourceListener<T>(desc);
   }
 
+  /**
+   * Return the scrollId.
+   */
   public String getScrollId() {
     return scrollId;
   }
@@ -46,21 +44,17 @@ public class SearchResultParser<T> {
   /**
    * Return true if all the hits have been read.
    */
-  public boolean allHitsRead() {
-    return total == 0 || total == listener.size();
-  }
+  public abstract boolean allHitsRead();
 
   /**
    * Return true if the total hits is zero.
    */
-  public boolean zeroHits() {
-    return listener.size() == 0;
-  }
+  public abstract boolean zeroHits();
 
   /**
    * Return the JSON returning the list of beans.
    */
-  public List<T> read() throws IOException {
+  public void readAll() throws IOException {
 
     parser.nextToken();
     while (nextFieldName()) {
@@ -79,14 +73,12 @@ public class SearchResultParser<T> {
           throw new IllegalStateException("Unexpected documentLevel "+ documentLevel);
       }
     }
-
-    return listener.getList();
   }
 
   /**
    * Move forward to the next field name if possible.
    */
-  private boolean nextFieldName() throws IOException {
+  protected boolean nextFieldName() throws IOException {
     JsonToken token = parser.nextToken();
     while (true) {
       switch (token) {
@@ -107,7 +99,7 @@ public class SearchResultParser<T> {
     }
   }
 
-  private void readLevel2() throws IOException {
+  protected void readLevel2() throws IOException {
     if ("_index".equals(field)) {
       index = readString();
     } else if ("_type".equals(field)) {
@@ -125,16 +117,11 @@ public class SearchResultParser<T> {
     }
   }
 
-  private void readSource() throws IOException {
-    listener.readSource(parser, id);
-  }
+  public abstract void readSource() throws IOException;
 
-  private void readFields() throws IOException {
-    fields = EJson.parseObject(parser);
-    listener.readFields(fields, id, score);
-  }
+  public abstract void readFields() throws IOException;
 
-  private void readLevel1() throws IOException {
+  protected void readLevel1() throws IOException {
     if ("total".equals(field)) {
       total = readLong();
     } else if ("max_score".equals(field)) {
@@ -149,7 +136,7 @@ public class SearchResultParser<T> {
     }
   }
 
-  private void readLevel0() throws IOException {
+  protected void readLevel0() throws IOException {
 
     if ("took".equals(field)) {
       took = readLong();
@@ -168,17 +155,17 @@ public class SearchResultParser<T> {
     }
   }
 
-  private String readString() throws IOException {
+  protected String readString() throws IOException {
     parser.nextToken();
     return parser.getValueAsString();
   }
 
-  private long readLong() throws IOException {
+  protected long readLong() throws IOException {
     parser.nextToken();
     return parser.getLongValue();
   }
 
-  private double readDouble() throws IOException {
+  protected double readDouble() throws IOException {
     JsonToken token = parser.nextToken();
     if (token == JsonToken.VALUE_NULL) {
       return 0;
@@ -187,7 +174,7 @@ public class SearchResultParser<T> {
     }
   }
 
-  private boolean readBoolean() throws IOException {
+  protected boolean readBoolean() throws IOException {
     parser.nextToken();
     return parser.getBooleanValue();
   }

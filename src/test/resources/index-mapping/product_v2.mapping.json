@@ -1,0 +1,13 @@
+{
+  "mappings" : {
+    "product" : {
+      "properties" : {
+        "sku": { "type": "string" },
+        "name": { "type": "string" },
+        "whenCreated": { "type": "date" },
+        "whenModified": { "type": "date" },
+        "version": { "type": "long" }
+      }
+    }
+  }
+}

@@ -4,9 +4,13 @@ import com.avaje.ebean.PersistenceIOException;
 import com.avaje.ebean.Query;
 import com.avaje.ebean.QueryEachConsumer;
 import com.avaje.ebean.plugin.SpiBeanType;
+import com.avaje.ebean.plugin.SpiProperty;
 import com.avaje.ebean.plugin.SpiServer;
 import com.avaje.ebeanservice.docstore.api.DocumentNotFoundException;
-import com.avaje.ebeanservice.elastic.search.SearchResultParser;
+import com.avaje.ebeanservice.elastic.search.BeanSearchParser;
+import com.avaje.ebeanservice.elastic.search.RawSource;
+import com.avaje.ebeanservice.elastic.search.RawSourceReader;
+import com.avaje.ebeanservice.elastic.support.ElasticBatchUpdate;
 import com.avaje.ebeanservice.elastic.support.IndexMessageResponse;
 import com.avaje.ebeanservice.elastic.support.IndexMessageSender;
 import com.fasterxml.jackson.core.JsonFactory;
@@ -46,7 +50,7 @@ public class ElasticQueryService {
     try {
       JsonParser jp = postQuery(false, desc.getDocStoreIndexType(), desc.getDocStoreIndexName(), query.asElasticQuery());
 
-      SearchResultParser<T> resultParser = new SearchResultParser<T>(jp, desc);
+      BeanSearchParser<T> resultParser = new BeanSearchParser<T>(jp, desc);
       return resultParser.read();
 
     } catch (IOException e) {
@@ -96,6 +100,79 @@ public class ElasticQueryService {
     }
   }
 
+  public long copyIndexSince(SpiBeanType<?> desc, String newIndex, ElasticBatchUpdate txn, long epochMillis) throws IOException {
+
+    CopyRaw copyRaw = new CopyRaw(txn, desc.getDocStoreIndexType(), newIndex);
+
+    Query<?> query = server.createQuery(desc.getBeanType());
+
+    if (epochMillis > 0) {
+      SpiProperty whenModified = desc.getWhenModifiedProperty();
+      if (whenModified != null) {
+        query.where().ge(whenModified.getName(), epochMillis);
+      }
+    }
+
+    long count = findEachRawSource(query, copyRaw);
+
+    logger.info("total [{}] entries copied to index:{}", count, newIndex);
+    if (count != 0) {
+      txn.flush();
+    }
+
+    return count;
+  }
+
+  public <T> long findEachRawSource(Query<T> query, QueryEachConsumer<RawSource> consumer) {
+
+    long count = 0;
+    Class<T> beanType = query.getBeanType();
+    SpiBeanType<T> desc = server.getBeanType(beanType);
+    Set<String> scrollIds = new LinkedHashSet<String>();
+
+    try {
+      JsonParser initialJson = postQuery(true, desc.getDocStoreIndexType(), desc.getDocStoreIndexName(), query.asElasticQuery());
+
+      RawSourceReader reader = new RawSourceReader(initialJson);
+      List<RawSource> list = reader.read();
+
+      for (RawSource bean : list) {
+        count++;
+        consumer.accept(bean);
+      }
+
+      String scrollId = reader.getScrollId();
+      scrollIds.add(scrollId);
+
+      if (!reader.allHitsRead()) {
+        while (true) {
+          JsonParser moreJson = getScroll(scrollId);
+          RawSourceReader moreReader = new RawSourceReader(moreJson);
+          List<RawSource> moreList = moreReader.read();
+          for (RawSource bean : moreList) {
+            count++;
+            consumer.accept(bean);
+          }
+
+          scrollId = moreReader.getScrollId();
+          scrollIds.add(scrollId);
+
+          if (moreReader.zeroHits()) {
+            break;
+          }
+        }
+      }
+
+      return count;
+
+    } catch (IOException e) {
+      throw new PersistenceIOException(e);
+
+    } finally {
+      clearScrollIds(scrollIds);
+    }
+  }
+
   public <T> void findEach(Query<T> query, QueryEachConsumer<T> consumer) {
 
     Class<T> beanType = query.getBeanType();
@@ -103,7 +180,7 @@ public class ElasticQueryService {
     Set<String> scrollIds = new LinkedHashSet<String>();
     try {
       JsonParser initialJson = postQuery(true, desc.getDocStoreIndexType(), desc.getDocStoreIndexName(), query.asElasticQuery());
-      SearchResultParser<T> initialParser = new SearchResultParser<T>(initialJson, desc);
+      BeanSearchParser<T> initialParser = new BeanSearchParser<T>(initialJson, desc);
 
       List<T> list = initialParser.read();
       for (T bean : list) {
@@ -116,7 +193,7 @@ public class ElasticQueryService {
       if (!initialParser.allHitsRead()) {
         while (true) {
           JsonParser moreJson = getScroll(scrollId);
-          SearchResultParser<T> moreParser = new SearchResultParser<T>(moreJson, desc);
+          BeanSearchParser<T> moreParser = new BeanSearchParser<T>(moreJson, desc);
 
           List<T> moreList = moreParser.read();
           for (T bean : moreList) {
@@ -168,7 +245,8 @@ public class ElasticQueryService {
     try {
       messageSender.clearScrollIds(scrollIds);
     } catch (IOException e) {
-      logger.error("Error trying to clear scrollIds: "+scrollIds, e);
+      logger.error("Error trying to clear scrollIds: " + scrollIds, e);
     }
   }
+
 }

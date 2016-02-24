@@ -23,4 +23,12 @@ public interface IndexMessageSender {
   IndexMessageResponse getScroll(String scrollId) throws IOException;
 
   IndexMessageResponse clearScrollIds(Set<String> scrollIds) throws IOException;
+
+  boolean indexExists(String indexName) throws IOException;
+
+  boolean indexDelete(String indexName) throws IOException;
+
+  void indexCreate(String indexName, String settingsJson) throws IOException;
+
+  void indexAlias(String aliasJson) throws IOException;
 }

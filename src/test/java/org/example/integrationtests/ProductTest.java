@@ -44,7 +44,7 @@ public class ProductTest {
 //    bulkRequestBuilder.add(raw);
 
 
-    ResetBasicData.reset();
+    ResetBasicData.reset(true);
     //indexCountries();
 
     //if (true) {

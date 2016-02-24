@@ -4,7 +4,10 @@ import com.avaje.ebean.DocumentStore;
 import com.avaje.ebean.Ebean;
 import com.avaje.ebean.Query;
 import com.avaje.ebean.QueryEachConsumer;
+import org.example.domain.Country;
+import org.example.domain.Customer;
 import org.example.domain.Order;
+import org.example.domain.Product;
 import org.example.integrationtests.ResetBasicData;
 import org.junit.Test;
 
@@ -13,10 +16,63 @@ import java.util.List;
 public class ElasticDocumentStoreTest {
 
   @Test
+  public void indexAll() {
+
+    ResetBasicData.reset(false);
+
+    DocumentStore documentStore = Ebean.getDefaultServer().docStore();
+
+    documentStore.indexAll(Country.class);
+    documentStore.indexAll(Product.class);
+    documentStore.indexAll(Customer.class);
+  }
+
+  @Test
+  public void indexCopyTo() {
+
+    DocumentStore documentStore = Ebean.getDefaultServer().docStore();
+    //documentStore.indexAll(Product.class);
+
+    String newIndex = "product_v2";
+    documentStore.copyIndex(Product.class, newIndex);
+  }
+
+  @Test
+  public void indexCopyTo_since() throws InterruptedException {
+
+    ResetBasicData.reset(false);
+
+    DocumentStore documentStore = Ebean.getDefaultServer().docStore();
+    documentStore.indexAll(Product.class);
+
+    String newIndex = "product_v2";
+    documentStore.dropIndex(newIndex);
+
+    documentStore.createIndex(newIndex, null, "product_v2");
+
+    long startEpochMillis = System.currentTimeMillis();
+
+    documentStore.copyIndex(Product.class, newIndex);
+
+    Product prod = Ebean.find(Product.class)
+        .where().eq("name", "Chair")
+        .findUnique();
+
+    prod.setSku("C00Z");
+    Ebean.save(prod);
+
+    Thread.sleep(3000);
+
+    // copy any changes since startEpochMillis
+    documentStore.copyIndex(Product.class, newIndex, startEpochMillis);
+
+  }
+
+  @Test
   public void integration_test() {
 
 
-    ResetBasicData.reset();
+    ResetBasicData.reset(true);
 
     DocumentStore documentStore = Ebean.getDefaultServer().docStore();
 

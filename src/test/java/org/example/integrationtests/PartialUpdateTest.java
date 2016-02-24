@@ -55,7 +55,7 @@ public class PartialUpdateTest {
   public void partial_update() throws InterruptedException {
 
     // this will automatically index all the customers
-    ResetBasicData.reset();
+    ResetBasicData.reset(true);
 
     Thread.sleep(200);
 

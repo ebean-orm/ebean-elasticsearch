@@ -1,7 +1,7 @@
 package com.avaje.ebeanservice.elastic.support;
 
 import com.avaje.ebeanservice.elastic.search.BasicFieldsListener;
-import com.avaje.ebeanservice.elastic.search.SearchResultParser;
+import com.avaje.ebeanservice.elastic.search.BeanSearchParser;
 import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonParser;
 import org.junit.Test;
@@ -9,14 +9,14 @@ import org.junit.Test;
 import java.io.IOException;
 import java.io.InputStream;
 
-public class SearchResultParserTest {
+public class BeanSearchParserTest {
 
 
   @Test
   public void test_example_1() throws IOException {
 
 
-    InputStream is = SearchResultParser.class.getResourceAsStream("/search-results/example-1.json");
+    InputStream is = BeanSearchParser.class.getResourceAsStream("/search-results/example-1.json");
 
 
     JsonFactory jsonFactory = new JsonFactory();
@@ -24,7 +24,7 @@ public class SearchResultParserTest {
     JsonParser jp = jsonFactory.createParser(is);
 
     BasicFieldsListener rows = new BasicFieldsListener();
-    SearchResultParser parser = new SearchResultParser(jp, null);
+    BeanSearchParser parser = new BeanSearchParser(jp, null);
     parser.read();
 
     System.out.print(rows.getRows());

@@ -19,7 +19,7 @@ public class EventQueueProcessTest {
   @Test
   public void test_queue() throws IOException {
 
-    ResetBasicData.reset();
+    ResetBasicData.reset(true);
 
     EbeanServer server = Ebean.getDefaultServer();
     DocumentStore documentStore = server.docStore();
