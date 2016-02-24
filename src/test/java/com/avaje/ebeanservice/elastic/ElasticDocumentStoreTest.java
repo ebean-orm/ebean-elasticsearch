@@ -47,7 +47,6 @@ public class ElasticDocumentStoreTest {
 
     String newIndex = "product_v2";
     documentStore.dropIndex(newIndex);
-
     documentStore.createIndex(newIndex, null, "product_v2");
 
     long startEpochMillis = System.currentTimeMillis();
@@ -65,8 +64,23 @@ public class ElasticDocumentStoreTest {
 
     // copy any changes since startEpochMillis
     documentStore.copyIndex(Product.class, newIndex, startEpochMillis);
-
   }
+
+  @Test
+  public void sortBy_when_propertyIsAnalysed() {
+
+    ResetBasicData.reset(false);
+
+    DocumentStore documentStore = Ebean.getDefaultServer().docStore();
+    documentStore.indexAll(Order.class);
+
+    Query<Order> query = Ebean.find(Order.class)
+        .orderBy().asc("customer.name");//"orderDate.name");
+
+    List<Order> list = documentStore.findList(query);
+    System.out.print("as" + list);
+  }
+
 
   @Test
   public void integration_test() {

@@ -1,5 +1,6 @@
 package org.example.domain;
 
+import com.avaje.ebean.annotation.DocSortable;
 import com.avaje.ebean.annotation.DocStore;
 
 import javax.persistence.Entity;
@@ -14,9 +15,11 @@ import javax.validation.constraints.Size;
 @Table(name = "o_product")
 public class Product extends BasicDomain {
 
+  @DocSortable
   @Size(max = 20)
   String sku;
 
+  @DocSortable
   String name;
 
   public String getSku() {

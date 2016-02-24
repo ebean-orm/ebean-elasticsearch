@@ -20,16 +20,18 @@ public abstract class BaseSearchResultParser {
   protected boolean timedOut;
   protected Map<String, Object> shards;
   protected String scrollId;
-
   protected String field;
   protected long total;
   protected double maxScore;
-
   protected String index;
   protected String type;
   protected String id;
   protected double score;
+  protected Object sort;
 
+  /**
+   * Construct with a JSON parser.
+   */
   public BaseSearchResultParser(JsonParser parser) {
     this.parser = parser;
   }
@@ -52,7 +54,17 @@ public abstract class BaseSearchResultParser {
   public abstract boolean zeroHits();
 
   /**
-   * Return the JSON returning the list of beans.
+   * Read the source json.
+   */
+  public abstract void readSource() throws IOException;
+
+  /**
+   * Read the fields json.
+   */
+  public abstract void readFields() throws IOException;
+
+  /**
+   * Read all the response JSON.
    */
   public void readAll() throws IOException {
 
@@ -73,6 +85,13 @@ public abstract class BaseSearchResultParser {
           throw new IllegalStateException("Unexpected documentLevel "+ documentLevel);
       }
     }
+  }
+
+  /**
+   * Read the sort values array.
+   */
+  protected void readSort() throws IOException {
+    sort = EJson.parse(parser);
   }
 
   /**
@@ -99,6 +118,9 @@ public abstract class BaseSearchResultParser {
     }
   }
 
+  /**
+   * Read the level 2 properties.
+   */
   protected void readLevel2() throws IOException {
     if ("_index".equals(field)) {
       index = readString();
@@ -112,15 +134,16 @@ public abstract class BaseSearchResultParser {
       readFields();
     } else if ("_source".equals(field)) {
       readSource();
+    } else if ("sort".equals(field)) {
+      readSort();
     } else {
       throw new IllegalStateException("Unrecognized field at level 2: '" + field + "'!");
     }
   }
 
-  public abstract void readSource() throws IOException;
-
-  public abstract void readFields() throws IOException;
-
+  /**
+   * Read the level 1 properties.
+   */
   protected void readLevel1() throws IOException {
     if ("total".equals(field)) {
       total = readLong();
@@ -136,6 +159,9 @@ public abstract class BaseSearchResultParser {
     }
   }
 
+  /**
+   * Read the level 0 properties.
+   */
   protected void readLevel0() throws IOException {
 
     if ("took".equals(field)) {
