@@ -1,7 +1,11 @@
 package com.avaje.ebeanservice.elastic.search;
 
+import com.avaje.ebean.bean.EntityBean;
+import com.avaje.ebean.bean.PersistenceContext;
 import com.avaje.ebean.plugin.BeanType;
 import com.avaje.ebean.plugin.ExpressionPath;
+import com.avaje.ebean.text.json.JsonBeanReader;
+import com.avaje.ebeaninternal.server.deploy.BeanPropertyAssocMany;
 import com.fasterxml.jackson.core.JsonParser;
 
 import java.io.IOException;
@@ -17,19 +21,44 @@ public class BeanSourceReader<T> implements SearchSourceListener {
 
   private final BeanType<T> desc;
 
+  private final JsonBeanReader<T> reader;
+
   private final List<T> beans = new ArrayList<T>();
+
+  private final boolean hasContext;
+
+  private final PersistenceContext persistenceContext;
 
   private T currentBean;
 
-  public BeanSourceReader(BeanType<T> desc) {
+  private final BeanPropertyAssocMany<?> lazyLoadMany;
+
+  public BeanSourceReader(BeanType<T> desc, JsonBeanReader<T> reader, BeanPropertyAssocMany<?> lazyLoadMany) {
     this.desc = desc;
+    this.reader = reader;
+    this.persistenceContext = reader.getPersistenceContext();
+    this.hasContext = persistenceContext != null;
+    this.lazyLoadMany = lazyLoadMany;
   }
 
   @Override
   public void readSource(JsonParser parser, String id) throws IOException {
-    currentBean = desc.jsonRead(parser, null, null);
+
+    currentBean = reader.read();
     desc.setBeanId(currentBean, id);
     beans.add(currentBean);
+    loadPersistenceContext();
+  }
+
+  private void loadPersistenceContext() {
+    if (hasContext) {
+      EntityBean current = (EntityBean)currentBean;
+      Object beanId = desc.getBeanId(currentBean);
+      reader.persistenceContextPut(beanId, currentBean);
+      if (lazyLoadMany != null) {
+        lazyLoadMany.lazyLoadMany(current);
+      }
+    }
   }
 
   @Override
@@ -43,6 +72,7 @@ public class BeanSourceReader<T> implements SearchSourceListener {
       desc.setBeanId(bean, id);
       applyFields(bean, fields);
       beans.add(bean);
+      loadPersistenceContext();
     }
 
   }
@@ -75,5 +105,6 @@ public class BeanSourceReader<T> implements SearchSourceListener {
     T bean = desc.createBean();
     desc.setBeanId(bean, id);
     beans.add(bean);
+    loadPersistenceContext();
   }
 }

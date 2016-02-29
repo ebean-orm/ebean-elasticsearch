@@ -6,6 +6,7 @@ import com.avaje.ebean.Expr;
 import com.avaje.ebean.PagedList;
 import com.avaje.ebean.Query;
 import com.avaje.ebean.QueryEachConsumer;
+import org.example.domain.Contact;
 import org.example.domain.Country;
 import org.example.domain.Customer;
 import org.example.domain.Order;
@@ -106,6 +107,61 @@ public class ElasticDocumentStoreTest {
 
     assertThat(list.getTotalRowCount()).isEqualTo(5);
     assertThat(list.getList()).hasSize(2);
+  }
+
+  @Test
+  public void query_useDocStore_then_lazyLoadAssocMany() throws InterruptedException {
+
+    ResetBasicData.reset(false);
+
+    DocumentStore documentStore = Ebean.getDefaultServer().docStore();
+    documentStore.indexAll(Customer.class);
+    documentStore.indexAll(Contact.class);
+
+    Thread.sleep(3000);
+    List<Customer> customers = Ebean.find(Customer.class)
+        .select("*")
+        .orderBy().asc("name")
+        .setUseDocStore(true)
+        //.setDisableLazyLoading(true)
+        .findList();
+
+    for (Customer customer : customers) {
+      List<Contact> contacts = customer.getContacts();
+      for (Contact contact : contacts) {
+        contact.getFirstName();
+        contact.getLastName();
+      }
+    }
+
+    assertThat(customers).hasSize(4);
+  }
+
+  @Test
+  public void query_useDocStore_then_lazyLoadAssocOne() throws InterruptedException {
+
+    ResetBasicData.reset(false);
+
+    DocumentStore documentStore = Ebean.getDefaultServer().docStore();
+    documentStore.indexAll(Customer.class);
+    documentStore.indexAll(Contact.class);
+
+    Thread.sleep(3000);
+    List<Contact> contacts = Ebean.find(Contact.class)
+        .where().icontains("lastName", "bunny")
+        .orderBy().asc("lastName")
+        .setUseDocStore(true)
+        .findList();
+
+    for (Contact contact : contacts) {
+      Customer customer = contact.getCustomer();
+      customer.getId();
+      customer.getName();
+      customer.getSmallNote();
+      customer.getId();
+    }
+
+    assertThat(contacts).hasSize(1);
   }
 
   @Test

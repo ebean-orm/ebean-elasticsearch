@@ -134,38 +134,27 @@ public class ResetBasicData {
 
 
     Customer cust1 = insertCustomer("Rob");
-    Customer cust2 = insertCustomerNoAddress();
-    insertCustomerFiona();
-    insertCustomerNoContacts("NocCust");
+    cust1.addContact(new Contact("Jim", "Cricket"));
+    cust1.addContact(new Contact("Barny", "Rubble"));
+    cust1.addContact(new Contact("Bugs", "Bunny"));
+    Ebean.save(cust1);
+
+    Customer cust2 = insertCustomerNoAddress("Cust NoAddress");
+    insertCustomerFiona("Fiona");
+    insertCustomerNoContacts("NoContactsCust");
 
     createOrder1(cust1);
     createOrder2(cust2);
     createOrder3(cust1);
     createOrder4(cust1);
     createOrder5(cust2);
-
-  }
-
-  public static Customer createCustAndOrder(String custName) {
-
-    ResetBasicData me = new ResetBasicData();
-    Customer cust1 = insertCustomer(custName);
-    me.createOrder1(cust1);
-    return cust1;
-  }
-
-  public static Order createOrderCustAndOrder(String custName) {
-
-    ResetBasicData me = new ResetBasicData();
-    Customer cust1 = insertCustomer(custName);
-    return me.createOrder1(cust1);
   }
 
   private static int contactEmailNum = 1;
 
-  private Customer insertCustomerFiona() {
+  private Customer insertCustomerFiona(String name) {
 
-    Customer c = createCustomer("Fiona", "12 Apple St", "West Coast Rd", 1, "2009-08-31");
+    Customer c = createCustomer(name, "12 Apple St", "West Coast Rd", "2009-08-31");
     c.setStatus(Customer.Status.ACTIVE);
 
     c.addContact(createContact("Fiona", "Black"));
@@ -184,7 +173,7 @@ public class ResetBasicData {
 
   private Customer insertCustomerNoContacts(String name) {
 
-    Customer c = createCustomer("Roger", "15 Kumera Way", "Bos town", 1, "2010-04-10");
+    Customer c = createCustomer("Roger", "15 Kumera Way", "Bos town", "2010-04-10");
     c.setName(name);
     c.setStatus(Customer.Status.ACTIVE);
 
@@ -192,10 +181,10 @@ public class ResetBasicData {
     return c;
   }
 
-  private Customer insertCustomerNoAddress() {
+  private Customer insertCustomerNoAddress(String name) {
 
     Customer c = new Customer();
-    c.setName("Cust NoAddress");
+    c.setName(name);
     c.setStatus(Customer.Status.NEW);
     c.addContact(createContact("Jack", "Black"));
 
@@ -204,16 +193,10 @@ public class ResetBasicData {
   }
 
   private static Customer insertCustomer(String name) {
-    Customer c = createCustomer(name, "1 Banana St", "P.O.Box 1234", 1, null);
-    Ebean.save(c);
-    return c;
+    return createCustomer(name, "1 Banana St", "P.O.Box 1234",  null);
   }
 
-  public static Customer createCustomer(String name, String shippingStreet, String billingStreet, int contactSuffix) {
-    return createCustomer(name, shippingStreet, billingStreet, contactSuffix, null);
-  }
-
-  public static Customer createCustomer(String name, String shippingStreet, String billingStreet, int contactSuffix, String annDate) {
+  public static Customer createCustomer(String name, String shippingStreet, String billingStreet, String annDate) {
 
     Customer c = new Customer();
     c.setName(name);
@@ -222,11 +205,6 @@ public class ResetBasicData {
       annDate = "2010-04-14";
     }
     c.setAnniversary(Date.valueOf(annDate));
-    if (contactSuffix > 0) {
-      c.addContact(new Contact("Jim" + contactSuffix, "Cricket"));
-      c.addContact(new Contact("Fred" + contactSuffix, "Blue"));
-      c.addContact(new Contact("Bugs" + contactSuffix, "Bunny"));
-    }
 
     if (shippingStreet != null) {
       Address shippingAddr = new Address();

@@ -2,6 +2,8 @@ package com.avaje.ebeanservice.elastic.search;
 
 import com.avaje.ebean.plugin.BeanType;
 import com.avaje.ebean.text.json.EJson;
+import com.avaje.ebean.text.json.JsonBeanReader;
+import com.avaje.ebeaninternal.server.deploy.BeanPropertyAssocMany;
 import com.fasterxml.jackson.core.JsonParser;
 
 import java.io.IOException;
@@ -12,13 +14,13 @@ import java.util.Map;
  */
 public class BeanSearchParser<T> extends BaseSearchResultParser {
 
-  final BeanSourceReader<T> listener;
+  private final BeanSourceReader<T> listener;
 
-  Map<String, Object> fields;
+  private Map<String, Object> fields;
 
-  public BeanSearchParser(JsonParser parser, BeanType<T> desc) {
+  public BeanSearchParser(JsonParser parser, BeanType<T> desc, JsonBeanReader<T> reader, BeanPropertyAssocMany<?> lazyLoadMany) {
     super(parser);
-    this.listener = new BeanSourceReader<T>(desc);
+    this.listener = new BeanSourceReader<T>(desc, reader, lazyLoadMany);
   }
 
   /**

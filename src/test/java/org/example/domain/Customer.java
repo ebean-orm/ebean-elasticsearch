@@ -3,7 +3,6 @@ package org.example.domain;
 import com.avaje.ebean.annotation.DbEnumValue;
 import com.avaje.ebean.annotation.DocStore;
 import com.avaje.ebean.annotation.DocStoreEmbedded;
-import com.avaje.ebean.annotation.Where;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
@@ -50,7 +49,6 @@ public class Customer extends BasicDomain {
   @Size(max = 100)
   String smallNote;
 
-  //@NotNull
   Date anniversary;
 
   @DocStoreEmbedded(doc = "*,country(*)")
@@ -62,7 +60,6 @@ public class Customer extends BasicDomain {
   Address shippingAddress;
 
   @OneToMany(mappedBy = "customer")
-  @Where(clause = "${ta}.order_date is not null")
   List<Order> orders;
 
   @OneToMany(mappedBy = "customer", cascade = CascadeType.ALL)

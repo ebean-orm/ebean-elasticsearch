@@ -8,6 +8,9 @@ import com.avaje.ebean.plugin.BeanDocType;
 import com.avaje.ebean.plugin.BeanType;
 import com.avaje.ebean.plugin.Property;
 import com.avaje.ebean.plugin.SpiServer;
+import com.avaje.ebean.text.json.JsonBeanReader;
+import com.avaje.ebean.text.json.JsonReadOptions;
+import com.avaje.ebeaninternal.api.SpiQuery;
 import com.avaje.ebeanservice.docstore.api.DocumentNotFoundException;
 import com.avaje.ebeanservice.elastic.search.BeanSearchParser;
 import com.avaje.ebeanservice.elastic.search.HitsPagedList;
@@ -71,24 +74,36 @@ public class ElasticQueryService {
 
   private <T> BeanSearchParser<T> find(Query<T> query) {
 
-    Class<T> beanType = query.getBeanType();
-    BeanType<T> desc = server.getBeanType(beanType);
+    BeanType<T> desc = server.getBeanType(query.getBeanType());
     BeanDocType beanDocType = desc.docStore();
 
+    SpiQuery<T> spiQuery = (SpiQuery<T>)query;
+    JsonReadOptions options = getJsonReadOptions(spiQuery);
+
     try {
-      JsonParser jp = postQuery(false, beanDocType.getIndexType(), beanDocType.getIndexName(), query.asElasticQuery());
-      return new BeanSearchParser<T>(jp, desc);
+      JsonParser json = postQuery(false, beanDocType, spiQuery);
+      JsonBeanReader<T> beanReader = server.json().createBeanReader(query.getBeanType(), json, options);
+      return new BeanSearchParser<T>(json, desc, beanReader, spiQuery.getLazyLoadMany());
 
     } catch (IOException e) {
       throw new PersistenceIOException(e);
     }
   }
 
+  private <T> JsonReadOptions getJsonReadOptions(SpiQuery<T> spiQuery) {
 
-  private JsonParser postQuery(boolean scroll, String indexType, String indexName, String jsonQuery) throws IOException, DocumentNotFoundException {
+    JsonReadOptions options = new JsonReadOptions();
+    if (!spiQuery.isDisableLazyLoading()) {
+      options.setEnableLazyLoading(true);
+    }
+    options.setPersistenceContext(spiQuery.getPersistenceContext());
+    return options;
+  }
 
 
-    IndexMessageResponse response = messageSender.postQuery(scroll, indexType, indexName, jsonQuery);
+  private JsonParser postQuery(boolean scroll, BeanDocType type, SpiQuery<?> query) throws IOException, DocumentNotFoundException {
+
+    IndexMessageResponse response = messageSender.postQuery(scroll, type.getIndexType(), type.getIndexName(), query.asElasticQuery());
     switch (response.getCode()) {
       case 404:
         throw new DocumentNotFoundException("404 for query?");
@@ -154,10 +169,11 @@ public class ElasticQueryService {
     Class<T> beanType = query.getBeanType();
     BeanType<T> desc = server.getBeanType(beanType);
     BeanDocType beanDocType = desc.docStore();
+    SpiQuery<T> spiQuery = (SpiQuery<T>)query;
     Set<String> scrollIds = new LinkedHashSet<String>();
 
     try {
-      JsonParser initialJson = postQuery(true, beanDocType.getIndexType(), beanDocType.getIndexName(), query.asElasticQuery());
+      JsonParser initialJson = postQuery(true, beanDocType, spiQuery);
 
       RawSourceReader reader = new RawSourceReader(initialJson);
       List<RawSource> list = reader.read();
@@ -204,10 +220,15 @@ public class ElasticQueryService {
     Class<T> beanType = query.getBeanType();
     BeanType<T> desc = server.getBeanType(beanType);
     BeanDocType beanDocType = desc.docStore();
+
+    SpiQuery<T> spiQuery = (SpiQuery<T>) query;
+    JsonReadOptions options = getJsonReadOptions(spiQuery);
+
     Set<String> scrollIds = new LinkedHashSet<String>();
     try {
-      JsonParser initialJson = postQuery(true, beanDocType.getIndexType(), beanDocType.getIndexName(), query.asElasticQuery());
-      BeanSearchParser<T> initialParser = new BeanSearchParser<T>(initialJson, desc);
+      JsonParser initialJson = postQuery(true, beanDocType, spiQuery);
+      JsonBeanReader<T> beanReader = server.json().createBeanReader(query.getBeanType(), initialJson, options);
+      BeanSearchParser<T> initialParser = new BeanSearchParser<T>(initialJson, desc, beanReader, spiQuery.getLazyLoadMany());
 
       List<T> list = initialParser.read();
       for (T bean : list) {
@@ -220,7 +241,8 @@ public class ElasticQueryService {
       if (!initialParser.allHitsRead()) {
         while (true) {
           JsonParser moreJson = getScroll(scrollId);
-          BeanSearchParser<T> moreParser = new BeanSearchParser<T>(moreJson, desc);
+          beanReader = beanReader.forJson(moreJson);
+          BeanSearchParser<T> moreParser = new BeanSearchParser<T>(moreJson, desc, beanReader, spiQuery.getLazyLoadMany());
 
           List<T> moreList = moreParser.read();
           for (T bean : moreList) {

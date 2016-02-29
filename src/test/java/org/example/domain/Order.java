@@ -69,7 +69,7 @@ public class Order extends BasicDomain {
   }
 
   public String toString() {
-    return "id:"+id;
+    return "order id:"+id;
   }
 
   public Status getStatus() {

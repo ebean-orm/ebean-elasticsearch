@@ -24,7 +24,7 @@ public class BeanSearchParserTest {
     JsonParser jp = jsonFactory.createParser(is);
 
     BasicFieldsListener rows = new BasicFieldsListener();
-    BeanSearchParser parser = new BeanSearchParser(jp, null);
+    BeanSearchParser parser = new BeanSearchParser(jp, null, null, null);
     parser.read();
 
     System.out.print(rows.getRows());
