@@ -39,6 +39,20 @@ public abstract class BaseSearchResultParser {
   }
 
   /**
+   * Return the total hits.
+   */
+  public long getTotal() {
+    return total;
+  }
+
+  /**
+   * Return the server execution time.
+   */
+  public long getTook() {
+    return took;
+  }
+
+  /**
    * Return the scrollId.
    */
   public String getScrollId() {

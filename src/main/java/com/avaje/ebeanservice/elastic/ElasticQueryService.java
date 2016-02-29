@@ -1,5 +1,6 @@
 package com.avaje.ebeanservice.elastic;
 
+import com.avaje.ebean.PagedList;
 import com.avaje.ebean.PersistenceIOException;
 import com.avaje.ebean.Query;
 import com.avaje.ebean.QueryEachConsumer;
@@ -9,6 +10,7 @@ import com.avaje.ebean.plugin.Property;
 import com.avaje.ebean.plugin.SpiServer;
 import com.avaje.ebeanservice.docstore.api.DocumentNotFoundException;
 import com.avaje.ebeanservice.elastic.search.BeanSearchParser;
+import com.avaje.ebeanservice.elastic.search.HitsPagedList;
 import com.avaje.ebeanservice.elastic.search.RawSource;
 import com.avaje.ebeanservice.elastic.search.RawSourceReader;
 import com.avaje.ebeanservice.elastic.support.ElasticBatchUpdate;
@@ -43,7 +45,31 @@ public class ElasticQueryService {
     this.messageSender = messageSender;
   }
 
+  public <T> PagedList<T> findPagedList(Query<T> query) {
+
+    int firstRow = query.getFirstRow();
+    int maxRows = query.getMaxRows();
+    BeanSearchParser<T> parser = find(query);
+    try {
+      List<T> list = parser.read();
+      return new HitsPagedList<T>(firstRow, maxRows, list, parser.getTotal());
+
+    } catch (IOException e) {
+      throw new PersistenceIOException(e);
+    }
+  }
+
   public <T> List<T> findList(Query<T> query) {
+
+    BeanSearchParser<T> parser = find(query);
+    try {
+      return parser.read();
+    } catch (IOException e) {
+      throw new PersistenceIOException(e);
+    }
+  }
+
+  private <T> BeanSearchParser<T> find(Query<T> query) {
 
     Class<T> beanType = query.getBeanType();
     BeanType<T> desc = server.getBeanType(beanType);
@@ -51,14 +77,11 @@ public class ElasticQueryService {
 
     try {
       JsonParser jp = postQuery(false, beanDocType.getIndexType(), beanDocType.getIndexName(), query.asElasticQuery());
-
-      BeanSearchParser<T> resultParser = new BeanSearchParser<T>(jp, desc);
-      return resultParser.read();
+      return new BeanSearchParser<T>(jp, desc);
 
     } catch (IOException e) {
       throw new PersistenceIOException(e);
     }
-
   }
 
 

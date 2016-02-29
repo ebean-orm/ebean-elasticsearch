@@ -3,6 +3,7 @@ package com.avaje.ebeanservice.elastic;
 import com.avaje.ebean.DocumentStore;
 import com.avaje.ebean.Ebean;
 import com.avaje.ebean.Expr;
+import com.avaje.ebean.PagedList;
 import com.avaje.ebean.Query;
 import com.avaje.ebean.QueryEachConsumer;
 import org.example.domain.Country;
@@ -88,6 +89,24 @@ public class ElasticDocumentStoreTest {
     System.out.print("as" + list);
   }
 
+  @Test
+  public void findPagedList() throws InterruptedException {
+
+    ResetBasicData.reset(false);
+    DocumentStore documentStore = Ebean.getDefaultServer().docStore();
+    documentStore.indexAll(Order.class);
+
+    Thread.sleep(3000);
+    Query<Order> query = Ebean.find(Order.class)
+        .where().in("customer.id", 1, 2)
+        .setMaxRows(2)
+        .orderBy().asc("customer.name");
+
+    PagedList<Order> list = documentStore.findPagedList(query);
+
+    assertThat(list.getTotalRowCount()).isEqualTo(5);
+    assertThat(list.getList()).hasSize(2);
+  }
 
   @Test
   public void term_when_propertyIsAnalysed() {

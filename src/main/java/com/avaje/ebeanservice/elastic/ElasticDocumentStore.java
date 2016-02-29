@@ -2,6 +2,7 @@ package com.avaje.ebeanservice.elastic;
 
 import com.avaje.ebean.DocStoreQueueEntry;
 import com.avaje.ebean.DocumentStore;
+import com.avaje.ebean.PagedList;
 import com.avaje.ebean.PersistenceIOException;
 import com.avaje.ebean.Query;
 import com.avaje.ebean.QueryEachConsumer;
@@ -159,6 +160,11 @@ public class ElasticDocumentStore implements DocumentStore {
   @Override
   public <T> List<T> findList(Query<T> query) {
     return queryService.findList(query);
+  }
+
+  @Override
+  public <T> PagedList<T> findPagedList(Query<T> query) {
+    return queryService.findPagedList(query);
   }
 
   @Override
