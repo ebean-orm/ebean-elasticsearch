@@ -69,7 +69,7 @@ public class ElasticDocStoreBeanAdapter<T> extends DocStoreBeanBaseAdapter<T> {
   }
 
   @Override
-  public void update(Object idValue, String embeddedProperty, String embeddedRawContent, DocStoreUpdateContext docTxn) throws IOException {
+  public void updateEmbedded(Object idValue, String embeddedProperty, String embeddedRawContent, DocStoreUpdateContext docTxn) throws IOException {
 
     ElasticBulkUpdate txn = asElasticBulkUpdate(docTxn);
 

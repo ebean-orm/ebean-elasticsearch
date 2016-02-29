@@ -29,6 +29,8 @@ public abstract class BaseSearchResultParser {
   protected double score;
   protected Object sort;
 
+  protected boolean idOnly;
+
   /**
    * Construct with a JSON parser.
    */
@@ -62,6 +64,8 @@ public abstract class BaseSearchResultParser {
    * Read the fields json.
    */
   public abstract void readFields() throws IOException;
+
+  public abstract void readIdOnly();
 
   /**
    * Read all the response JSON.
@@ -106,6 +110,9 @@ public abstract class BaseSearchResultParser {
         case END_ARRAY:
           return false;
         case END_OBJECT:
+          if (documentLevel == 2 && idOnly) {
+            readIdOnly();
+          }
           token = parser.nextToken();
           break;
         case START_ARRAY:
@@ -124,6 +131,7 @@ public abstract class BaseSearchResultParser {
   protected void readLevel2() throws IOException {
     if ("_index".equals(field)) {
       index = readString();
+      idOnly = true;
     } else if ("_type".equals(field)) {
       type = readString();
     } else if ("_id".equals(field)) {
@@ -131,8 +139,10 @@ public abstract class BaseSearchResultParser {
     } else if ("_score".equals(field)) {
       score = readDouble();
     } else if ("fields".equals(field)) {
+      idOnly = false;
       readFields();
     } else if ("_source".equals(field)) {
+      idOnly = false;
       readSource();
     } else if ("sort".equals(field)) {
       readSort();

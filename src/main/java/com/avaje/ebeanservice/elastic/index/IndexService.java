@@ -1,7 +1,7 @@
 package com.avaje.ebeanservice.elastic.index;
 
 import com.avaje.ebean.PersistenceIOException;
-import com.avaje.ebean.plugin.SpiBeanType;
+import com.avaje.ebean.plugin.BeanType;
 import com.avaje.ebean.plugin.SpiServer;
 import com.avaje.ebeanservice.elastic.support.IndexMessageSender;
 import com.fasterxml.jackson.core.JsonFactory;
@@ -108,12 +108,12 @@ public class IndexService {
 
   public void createIndexes() throws IOException {
 
-    List<? extends SpiBeanType<?>> beanTypes = server.getBeanTypes();
-    for (SpiBeanType<?> beanType : beanTypes) {
+    List<? extends BeanType<?>> beanTypes = server.getBeanTypes();
+    for (BeanType<?> beanType : beanTypes) {
 
       if (beanType.isDocStoreMapped()) {
         String mappingJson = mappingsBuilder.createMappingJson(beanType);
-        String name = beanType.getDocStoreIndexName();
+        String name = beanType.docStore().getIndexName();
         createIndexWithMapping(name+"_v1", name, mappingJson);
       }
 

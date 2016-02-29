@@ -11,6 +11,7 @@ import com.avaje.ebeanservice.elastic.support.IndexMessageSender;
 import com.avaje.ebeanservice.elastic.support.IndexQueueWriter;
 import com.fasterxml.jackson.core.JsonFactory;
 import org.example.domain.Contact;
+import org.example.integrationtests.ResetBasicData;
 import org.junit.Ignore;
 import org.junit.Test;
 
@@ -37,6 +38,44 @@ public class ElasticUpdateProcessorTest {
 
     IndexMessageSender messageSender = new BaseHttpMessageSender("http://localhost:9200/_bulk");
     return new ElasticUpdateProcessor(indexQueue, jsonFactory, null, messageSender, 1000);
+  }
+
+  //@Ignore
+  @Test
+  public void testProcessNested() throws Exception {
+
+    ResetBasicData.reset(false);
+
+    List<DocStoreQueueEntry> list = new ArrayList<DocStoreQueueEntry>();
+    list.add(new DocStoreQueueEntry(DocStoreQueueEntry.Action.NESTED, "order","customer.id", 2));
+
+    server.docStore().process(list);
+    assertEquals(2, indexQueue.theQueue.size());
+  }
+
+  @Test
+  public void testProcessDoubleNested() throws Exception {
+
+    ResetBasicData.reset(false);
+
+    List<DocStoreQueueEntry> list = new ArrayList<DocStoreQueueEntry>();
+    list.add(new DocStoreQueueEntry(DocStoreQueueEntry.Action.NESTED, "order","customer.billingAddress.id", 1));
+
+    server.docStore().process(list);
+    assertEquals(2, indexQueue.theQueue.size());
+  }
+
+  @Test
+  public void testProcessNested_when_many() throws Exception {
+
+    ResetBasicData.reset(false);
+
+    //Thread.sleep(4000);
+    List<DocStoreQueueEntry> list = new ArrayList<DocStoreQueueEntry>();
+    list.add(new DocStoreQueueEntry(DocStoreQueueEntry.Action.NESTED, "order","details.id", 3));
+
+    server.docStore().process(list);
+    assertEquals(2, indexQueue.theQueue.size());
   }
 
   @Ignore

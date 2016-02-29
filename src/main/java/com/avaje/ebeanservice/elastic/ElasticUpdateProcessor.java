@@ -1,10 +1,10 @@
 package com.avaje.ebeanservice.elastic;
 
 import com.avaje.ebean.config.JsonConfig;
-import com.avaje.ebean.plugin.SpiBeanType;
+import com.avaje.ebean.plugin.BeanType;
 import com.avaje.ebean.text.json.EJson;
 import com.avaje.ebeanservice.docstore.api.DocStoreQueryUpdate;
-import com.avaje.ebeanservice.docstore.api.DocStoreUpdateAware;
+import com.avaje.ebeanservice.docstore.api.DocStoreUpdate;
 import com.avaje.ebeanservice.docstore.api.DocStoreUpdateProcessor;
 import com.avaje.ebeanservice.docstore.api.DocStoreUpdates;
 import com.avaje.ebeanservice.elastic.support.ElasticBatchUpdate;
@@ -58,7 +58,7 @@ public class ElasticUpdateProcessor implements DocStoreUpdateProcessor {
   }
 
   @Override
-  public <T> DocStoreQueryUpdate<T> createQueryUpdate(SpiBeanType<T> beanType, int batchSize) throws IOException {
+  public <T> DocStoreQueryUpdate<T> createQueryUpdate(BeanType<T> beanType, int batchSize) throws IOException {
 
     int batch = (batchSize > 0) ? batchSize : defaultBatchSize;
     return new ElasticQueryUpdate<T>(this, batch, beanType);
@@ -120,7 +120,7 @@ public class ElasticUpdateProcessor implements DocStoreUpdateProcessor {
     sendBulkUpdate(docStoreUpdates, batchSize, docStoreUpdates.getDeleteEvents(), addToQueueOnFailure);
   }
 
-  protected void sendBulkUpdate(DocStoreUpdates docStoreUpdates, int batchSize, List<? extends DocStoreUpdateAware> entries, boolean addToQueueOnFailure) {
+  protected void sendBulkUpdate(DocStoreUpdates docStoreUpdates, int batchSize, List<? extends DocStoreUpdate> entries, boolean addToQueueOnFailure) {
 
     if (!entries.isEmpty()) {
       if (entries.size() <= batchSize) {
@@ -129,7 +129,7 @@ public class ElasticUpdateProcessor implements DocStoreUpdateProcessor {
 
       } else {
         // break into batches using the batchSize
-        List<? extends List<? extends DocStoreUpdateAware>> batches = createBatches(entries, batchSize);
+        List<? extends List<? extends DocStoreUpdate>> batches = createBatches(entries, batchSize);
         for (int i = 0; i < batches.size(); i++) {
           sendBulkUpdateBatch(docStoreUpdates, batches.get(i), addToQueueOnFailure);
         }
@@ -145,12 +145,12 @@ public class ElasticUpdateProcessor implements DocStoreUpdateProcessor {
    * @param bulkEntries         The entries to send
    * @param addToQueueOnFailure if true then failures are added tho the queue
    */
-  protected void sendBulkUpdateBatch(DocStoreUpdates docStoreUpdates, List<? extends DocStoreUpdateAware> bulkEntries, boolean addToQueueOnFailure) {
+  protected void sendBulkUpdateBatch(DocStoreUpdates docStoreUpdates, List<? extends DocStoreUpdate> bulkEntries, boolean addToQueueOnFailure) {
 
     try {
       ElasticBulkUpdate bulk = createBulkElasticUpdate();
 
-      for (DocStoreUpdateAware entry : bulkEntries) {
+      for (DocStoreUpdate entry : bulkEntries) {
         entry.docStoreUpdate(bulk);
       }
 
@@ -176,7 +176,7 @@ public class ElasticUpdateProcessor implements DocStoreUpdateProcessor {
       logger.error("Failed to successfully send bulk update to ElasticSearch", e);
       if (addToQueueOnFailure) {
         // add all remaining requests the the queue
-        for (DocStoreUpdateAware entry : bulkEntries) {
+        for (DocStoreUpdate entry : bulkEntries) {
           entry.addToQueue(docStoreUpdates);
         }
       }

@@ -1,6 +1,6 @@
 package com.avaje.ebeanservice.elastic.search;
 
-import com.avaje.ebean.plugin.SpiBeanType;
+import com.avaje.ebean.plugin.BeanType;
 import com.avaje.ebean.text.json.EJson;
 import com.fasterxml.jackson.core.JsonParser;
 
@@ -16,7 +16,7 @@ public class BeanSearchParser<T> extends BaseSearchResultParser {
 
   Map<String, Object> fields;
 
-  public BeanSearchParser(JsonParser parser, SpiBeanType<T> desc) {
+  public BeanSearchParser(JsonParser parser, BeanType<T> desc) {
     super(parser);
     this.listener = new BeanSourceReader<T>(desc);
   }
@@ -53,4 +53,8 @@ public class BeanSearchParser<T> extends BaseSearchResultParser {
     listener.readFields(fields, id, score);
   }
 
+  @Override
+  public void readIdOnly() {
+    listener.readIdOnly(id, score);
+  }
 }

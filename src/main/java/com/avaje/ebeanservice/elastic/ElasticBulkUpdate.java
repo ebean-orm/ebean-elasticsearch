@@ -1,7 +1,7 @@
 package com.avaje.ebeanservice.elastic;
 
 import com.avaje.ebean.config.JsonConfig;
-import com.avaje.ebean.text.PathProperties;
+import com.avaje.ebean.FetchPath;
 import com.avaje.ebeaninternal.api.SpiEbeanServer;
 import com.avaje.ebeaninternal.server.text.json.WriteJson;
 import com.avaje.ebeanservice.docstore.api.DocStoreUpdateContext;
@@ -34,8 +34,8 @@ public class ElasticBulkUpdate implements DocStoreUpdateContext {
   }
 
   //@Override
-  public WriteJson createWriteJson(SpiEbeanServer server, JsonGenerator gen, PathProperties pathProperties) {
-    return new WriteJson(server, gen, pathProperties, null, defaultObjectMapper, defaultInclude);
+  public WriteJson createWriteJson(SpiEbeanServer server, JsonGenerator gen, FetchPath fetchPath) {
+    return new WriteJson(server, gen, fetchPath, null, defaultObjectMapper, defaultInclude);
   }
 
   public String getBuffer() {

@@ -1,7 +1,7 @@
 package com.avaje.ebeanservice.elastic.search;
 
-import com.avaje.ebean.plugin.SpiBeanType;
-import com.avaje.ebean.plugin.SpiExpressionPath;
+import com.avaje.ebean.plugin.BeanType;
+import com.avaje.ebean.plugin.ExpressionPath;
 import com.fasterxml.jackson.core.JsonParser;
 
 import java.io.IOException;
@@ -15,13 +15,13 @@ import java.util.Set;
  */
 public class BeanSourceReader<T> implements SearchSourceListener {
 
-  private final SpiBeanType<T> desc;
+  private final BeanType<T> desc;
 
   private final List<T> beans = new ArrayList<T>();
 
   private T currentBean;
 
-  public BeanSourceReader(SpiBeanType<T> desc) {
+  public BeanSourceReader(BeanType<T> desc) {
     this.desc = desc;
   }
 
@@ -52,7 +52,7 @@ public class BeanSourceReader<T> implements SearchSourceListener {
 
     Set<Map.Entry<String, Object>> entries = fields.entrySet();
     for (Map.Entry<String, Object> entry : entries) {
-      SpiExpressionPath path = desc.expressionPath(entry.getKey());
+      ExpressionPath path = desc.getExpressionPath(entry.getKey());
       List<Object> value = (List<Object>)entry.getValue();
 
       if (!path.containsMany()) {
@@ -71,4 +71,9 @@ public class BeanSourceReader<T> implements SearchSourceListener {
     return beans.size();
   }
 
+  public void readIdOnly(String id, double score) {
+    T bean = desc.createBean();
+    desc.setBeanId(bean, id);
+    beans.add(bean);
+  }
 }

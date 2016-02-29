@@ -3,7 +3,7 @@ package com.avaje.ebeanservice.elastic.updategroup;
 import com.avaje.ebean.PersistenceIOException;
 import com.avaje.ebean.Query;
 import com.avaje.ebean.QueryEachConsumer;
-import com.avaje.ebean.plugin.SpiBeanType;
+import com.avaje.ebean.plugin.BeanType;
 import com.avaje.ebean.plugin.SpiServer;
 import com.avaje.ebeanservice.docstore.api.support.DocStoreDeleteEvent;
 import com.avaje.ebeanservice.docstore.api.support.DocStoreIndexEvent;
@@ -19,17 +19,17 @@ public class ProcessGroup<T> {
 
   final SpiServer server;
 
-  final SpiBeanType<T> desc;
+  final BeanType<T> desc;
 
   final UpdateGroup group;
 
   final ElasticBatchUpdate txn;
 
-  public static <T> void process(SpiServer server, SpiBeanType<T> desc, UpdateGroup group, ElasticBatchUpdate txn) throws IOException {
+  public static <T> void process(SpiServer server, BeanType<T> desc, UpdateGroup group, ElasticBatchUpdate txn) throws IOException {
     new ProcessGroup<T>(server, desc, group, txn).processGroup();
   }
 
-  private ProcessGroup(SpiServer server, SpiBeanType<T> desc, UpdateGroup group, ElasticBatchUpdate txn) {
+  private ProcessGroup(SpiServer server, BeanType<T> desc, UpdateGroup group, ElasticBatchUpdate txn) {
     this.server = server;
     this.desc = desc;
     this.group = group;
@@ -52,7 +52,7 @@ public class ProcessGroup<T> {
 
     Collection<UpdateNested> values = group.getNestedPathIds().values();
     for (UpdateNested nested : values) {
-      ProcessNested nestedDocUpdate = new ProcessNested(server, desc, txn, nested);
+      ProcessNested<T> nestedDocUpdate = new ProcessNested<T>(server, desc, txn, nested);
       nestedDocUpdate.process();
     }
   }
@@ -60,7 +60,7 @@ public class ProcessGroup<T> {
 
   private void indexUsingQuery(Query<T> query, final ElasticBatchUpdate txn) throws IOException {
 
-    desc.docStoreApplyPath(query);
+    desc.docStore().applyPath(query);
     query.setLazyLoadBatchSize(100);
     query.findEach(new QueryEachConsumer<T>() {
       @Override

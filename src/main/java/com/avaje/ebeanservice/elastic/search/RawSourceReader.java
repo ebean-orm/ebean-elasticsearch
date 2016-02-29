@@ -40,6 +40,11 @@ public class RawSourceReader extends BaseSearchResultParser {
     // do nothing, expect to only read source
   }
 
+  @Override
+  public void readIdOnly() {
+    list.add(new RawSource(null, id, score, index, type));
+  }
+
   public List<RawSource> read() throws IOException {
     readAll();
     return list;

@@ -1,6 +1,7 @@
 package com.avaje.ebeanservice.elastic;
 
-import com.avaje.ebean.plugin.SpiBeanType;
+import com.avaje.ebean.plugin.BeanDocType;
+import com.avaje.ebean.plugin.BeanType;
 import com.avaje.ebeanservice.docstore.api.DocStoreQueryUpdate;
 
 import java.io.IOException;
@@ -14,27 +15,30 @@ import java.util.Map;
  */
 public class ElasticQueryUpdate<T> implements DocStoreQueryUpdate<T> {
 
-  final ElasticUpdateProcessor indexUpdateProcessor;
+  private final ElasticUpdateProcessor indexUpdateProcessor;
 
-  final SpiBeanType<T> beanType;
+  private final BeanType<T> beanType;
 
-  final int batchSize;
+  private final int batchSize;
 
-  int count;
+  private final BeanDocType<T> beanDocType;
 
-  ElasticBulkUpdate current;
+  private int count;
 
-  public ElasticQueryUpdate(ElasticUpdateProcessor indexUpdateProcessor, int batchSize, SpiBeanType<T> beanType) throws IOException {
+  private ElasticBulkUpdate current;
+
+  public ElasticQueryUpdate(ElasticUpdateProcessor indexUpdateProcessor, int batchSize, BeanType<T> beanType) throws IOException {
     this.indexUpdateProcessor = indexUpdateProcessor;
     this.batchSize = batchSize;
     this.beanType = beanType;
+    this.beanDocType = beanType.docStore();
     current = indexUpdateProcessor.createBulkElasticUpdate();
   }
 
   @Override
   public void store(Object idValue, T bean) throws IOException {
     ElasticBulkUpdate obtain = obtain();
-    beanType.docStoreIndex(idValue, bean, obtain);
+    beanDocType.index(idValue, bean, obtain);
   }
 
   /**

@@ -1,6 +1,6 @@
 package com.avaje.ebeanservice.elastic.support;
 
-import com.avaje.ebeanservice.docstore.api.DocStoreUpdateAware;
+import com.avaje.ebeanservice.docstore.api.DocStoreUpdate;
 import com.avaje.ebeanservice.elastic.ElasticBulkUpdate;
 import com.avaje.ebeanservice.elastic.ElasticUpdateProcessor;
 
@@ -26,7 +26,7 @@ public class ElasticBatchUpdate {
     current = indexUpdateProcessor.createBulkElasticUpdate();
   }
 
-  public void addEvent(DocStoreUpdateAware event) throws IOException {
+  public void addEvent(DocStoreUpdate event) throws IOException {
     ElasticBulkUpdate obtain = obtain();
     event.docStoreUpdate(obtain);
   }

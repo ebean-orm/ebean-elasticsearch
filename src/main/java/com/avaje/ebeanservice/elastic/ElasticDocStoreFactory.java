@@ -4,7 +4,7 @@ import com.avaje.ebean.DocumentStore;
 import com.avaje.ebean.config.DocStoreConfig;
 import com.avaje.ebean.config.ServerConfig;
 import com.avaje.ebean.plugin.SpiServer;
-import com.avaje.ebean.plugin.SpiServerPlugin;
+import com.avaje.ebean.plugin.Plugin;
 import com.avaje.ebeaninternal.server.deploy.BeanDescriptor;
 import com.avaje.ebeaninternal.server.deploy.meta.DeployBeanDescriptor;
 import com.avaje.ebeanservice.docstore.api.DocStoreBeanAdapter;
@@ -48,7 +48,7 @@ public class ElasticDocStoreFactory implements DocStoreFactory {
   }
 
 
-  static class Components implements DocStoreIntegration, SpiServerPlugin {
+  static class Components implements DocStoreIntegration, Plugin {
 
     final ElasticUpdateProcessor updateProcessor;
     final ElasticDocumentStore documentStore;

@@ -49,7 +49,7 @@ public class BaseIndexQueueWriter implements IndexQueueWriter {
       for (DocStoreQueueEntry entry : queueEntries) {
         sqlUpdate.setParameter(1, entry.getQueueId());
         sqlUpdate.setParameter(2, entry.getBeanId().toString());
-        sqlUpdate.setParameter(3, entry.getType().getDbValue());
+        sqlUpdate.setParameter(3, entry.getType().getValue());
         sqlUpdate.setParameter(4, entry.getPath());
         sqlUpdate.setParameter(5, PROCESSING_FALSE);
         sqlUpdate.setParameter(6, new Timestamp(System.currentTimeMillis()));

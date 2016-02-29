@@ -1,7 +1,7 @@
 package com.avaje.ebeanservice.elastic.index;
 
 import com.avaje.ebean.PersistenceIOException;
-import com.avaje.ebean.plugin.SpiBeanType;
+import com.avaje.ebean.plugin.BeanType;
 import com.avaje.ebeanservice.docstore.api.mapping.DocPropertyAdapter;
 import com.avaje.ebeanservice.docstore.api.mapping.DocPropertyMapping;
 import com.avaje.ebeanservice.docstore.api.mapping.DocPropertyOptions;
@@ -32,7 +32,7 @@ public class IndexMappingsBuilder {
     this.typeMapping = new TypeMapping();
   }
 
-  public String createMappingJson(SpiBeanType<?> beanType) {
+  public String createMappingJson(BeanType<?> beanType) {
 
     try {
       DocumentMapping docMapping = beanType.getDocMapping();

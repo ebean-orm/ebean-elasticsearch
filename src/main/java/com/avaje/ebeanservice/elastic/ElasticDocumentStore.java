@@ -5,7 +5,7 @@ import com.avaje.ebean.DocumentStore;
 import com.avaje.ebean.PersistenceIOException;
 import com.avaje.ebean.Query;
 import com.avaje.ebean.QueryEachConsumer;
-import com.avaje.ebean.plugin.SpiBeanType;
+import com.avaje.ebean.plugin.BeanType;
 import com.avaje.ebean.plugin.SpiServer;
 import com.avaje.ebeaninternal.api.SpiQuery;
 import com.avaje.ebeanservice.docstore.api.DocStoreQueryUpdate;
@@ -50,7 +50,7 @@ public class ElasticDocumentStore implements DocumentStore {
 
     try {
       for (UpdateGroup group : groups) {
-        SpiBeanType<?> desc = server.getBeanTypeForQueueId(group.getQueueId());
+        BeanType<?> desc = server.getBeanTypeForQueueId(group.getQueueId());
         ProcessGroup.process(server, desc, group, txn);
       }
 
@@ -81,7 +81,7 @@ public class ElasticDocumentStore implements DocumentStore {
 
   @Override
   public long copyIndex(Class<?> beanType, String newIndex, long epochMillis) {
-    SpiBeanType<?> type = server.getBeanType(beanType);
+    BeanType<?> type = server.getBeanType(beanType);
     checkMapped(type);
     try {
       ElasticBatchUpdate txn = updateProcessor.createBatchUpdate(0);
@@ -99,7 +99,7 @@ public class ElasticDocumentStore implements DocumentStore {
 
   @Override
   public void indexAll(Class<?> beanType) {
-    SpiBeanType<?> type = server.getBeanType(beanType);
+    BeanType<?> type = server.getBeanType(beanType);
     checkMapped(type);
     Query<?> query = server.createQuery(beanType);
     indexByQuery(query);
@@ -116,7 +116,7 @@ public class ElasticDocumentStore implements DocumentStore {
     SpiQuery<T> spiQuery = (SpiQuery<T>) query;
     Class<T> beanType = spiQuery.getBeanType();
 
-    SpiBeanType<T> beanDescriptor = server.getBeanType(beanType);
+    BeanType<T> beanDescriptor = server.getBeanType(beanType);
     checkMapped(beanDescriptor);
 
     try {
@@ -130,9 +130,9 @@ public class ElasticDocumentStore implements DocumentStore {
   }
 
 
-  private <T> void indexByQuery(final SpiBeanType<T> desc, Query<T> query, final DocStoreQueryUpdate<T> queryUpdate) throws IOException {
+  private <T> void indexByQuery(final BeanType<T> desc, Query<T> query, final DocStoreQueryUpdate<T> queryUpdate) throws IOException {
 
-    desc.docStoreApplyPath(query);
+    desc.docStore().applyPath(query);
     query.setLazyLoadBatchSize(100);
     query.findEach(new QueryEachConsumer<T>() {
       @Override
@@ -172,7 +172,7 @@ public class ElasticDocumentStore implements DocumentStore {
     }
   }
 
-  private void checkMapped(SpiBeanType<?> type) {
+  private void checkMapped(BeanType<?> type) {
     if (type == null) {
       throw new IllegalStateException("No bean type mapping found?");
     }

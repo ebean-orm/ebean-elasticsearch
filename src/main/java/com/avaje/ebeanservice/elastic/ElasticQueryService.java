@@ -3,8 +3,9 @@ package com.avaje.ebeanservice.elastic;
 import com.avaje.ebean.PersistenceIOException;
 import com.avaje.ebean.Query;
 import com.avaje.ebean.QueryEachConsumer;
-import com.avaje.ebean.plugin.SpiBeanType;
-import com.avaje.ebean.plugin.SpiProperty;
+import com.avaje.ebean.plugin.BeanDocType;
+import com.avaje.ebean.plugin.BeanType;
+import com.avaje.ebean.plugin.Property;
 import com.avaje.ebean.plugin.SpiServer;
 import com.avaje.ebeanservice.docstore.api.DocumentNotFoundException;
 import com.avaje.ebeanservice.elastic.search.BeanSearchParser;
@@ -45,10 +46,11 @@ public class ElasticQueryService {
   public <T> List<T> findList(Query<T> query) {
 
     Class<T> beanType = query.getBeanType();
-    SpiBeanType<T> desc = server.getBeanType(beanType);
+    BeanType<T> desc = server.getBeanType(beanType);
+    BeanDocType beanDocType = desc.docStore();
 
     try {
-      JsonParser jp = postQuery(false, desc.getDocStoreIndexType(), desc.getDocStoreIndexName(), query.asElasticQuery());
+      JsonParser jp = postQuery(false, beanDocType.getIndexType(), beanDocType.getIndexName(), query.asElasticQuery());
 
       BeanSearchParser<T> resultParser = new BeanSearchParser<T>(jp, desc);
       return resultParser.read();
@@ -100,14 +102,14 @@ public class ElasticQueryService {
     }
   }
 
-  public long copyIndexSince(SpiBeanType<?> desc, String newIndex, ElasticBatchUpdate txn, long epochMillis) throws IOException {
+  public long copyIndexSince(BeanType<?> desc, String newIndex, ElasticBatchUpdate txn, long epochMillis) throws IOException {
 
-    CopyRaw copyRaw = new CopyRaw(txn, desc.getDocStoreIndexType(), newIndex);
+    CopyRaw copyRaw = new CopyRaw(txn, desc.docStore().getIndexType(), newIndex);
 
     Query<?> query = server.createQuery(desc.getBeanType());
 
     if (epochMillis > 0) {
-      SpiProperty whenModified = desc.getWhenModifiedProperty();
+      Property whenModified = desc.getWhenModifiedProperty();
       if (whenModified != null) {
         query.where().ge(whenModified.getName(), epochMillis);
       }
@@ -127,11 +129,12 @@ public class ElasticQueryService {
 
     long count = 0;
     Class<T> beanType = query.getBeanType();
-    SpiBeanType<T> desc = server.getBeanType(beanType);
+    BeanType<T> desc = server.getBeanType(beanType);
+    BeanDocType beanDocType = desc.docStore();
     Set<String> scrollIds = new LinkedHashSet<String>();
 
     try {
-      JsonParser initialJson = postQuery(true, desc.getDocStoreIndexType(), desc.getDocStoreIndexName(), query.asElasticQuery());
+      JsonParser initialJson = postQuery(true, beanDocType.getIndexType(), beanDocType.getIndexName(), query.asElasticQuery());
 
       RawSourceReader reader = new RawSourceReader(initialJson);
       List<RawSource> list = reader.read();
@@ -176,10 +179,11 @@ public class ElasticQueryService {
   public <T> void findEach(Query<T> query, QueryEachConsumer<T> consumer) {
 
     Class<T> beanType = query.getBeanType();
-    SpiBeanType<T> desc = server.getBeanType(beanType);
+    BeanType<T> desc = server.getBeanType(beanType);
+    BeanDocType beanDocType = desc.docStore();
     Set<String> scrollIds = new LinkedHashSet<String>();
     try {
-      JsonParser initialJson = postQuery(true, desc.getDocStoreIndexType(), desc.getDocStoreIndexName(), query.asElasticQuery());
+      JsonParser initialJson = postQuery(true, beanDocType.getIndexType(), beanDocType.getIndexName(), query.asElasticQuery());
       BeanSearchParser<T> initialParser = new BeanSearchParser<T>(initialJson, desc);
 
       List<T> list = initialParser.read();
@@ -219,13 +223,14 @@ public class ElasticQueryService {
   }
 
   public <T> T getById(Class<T> beanType, Object id) {
-    SpiBeanType<T> desc = server.getBeanType(beanType);
+    BeanType<T> desc = server.getBeanType(beanType);
     if (desc == null) {
       throw new IllegalArgumentException("Type [" + beanType + "] does not appear to be an entity bean type?");
     }
 
+    BeanDocType beanDocType = desc.docStore();
     try {
-      JsonParser parser = getSource(desc.getDocStoreIndexType(), desc.getDocStoreIndexName(), id);
+      JsonParser parser = getSource(beanDocType.getIndexType(), beanDocType.getIndexName(), id);
       T bean = desc.jsonRead(parser, null, null);
       desc.setBeanId(bean, id);
 
