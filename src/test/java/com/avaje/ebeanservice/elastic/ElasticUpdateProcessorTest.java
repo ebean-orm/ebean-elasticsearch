@@ -49,8 +49,9 @@ public class ElasticUpdateProcessorTest {
     List<DocStoreQueueEntry> list = new ArrayList<DocStoreQueueEntry>();
     list.add(new DocStoreQueueEntry(DocStoreQueueEntry.Action.NESTED, "order","customer.id", 2));
 
-    server.docStore().process(list);
-    assertEquals(2, indexQueue.theQueue.size());
+    long count = server.docStore().process(list);
+    // 2 orders for customer 2
+    assertEquals(count, 2);
   }
 
   @Test
@@ -61,8 +62,9 @@ public class ElasticUpdateProcessorTest {
     List<DocStoreQueueEntry> list = new ArrayList<DocStoreQueueEntry>();
     list.add(new DocStoreQueueEntry(DocStoreQueueEntry.Action.NESTED, "order","customer.billingAddress.id", 1));
 
-    server.docStore().process(list);
-    assertEquals(2, indexQueue.theQueue.size());
+    long count = server.docStore().process(list);
+    // 3 orders for customer 1
+    assertEquals(count, 3);
   }
 
   @Test
