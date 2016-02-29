@@ -75,8 +75,8 @@ public class ElasticDocStoreFactory implements DocStoreFactory {
 
     @Override
     public void online(boolean online) {
-
       if (online) {
+        updateProcessor.onStartup();
         documentStore.onStartup();
       }
     }

@@ -179,8 +179,11 @@ public class ElasticUpdateProcessorTest {
 
     @Override
     public void queue(List<DocStoreQueueEntry> queueEntries) {
-
       theQueue.addAll(queueEntries);
+    }
+
+    @Override
+    public void onStartup() {
     }
   }
 }

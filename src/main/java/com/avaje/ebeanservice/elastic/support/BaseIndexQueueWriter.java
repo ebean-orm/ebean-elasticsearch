@@ -1,9 +1,9 @@
 package com.avaje.ebeanservice.elastic.support;
 
+import com.avaje.ebean.DocStoreQueueEntry;
 import com.avaje.ebean.EbeanServer;
 import com.avaje.ebean.SqlUpdate;
 import com.avaje.ebean.Transaction;
-import com.avaje.ebean.DocStoreQueueEntry;
 
 import java.sql.Timestamp;
 import java.util.List;
@@ -30,6 +30,10 @@ public class BaseIndexQueueWriter implements IndexQueueWriter {
     return "insert into "+tableName+" (queue_id, doc_id, action, path, processing, when_queued) values (?,?,?,?,?)";
   }
 
+  @Override
+  public void onStartup() {
+    // check queue connectivity
+  }
 
   @Override
   public void queue(List<DocStoreQueueEntry> queueEntries) {

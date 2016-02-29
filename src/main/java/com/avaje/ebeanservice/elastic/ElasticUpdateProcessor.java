@@ -51,6 +51,10 @@ public class ElasticUpdateProcessor implements DocStoreUpdateProcessor {
     this.defaultBatchSize = defaultBatchSize;
   }
 
+  public void onStartup() {
+    queueWriter.onStartup();
+  }
+
   public ElasticBatchUpdate createBatchUpdate(int batchSize) throws IOException {
 
     int batch = (batchSize > 0) ? batchSize : defaultBatchSize;
