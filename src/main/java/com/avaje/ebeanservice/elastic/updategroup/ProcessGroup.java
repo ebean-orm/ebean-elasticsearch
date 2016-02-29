@@ -17,16 +17,18 @@ import java.util.List;
  */
 public class ProcessGroup<T> {
 
-  final SpiServer server;
+  private final SpiServer server;
 
-  final BeanType<T> desc;
+  private final BeanType<T> desc;
 
-  final UpdateGroup group;
+  private final UpdateGroup group;
 
-  final ElasticBatchUpdate txn;
+  private final ElasticBatchUpdate txn;
 
-  public static <T> void process(SpiServer server, BeanType<T> desc, UpdateGroup group, ElasticBatchUpdate txn) throws IOException {
-    new ProcessGroup<T>(server, desc, group, txn).processGroup();
+  private long count;
+
+  public static <T> long process(SpiServer server, BeanType<T> desc, UpdateGroup group, ElasticBatchUpdate txn) throws IOException {
+    return new ProcessGroup<T>(server, desc, group, txn).processGroup();
   }
 
   private ProcessGroup(SpiServer server, BeanType<T> desc, UpdateGroup group, ElasticBatchUpdate txn) {
@@ -36,12 +38,14 @@ public class ProcessGroup<T> {
     this.txn = txn;
   }
 
-  private void processGroup() throws IOException {
+  private long processGroup() throws IOException {
 
     List<Object> deleteIds = group.getDeleteIds();
     for (Object id : deleteIds) {
       txn.addEvent(new DocStoreDeleteEvent(desc, id));
     }
+
+    count += deleteIds.size();
 
     List<Object> indexIds = group.getIndexIds();
     if (!indexIds.isEmpty()) {
@@ -53,8 +57,10 @@ public class ProcessGroup<T> {
     Collection<UpdateNested> values = group.getNestedPathIds().values();
     for (UpdateNested nested : values) {
       ProcessNested<T> nestedDocUpdate = new ProcessNested<T>(server, desc, txn, nested);
-      nestedDocUpdate.process();
+      count += nestedDocUpdate.process();
     }
+
+    return count;
   }
 
 
@@ -67,6 +73,7 @@ public class ProcessGroup<T> {
       public void accept(T bean) {
         Object idValue = desc.getBeanId(bean);
         try {
+          count++;
           txn.addEvent(new DocStoreIndexEvent<T>(desc, idValue, bean));
         } catch (Exception e) {
           throw new PersistenceIOException("Error performing query update to doc store", e);

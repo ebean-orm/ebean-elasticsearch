@@ -70,12 +70,11 @@ public class ElasticUpdateProcessorTest {
 
     ResetBasicData.reset(false);
 
-    //Thread.sleep(4000);
     List<DocStoreQueueEntry> list = new ArrayList<DocStoreQueueEntry>();
     list.add(new DocStoreQueueEntry(DocStoreQueueEntry.Action.NESTED, "order","details.id", 3));
 
-    server.docStore().process(list);
-    assertEquals(2, indexQueue.theQueue.size());
+    long count = server.docStore().process(list);
+    assertEquals(count, 1);
   }
 
   @Ignore

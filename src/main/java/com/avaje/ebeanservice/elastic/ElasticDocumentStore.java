@@ -43,7 +43,9 @@ public class ElasticDocumentStore implements DocumentStore {
   }
 
   @Override
-  public void process(List<DocStoreQueueEntry> entries) throws IOException {
+  public long process(List<DocStoreQueueEntry> entries) throws IOException {
+
+    long count = 0;
 
     Collection<UpdateGroup> groups = ConvertToGroups.groupByQueueId(entries);
     ElasticBatchUpdate txn = updateProcessor.createBatchUpdate(0);
@@ -51,10 +53,12 @@ public class ElasticDocumentStore implements DocumentStore {
     try {
       for (UpdateGroup group : groups) {
         BeanType<?> desc = server.getBeanTypeForQueueId(group.getQueueId());
-        ProcessGroup.process(server, desc, group, txn);
+        count += ProcessGroup.process(server, desc, group, txn);
       }
 
       txn.flush();
+
+      return count;
 
     } catch (IOException e) {
       throw new PersistenceIOException(e);
