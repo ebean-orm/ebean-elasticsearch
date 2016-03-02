@@ -3,6 +3,8 @@ package com.avaje.ebeanservice.elastic;
 import com.avaje.ebean.plugin.BeanDocType;
 import com.avaje.ebean.plugin.BeanType;
 import com.avaje.ebeanservice.docstore.api.DocStoreQueryUpdate;
+import com.avaje.ebeanservice.elastic.bulk.BulkBuffer;
+import com.avaje.ebeanservice.elastic.bulk.BulkSender;
 
 import java.io.IOException;
 import java.util.Map;
@@ -15,9 +17,7 @@ import java.util.Map;
  */
 public class ElasticQueryUpdate<T> implements DocStoreQueryUpdate<T> {
 
-  private final ElasticUpdateProcessor indexUpdateProcessor;
-
-  private final BeanType<T> beanType;
+  private final BulkSender bulkSender;
 
   private final int batchSize;
 
@@ -25,19 +25,18 @@ public class ElasticQueryUpdate<T> implements DocStoreQueryUpdate<T> {
 
   private int count;
 
-  private ElasticBulkUpdate current;
+  private BulkBuffer current;
 
-  public ElasticQueryUpdate(ElasticUpdateProcessor indexUpdateProcessor, int batchSize, BeanType<T> beanType) throws IOException {
-    this.indexUpdateProcessor = indexUpdateProcessor;
+  public ElasticQueryUpdate(BulkSender bulkSender, int batchSize, BeanType<T> beanType) throws IOException {
+    this.bulkSender = bulkSender;
     this.batchSize = batchSize;
-    this.beanType = beanType;
     this.beanDocType = beanType.docStore();
-    current = indexUpdateProcessor.createBulkElasticUpdate();
+    current = bulkSender.newBuffer();
   }
 
   @Override
   public void store(Object idValue, T bean) throws IOException {
-    ElasticBulkUpdate obtain = obtain();
+    BulkBuffer obtain = obtain();
     beanDocType.index(idValue, bean, obtain);
   }
 
@@ -48,18 +47,18 @@ public class ElasticQueryUpdate<T> implements DocStoreQueryUpdate<T> {
   public void flush() throws IOException {
 
     // send the current buffer and collect any errors
-    Map<String, Object> response = indexUpdateProcessor.sendBulk(current);
+    Map<String, Object> response = bulkSender.sendBulk(current);
     collectErrors(response);
 
     // create a new buffer and reset count to 0
-    current = indexUpdateProcessor.createBulkElasticUpdate();
+    current = bulkSender.newBuffer();
     count = 0;
   }
 
   /**
    * Obtain a BulkElasticUpdate for writing bulk requests to.
    */
-  private ElasticBulkUpdate obtain() throws IOException {
+  private BulkBuffer obtain() throws IOException {
     if (count++ > batchSize) {
       flush();
     }

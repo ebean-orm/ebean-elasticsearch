@@ -17,19 +17,19 @@ import java.io.IOException;
 /**
  * Builds mapping JSON for an Index using the DocumentMapping.
  */
-public class IndexMappingsBuilder {
+public class EIndexMappingsBuilder {
 
   final JsonFactory jsonFactory;
 
-  final TypeMapping typeMapping;
+  final EIndexTypeMapping typeMapping;
 
   final PrettyPrinter compactJson = new CompactJsonPrettyPrinter();
 
   final PrettyPrinter prettyJson = new DefaultPrettyPrinter();
 
-  public IndexMappingsBuilder(JsonFactory jsonFactory) {
+  public EIndexMappingsBuilder(JsonFactory jsonFactory) {
     this.jsonFactory = jsonFactory;
-    this.typeMapping = new TypeMapping();
+    this.typeMapping = new EIndexTypeMapping();
   }
 
   public String createMappingJson(BeanType<?> beanType) {
@@ -83,9 +83,9 @@ public class IndexMappingsBuilder {
 
     final JsonGenerator gen;
 
-    final TypeMapping typeMapping;
+    final EIndexTypeMapping typeMapping;
 
-    public IndexVisitor(JsonGenerator gen, TypeMapping typeMapping) {
+    public IndexVisitor(JsonGenerator gen, EIndexTypeMapping typeMapping) {
       this.gen = gen;
       this.typeMapping = typeMapping;
     }

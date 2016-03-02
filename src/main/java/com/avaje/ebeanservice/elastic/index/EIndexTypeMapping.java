@@ -8,11 +8,11 @@ import java.util.Map;
 /**
  * Mapping of general document store types to ElasticSearch types.
  */
-public class TypeMapping {
+public class EIndexTypeMapping {
 
   final Map<DocPropertyType,String> map = new HashMap<DocPropertyType,String>();
 
-  public TypeMapping() {
+  public EIndexTypeMapping() {
     map.put(DocPropertyType.ENUM,"string");
 
     map.put(DocPropertyType.STRING,"string");

@@ -1,5 +1,6 @@
 package org.example.domain;
 
+import com.avaje.ebean.Model;
 import com.avaje.ebean.annotation.CacheStrategy;
 import com.avaje.ebean.annotation.CacheTuning;
 import com.avaje.ebean.annotation.DocStore;
@@ -17,7 +18,7 @@ import javax.validation.constraints.Size;
 @CacheTuning(maxSize = 500)
 @Entity
 @Table(name = "o_country")
-public class Country {
+public class Country extends Model {
 
   @Id
   @Size(max = 2)

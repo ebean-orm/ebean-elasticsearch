@@ -1,4 +1,4 @@
-package com.avaje.ebeanservice.elastic;
+package com.avaje.ebeanservice.elastic.bulk;
 
 import com.avaje.ebean.config.JsonConfig;
 import com.avaje.ebean.FetchPath;
@@ -16,7 +16,7 @@ import java.io.Writer;
  *   This is used to build requests to be sent to the ElasticSearch Bulk API.
  * </p>
  */
-public class ElasticBulkUpdate implements DocStoreUpdateContext {
+public class BulkBuffer implements DocStoreUpdateContext {
 
   private final JsonGenerator generator;
 
@@ -26,14 +26,13 @@ public class ElasticBulkUpdate implements DocStoreUpdateContext {
 
   private final JsonConfig.Include defaultInclude;
 
-  public ElasticBulkUpdate(JsonGenerator generator, Writer writer, Object defaultObjectMapper, JsonConfig.Include defaultInclude) {
+  public BulkBuffer(JsonGenerator generator, Writer writer, Object defaultObjectMapper, JsonConfig.Include defaultInclude) {
     this.generator = generator;
     this.writer = writer;
     this.defaultObjectMapper = defaultObjectMapper;
     this.defaultInclude = defaultInclude;
   }
 
-  //@Override
   public WriteJson createWriteJson(SpiEbeanServer server, JsonGenerator gen, FetchPath fetchPath) {
     return new WriteJson(server, gen, fetchPath, null, defaultObjectMapper, defaultInclude);
   }
@@ -45,7 +44,6 @@ public class ElasticBulkUpdate implements DocStoreUpdateContext {
   /**
    * Return the JsonGenerator to write the JSON content to.
    */
-  //@Override
   public JsonGenerator gen() {
     return generator;
   }

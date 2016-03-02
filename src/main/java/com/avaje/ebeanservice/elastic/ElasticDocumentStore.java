@@ -10,55 +10,49 @@ import com.avaje.ebean.plugin.BeanType;
 import com.avaje.ebean.plugin.SpiServer;
 import com.avaje.ebeaninternal.api.SpiQuery;
 import com.avaje.ebeanservice.docstore.api.DocStoreQueryUpdate;
-import com.avaje.ebeanservice.elastic.index.IndexService;
-import com.avaje.ebeanservice.elastic.support.ElasticBatchUpdate;
+import com.avaje.ebeanservice.elastic.bulk.BulkUpdate;
+import com.avaje.ebeanservice.elastic.index.EIndexService;
+import com.avaje.ebeanservice.elastic.query.EQueryService;
 import com.avaje.ebeanservice.elastic.support.IndexMessageSender;
-import com.avaje.ebeanservice.elastic.updategroup.ConvertToGroups;
-import com.avaje.ebeanservice.elastic.updategroup.ProcessGroup;
-import com.avaje.ebeanservice.elastic.updategroup.UpdateGroup;
 import com.fasterxml.jackson.core.JsonFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-import java.util.Collection;
 import java.util.List;
 
 /**
  * ElasticSearch based document store.
  */
 public class ElasticDocumentStore implements DocumentStore {
-
+  /**
+   * Logger that can be used to log Bulk API messages.
+   */
+  public static final Logger BULK = LoggerFactory.getLogger("org.avaje.ebeanservice.elastic.BULK");
 
   private final SpiServer server;
 
   private final ElasticUpdateProcessor updateProcessor;
 
-  private final ElasticQueryService queryService;
+  private final EQueryService queryService;
 
-  private final IndexService indexService;
+  private final EIndexService indexService;
 
   public ElasticDocumentStore(SpiServer server, ElasticUpdateProcessor updateProcessor, IndexMessageSender sender, JsonFactory jsonFactory) {
     this.server = server;
     this.updateProcessor = updateProcessor;
-    this.queryService = new ElasticQueryService(server, jsonFactory, sender);
-    this.indexService = new IndexService(server, jsonFactory, sender);
+    this.queryService = new EQueryService(server, jsonFactory, sender);
+    this.indexService = new EIndexService(server, jsonFactory, sender);
   }
 
   @Override
   public long process(List<DocStoreQueueEntry> entries) throws IOException {
 
-    long count = 0;
-
-    Collection<UpdateGroup> groups = ConvertToGroups.groupByQueueId(entries);
-    ElasticBatchUpdate txn = updateProcessor.createBatchUpdate(0);
-
+    BulkUpdate txn = updateProcessor.createBulkUpdate(0);
     try {
-      for (UpdateGroup group : groups) {
-        BeanType<?> desc = server.getBeanTypeForQueueId(group.getQueueId());
-        count += ProcessGroup.process(server, desc, group, txn);
-      }
 
+      long count = updateProcessor.processQueue(txn, entries);
       txn.flush();
-
       return count;
 
     } catch (IOException e) {
@@ -89,7 +83,7 @@ public class ElasticDocumentStore implements DocumentStore {
     BeanType<?> type = server.getBeanType(beanType);
     checkMapped(type);
     try {
-      ElasticBatchUpdate txn = updateProcessor.createBatchUpdate(0);
+      BulkUpdate txn = updateProcessor.createBulkUpdate(0);
       return queryService.copyIndexSince(type, newIndex, txn, epochMillis);
 
     } catch (IOException e) {

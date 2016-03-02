@@ -1,4 +1,4 @@
-package com.avaje.ebeanservice.elastic.search;
+package com.avaje.ebeanservice.elastic.search.bean;
 
 import com.avaje.ebean.bean.EntityBean;
 import com.avaje.ebean.bean.PersistenceContext;
@@ -17,7 +17,7 @@ import java.util.Set;
 /**
  * Reads the source and fields from an ElasticSearch search result and populates beans.
  */
-public class BeanSourceReader<T> implements SearchSourceListener {
+public class BeanSourceReader<T> {
 
   private final BeanType<T> desc;
 
@@ -41,27 +41,25 @@ public class BeanSourceReader<T> implements SearchSourceListener {
     this.lazyLoadMany = lazyLoadMany;
   }
 
-  @Override
   public void readSource(JsonParser parser, String id) throws IOException {
 
     currentBean = reader.read();
     desc.setBeanId(currentBean, id);
     beans.add(currentBean);
-    loadPersistenceContext();
+    loadPersistenceContext(currentBean);
   }
 
-  private void loadPersistenceContext() {
+  private void loadPersistenceContext(T bean) {
     if (hasContext) {
-      EntityBean current = (EntityBean)currentBean;
-      Object beanId = desc.getBeanId(currentBean);
-      reader.persistenceContextPut(beanId, currentBean);
+      EntityBean current = (EntityBean)bean;
+      Object beanId = desc.getBeanId(bean);
+      reader.persistenceContextPut(beanId, bean);
       if (lazyLoadMany != null) {
         lazyLoadMany.lazyLoadMany(current);
       }
     }
   }
 
-  @Override
   public void readFields(Map<String, Object> fields, String id, double score) {
 
     if (currentBean != null) {
@@ -72,7 +70,7 @@ public class BeanSourceReader<T> implements SearchSourceListener {
       desc.setBeanId(bean, id);
       applyFields(bean, fields);
       beans.add(bean);
-      loadPersistenceContext();
+      loadPersistenceContext(bean);
     }
 
   }
@@ -105,6 +103,6 @@ public class BeanSourceReader<T> implements SearchSourceListener {
     T bean = desc.createBean();
     desc.setBeanId(bean, id);
     beans.add(bean);
-    loadPersistenceContext();
+    loadPersistenceContext(bean);
   }
 }

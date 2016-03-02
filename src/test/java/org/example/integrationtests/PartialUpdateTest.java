@@ -2,18 +2,17 @@ package org.example.integrationtests;
 
 import com.avaje.ebean.Ebean;
 import com.avaje.ebean.EbeanServer;
+import integration.support.SeedDbData;
 import org.assertj.core.api.StrictAssertions;
 import org.example.domain.Customer;
 import org.example.domain.Product;
-import org.junit.Test;
+import org.testng.annotations.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-/**
- */
+@Test(enabled = false)
 public class PartialUpdateTest {
 
-  @Test
   public void partial_product_update() throws InterruptedException {
 
     Product prod = new Product();
@@ -51,11 +50,10 @@ public class PartialUpdateTest {
 
   }
 
-  @Test
   public void partial_update() throws InterruptedException {
 
     // this will automatically index all the customers
-    ResetBasicData.reset(true);
+    SeedDbData.reset(true);
 
     Thread.sleep(200);
 
@@ -79,7 +77,6 @@ public class PartialUpdateTest {
     assertThat(robDoc.getStatus()).isEqualTo(rob.getStatus());
     StrictAssertions.assertThat(robDoc.getName()).isEqualTo("Rob");
     StrictAssertions.assertThat(robDoc.getBillingAddress().getCountry().getCode()).isEqualTo("NZ");
-
 
   }
 }

@@ -7,6 +7,7 @@ import com.avaje.ebeaninternal.server.deploy.meta.DeployBeanDescriptor;
 import com.avaje.ebeaninternal.server.text.json.WriteJson;
 import com.avaje.ebeanservice.docstore.api.DocStoreUpdateContext;
 import com.avaje.ebeanservice.docstore.api.support.DocStoreBeanBaseAdapter;
+import com.avaje.ebeanservice.elastic.bulk.BulkBuffer;
 import com.fasterxml.jackson.core.JsonGenerator;
 
 import java.io.IOException;
@@ -23,7 +24,7 @@ public class ElasticDocStoreBeanAdapter<T> extends DocStoreBeanBaseAdapter<T> {
   @Override
   public void deleteById(Object idValue, DocStoreUpdateContext docTxn) throws IOException {
 
-    ElasticBulkUpdate txn = asElasticBulkUpdate(docTxn);
+    BulkBuffer txn = asElasticBulkUpdate(docTxn);
     JsonGenerator gen = txn.gen();
     writeBulkHeader(gen, idValue, "delete");
   }
@@ -37,7 +38,7 @@ public class ElasticDocStoreBeanAdapter<T> extends DocStoreBeanBaseAdapter<T> {
   @Override
   public void index(Object idValue, T entityBean, DocStoreUpdateContext docTxn) throws IOException {
 
-    ElasticBulkUpdate txn = asElasticBulkUpdate(docTxn);
+    BulkBuffer txn = asElasticBulkUpdate(docTxn);
 
     JsonGenerator gen = txn.gen();
     writeBulkHeader(gen, idValue, "index");
@@ -51,7 +52,7 @@ public class ElasticDocStoreBeanAdapter<T> extends DocStoreBeanBaseAdapter<T> {
   @Override
   public void update(Object idValue, PersistRequestBean<T> persistRequest, DocStoreUpdateContext docTxn) throws IOException {
 
-    ElasticBulkUpdate txn = asElasticBulkUpdate(docTxn);
+    BulkBuffer txn = asElasticBulkUpdate(docTxn);
     JsonGenerator gen = txn.gen();
     writeBulkHeader(gen, idValue, "update");
 
@@ -64,14 +65,14 @@ public class ElasticDocStoreBeanAdapter<T> extends DocStoreBeanBaseAdapter<T> {
     gen.writeRaw("\n");
   }
 
-  private ElasticBulkUpdate asElasticBulkUpdate(DocStoreUpdateContext docTxn) {
-    return (ElasticBulkUpdate)docTxn;
+  private BulkBuffer asElasticBulkUpdate(DocStoreUpdateContext docTxn) {
+    return (BulkBuffer)docTxn;
   }
 
   @Override
   public void updateEmbedded(Object idValue, String embeddedProperty, String embeddedRawContent, DocStoreUpdateContext docTxn) throws IOException {
 
-    ElasticBulkUpdate txn = asElasticBulkUpdate(docTxn);
+    BulkBuffer txn = asElasticBulkUpdate(docTxn);
 
     JsonGenerator gen = txn.gen();
     writeBulkHeader(gen, idValue, "update");

@@ -1,20 +1,20 @@
 package org.example.integrationtests;
 
 import com.avaje.ebean.Ebean;
+import com.avaje.ebean.PagedList;
 import com.avaje.ebean.Query;
-import org.elasticsearch.action.search.SearchRequestBuilder;
-import org.elasticsearch.client.Client;
-import org.elasticsearch.node.Node;
-import org.example.EmbeddedElasticServer;
+import integration.BaseTest;
+import integration.support.SeedDbData;
 import org.example.domain.Country;
 import org.example.domain.Order;
-import org.junit.Test;
+import org.example.domain.Product;
+import org.testng.annotations.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.assertNotNull;
+import static org.testng.Assert.assertNotNull;
 
-
-public class ProductTest {
+@Test(enabled = false)
+public class ProductTest extends BaseTest {
 
   private void indexCountries() {
 
@@ -25,31 +25,20 @@ public class ProductTest {
 
   }
 
-  @Test
   public void testDb() throws InterruptedException {
 
-    EmbeddedElasticServer server = new EmbeddedElasticServer();
+    //EmbeddedElasticServer server = new EmbeddedElasticServer();
 
-    Node node = server.getNode();
+    SeedDbData.reset(true);
 
-    Client client = node.client();
-    SearchRequestBuilder searchRequestBuilder = client.prepareSearch("");
-    String rawJson = "";
-    searchRequestBuilder.setQuery(rawJson);
-
-//    client.execute(searchRequestBuilder);
-
-//    BulkRequestBuilder bulkRequestBuilder = client.prepareBulk();
-//    String raw = "";
-//    bulkRequestBuilder.add(raw);
+    PagedList<Product> products =
+        server.find(Product.class)
+        .setUseDocStore(true)
+        .where().contains("name", "chair")
+        .setMaxRows(10)
+        .findPagedList();
 
 
-    ResetBasicData.reset(true);
-    //indexCountries();
-
-    //if (true) {
-    //  return;
-    //}
 
     Query<Order> query = Ebean.find(Order.class)
         .where().gt("id", 1)

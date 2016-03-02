@@ -1,5 +1,6 @@
 package org.example.domain;
 
+import com.avaje.ebean.Model;
 import com.avaje.ebean.annotation.WhenCreated;
 import com.avaje.ebean.annotation.WhenModified;
 
@@ -10,7 +11,7 @@ import java.io.Serializable;
 import java.sql.Timestamp;
 
 @MappedSuperclass
-public abstract class BasicDomain implements Serializable {
+public abstract class BasicDomain extends Model {
 
 	@Id
 	Long id;

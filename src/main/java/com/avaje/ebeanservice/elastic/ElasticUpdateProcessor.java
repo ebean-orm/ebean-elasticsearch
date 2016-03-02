@@ -1,232 +1,127 @@
 package com.avaje.ebeanservice.elastic;
 
+import com.avaje.ebean.DocStoreQueueEntry;
 import com.avaje.ebean.config.JsonConfig;
 import com.avaje.ebean.plugin.BeanType;
-import com.avaje.ebean.text.json.EJson;
+import com.avaje.ebean.plugin.SpiServer;
 import com.avaje.ebeanservice.docstore.api.DocStoreQueryUpdate;
 import com.avaje.ebeanservice.docstore.api.DocStoreUpdate;
 import com.avaje.ebeanservice.docstore.api.DocStoreUpdateProcessor;
 import com.avaje.ebeanservice.docstore.api.DocStoreUpdates;
-import com.avaje.ebeanservice.elastic.support.ElasticBatchUpdate;
+import com.avaje.ebeanservice.elastic.bulk.BulkSender;
+import com.avaje.ebeanservice.elastic.bulk.BulkUpdate;
 import com.avaje.ebeanservice.elastic.support.IndexMessageSender;
 import com.avaje.ebeanservice.elastic.support.IndexQueueWriter;
-import com.avaje.ebeanservice.elastic.support.StringBuilderWriter;
+import com.avaje.ebeanservice.elastic.update.ConvertToGroups;
+import com.avaje.ebeanservice.elastic.update.ProcessGroup;
+import com.avaje.ebeanservice.elastic.update.UpdateGroup;
 import com.fasterxml.jackson.core.JsonFactory;
-import com.fasterxml.jackson.core.JsonGenerator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
-import java.util.Map;
 
 /**
  * ElasticSearch implementation of the DocStoreUpdateProcessor.
  */
 public class ElasticUpdateProcessor implements DocStoreUpdateProcessor {
 
-  public static final Logger elaLogger = LoggerFactory.getLogger("org.avaje.ebean.ELA");
+  private final Logger logger = LoggerFactory.getLogger(ElasticUpdateProcessor.class);
 
-  protected final Logger logger = LoggerFactory.getLogger(ElasticUpdateProcessor.class);
+  private final SpiServer server;
 
-  protected final JsonFactory jsonFactory;
+  private final IndexQueueWriter queueWriter;
 
-  protected final IndexQueueWriter queueWriter;
+  private final int defaultBatchSize;
 
-  protected final IndexMessageSender messageSender;
+  private final BulkSender bulkSender;
 
-  protected final int defaultBatchSize;
+  public ElasticUpdateProcessor(SpiServer server, IndexQueueWriter queueWriter, JsonFactory jsonFactory,
+                                Object defaultObjectMapper, IndexMessageSender messageSender, int defaultBatchSize) {
 
-  protected final Object defaultObjectMapper;
-
-  protected final JsonConfig.Include defaultInclude;
-
-  public ElasticUpdateProcessor(IndexQueueWriter queueWriter, JsonFactory jsonFactory, Object defaultObjectMapper, IndexMessageSender messageSender, int defaultBatchSize) {
+    this.server = server;
     this.queueWriter = queueWriter;
-    this.jsonFactory = jsonFactory;
-    this.defaultInclude = JsonConfig.Include.NON_EMPTY;
-    this.defaultObjectMapper = defaultObjectMapper;
-    this.messageSender = messageSender;
     this.defaultBatchSize = defaultBatchSize;
+    this.bulkSender = new BulkSender(jsonFactory, JsonConfig.Include.NON_EMPTY, defaultObjectMapper, messageSender);
   }
 
+  /**
+   * Initialise communication with the queue.
+   */
   public void onStartup() {
     queueWriter.onStartup();
   }
 
-  public ElasticBatchUpdate createBatchUpdate(int batchSize) throws IOException {
-
-    int batch = (batchSize > 0) ? batchSize : defaultBatchSize;
-    return new ElasticBatchUpdate(this, batch);
-  }
-
+  /**
+   * Create an 'update by query' processor.
+   */
   @Override
   public <T> DocStoreQueryUpdate<T> createQueryUpdate(BeanType<T> beanType, int batchSize) throws IOException {
 
     int batch = (batchSize > 0) ? batchSize : defaultBatchSize;
-    return new ElasticQueryUpdate<T>(this, batch, beanType);
+    return new ElasticQueryUpdate<T>(bulkSender, batch, beanType);
   }
 
-  @Override
-  public void process(DocStoreUpdates docStoreUpdates, int txnBulkBatchSize) {
+  /**
+   * Create the BulkUpdate for batch sending bulk API messages.
+   */
+  public BulkUpdate createBulkUpdate(int batchSize) throws IOException {
 
-    int batchSize = (txnBulkBatchSize > 0) ? txnBulkBatchSize : defaultBatchSize;
-    sendBulkUpdate(docStoreUpdates, true, batchSize);
-    sendQueueEvents(docStoreUpdates);
+    int batch = (batchSize > 0) ? batchSize : defaultBatchSize;
+    return new BulkUpdate(batch, bulkSender);
+  }
+
+  /**
+   * Process the post-commit updates that have come from the Ebean transaction manager.
+   */
+  @Override
+  public void process(DocStoreUpdates updates, int batchSize) {
+
+    try {
+      BulkUpdate txn = createBulkUpdate(batchSize);
+
+      for (DocStoreUpdate persistEvent : updates.getPersistEvents()) {
+        persistEvent.docStoreUpdate(txn.obtain());
+      }
+      for (DocStoreUpdate deleteEvent : updates.getDeleteEvents()) {
+        deleteEvent.docStoreUpdate(txn.obtain());
+      }
+
+      processQueue(txn, updates.getNestedEvents());
+      txn.flush();
+
+      sendQueueEvents(updates);
+
+    } catch (IOException e) {
+      //TODO: updates to queue entries and insert into queue
+      logger.error("Failed to send bulk updates", e);
+    }
+  }
+
+  /**
+   * Process queue entries.
+   */
+  public long processQueue(BulkUpdate txn, List<DocStoreQueueEntry> entries) throws IOException {
+
+    long count = 0;
+
+    Collection<UpdateGroup> groups = ConvertToGroups.groupByQueueId(entries);
+
+    for (UpdateGroup group : groups) {
+      BeanType<?> desc = server.getBeanTypeForQueueId(group.getQueueId());
+      count += ProcessGroup.process(server, desc, group, txn);
+    }
+
+    return count;
   }
 
   /**
    * Add the queue entries to the queue for later processing.
    */
-  protected void sendQueueEvents(DocStoreUpdates docStoreUpdates) {
-
+  private void sendQueueEvents(DocStoreUpdates docStoreUpdates) {
     queueWriter.queue(docStoreUpdates.getQueueEntries());
-  }
-
-  public Map<String, Object> sendPayload(ElasticBulkUpdate bulk) throws IOException {
-
-    bulk.flush();
-
-    String payload = bulk.getBuffer();
-    if (elaLogger.isTraceEnabled()) {
-      elaLogger.trace("ElasticBulkMessage Request:\n" + payload + "\n");
-    }
-
-    // send to Bulk API
-    String response = messageSender.postBulk(payload);
-    elaLogger.debug("request entries:{} responseSize:{}", payload.length(), response.length());
-
-    if (elaLogger.isTraceEnabled()) {
-      elaLogger.trace("ElasticBulkMessage Response:\n" + response);
-    }
-
-    // parse the response
-    return parseBulkResponse(response);
-  }
-
-
-  public Map<String, Object> sendBulk(ElasticBulkUpdate bulk) throws IOException {
-
-    return sendPayload(bulk);
-  }
-
-  /**
-   * Send the 'bulk entries' to the ElasticSearch Bulk API.
-   *
-   * @param docStoreUpdates        The index updates holding the bulk entries to send
-   * @param addToQueueOnFailure if true then failures are added tho the queue
-   * @param batchSize           The batch size to use for sending to the Bulk API.
-   */
-  protected void sendBulkUpdate(DocStoreUpdates docStoreUpdates, boolean addToQueueOnFailure, int batchSize) {
-
-    sendBulkUpdate(docStoreUpdates, batchSize, docStoreUpdates.getPersistEvents(), addToQueueOnFailure);
-    sendBulkUpdate(docStoreUpdates, batchSize, docStoreUpdates.getDeleteEvents(), addToQueueOnFailure);
-  }
-
-  protected void sendBulkUpdate(DocStoreUpdates docStoreUpdates, int batchSize, List<? extends DocStoreUpdate> entries, boolean addToQueueOnFailure) {
-
-    if (!entries.isEmpty()) {
-      if (entries.size() <= batchSize) {
-        // send them all in one go
-        sendBulkUpdateBatch(docStoreUpdates, entries, addToQueueOnFailure);
-
-      } else {
-        // break into batches using the batchSize
-        List<? extends List<? extends DocStoreUpdate>> batches = createBatches(entries, batchSize);
-        for (int i = 0; i < batches.size(); i++) {
-          sendBulkUpdateBatch(docStoreUpdates, batches.get(i), addToQueueOnFailure);
-        }
-      }
-    }
-  }
-
-  /**
-   * Send the bulk entries to ElasticSearch using the Bulk API.  If addToQueueOnFailure is set to true then
-   * any entries that failed will be added to the queue.
-   *
-   * @param docStoreUpdates        The index updates holding the bulk entries to send
-   * @param bulkEntries         The entries to send
-   * @param addToQueueOnFailure if true then failures are added tho the queue
-   */
-  protected void sendBulkUpdateBatch(DocStoreUpdates docStoreUpdates, List<? extends DocStoreUpdate> bulkEntries, boolean addToQueueOnFailure) {
-
-    try {
-      ElasticBulkUpdate bulk = createBulkElasticUpdate();
-
-      for (DocStoreUpdate entry : bulkEntries) {
-        entry.docStoreUpdate(bulk);
-      }
-
-      bulk.flush();
-
-      Map<String, Object> responseMap = sendPayload(bulk);
-
-      Boolean errors = (Boolean) responseMap.get("errors");
-
-      if (addToQueueOnFailure && errors) {
-        // for any errors add the matching bulk request to the queue
-        logger.debug("processing errors on response ...");
-        List<Map<String, Object>> responseItems = (List<Map<String, Object>>) responseMap.get("responseItems");
-        for (int i = 0; i < responseItems.size(); i++) {
-          if (addToQueueForStatus(responseItems.get(i))) {
-            logger.debug("... responseEntry:{} adding to queueWriter", i);
-            bulkEntries.get(i).addToQueue(docStoreUpdates);
-          }
-        }
-      }
-
-    } catch (IOException e) {
-      logger.error("Failed to successfully send bulk update to ElasticSearch", e);
-      if (addToQueueOnFailure) {
-        // add all remaining requests the the queue
-        for (DocStoreUpdate entry : bulkEntries) {
-          entry.addToQueue(docStoreUpdates);
-        }
-      }
-    }
-
-  }
-
-  /**
-   * Return true if this responseEntry should be added to the queue (typically based on it's returned status).
-   */
-  protected boolean addToQueueForStatus(Map<String, Object> responseEntry) {
-
-    String status = (String) responseEntry.get("status");
-    return "400".equals(status);
-  }
-
-  /**
-   * Break up the requests into batches using the batchSize.
-   */
-  protected <T> List<List<T>> createBatches(List<T> allRequests, int batchSize) {
-
-    List<List<T>> parts = new ArrayList<List<T>>();
-    int totalSize = allRequests.size();
-
-    for (int i = 0; i < totalSize; i += batchSize) {
-      parts.add(allRequests.subList(i, Math.min(totalSize, i + batchSize)));
-    }
-    return parts;
-  }
-
-  /**
-   * Parse the returned JSON response into a Map.
-   */
-  protected Map<String, Object> parseBulkResponse(String response) throws IOException {
-
-    return EJson.parseObject(response);
-  }
-
-  /**
-   * Create a BulkElasticUpdate.
-   */
-  public ElasticBulkUpdate createBulkElasticUpdate() throws IOException {
-
-    StringBuilderWriter writer = new StringBuilderWriter();
-    JsonGenerator gen = jsonFactory.createGenerator(writer);
-    return new ElasticBulkUpdate(gen, writer, defaultObjectMapper, defaultInclude);
   }
 
 }

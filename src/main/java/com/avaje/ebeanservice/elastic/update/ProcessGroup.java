@@ -1,4 +1,4 @@
-package com.avaje.ebeanservice.elastic.updategroup;
+package com.avaje.ebeanservice.elastic.update;
 
 import com.avaje.ebean.PersistenceIOException;
 import com.avaje.ebean.Query;
@@ -7,7 +7,7 @@ import com.avaje.ebean.plugin.BeanType;
 import com.avaje.ebean.plugin.SpiServer;
 import com.avaje.ebeanservice.docstore.api.support.DocStoreDeleteEvent;
 import com.avaje.ebeanservice.docstore.api.support.DocStoreIndexEvent;
-import com.avaje.ebeanservice.elastic.support.ElasticBatchUpdate;
+import com.avaje.ebeanservice.elastic.bulk.BulkUpdate;
 
 import java.io.IOException;
 import java.util.Collection;
@@ -23,15 +23,15 @@ public class ProcessGroup<T> {
 
   private final UpdateGroup group;
 
-  private final ElasticBatchUpdate txn;
+  private final BulkUpdate txn;
 
   private long count;
 
-  public static <T> long process(SpiServer server, BeanType<T> desc, UpdateGroup group, ElasticBatchUpdate txn) throws IOException {
+  public static <T> long process(SpiServer server, BeanType<T> desc, UpdateGroup group, BulkUpdate txn) throws IOException {
     return new ProcessGroup<T>(server, desc, group, txn).processGroup();
   }
 
-  private ProcessGroup(SpiServer server, BeanType<T> desc, UpdateGroup group, ElasticBatchUpdate txn) {
+  private ProcessGroup(SpiServer server, BeanType<T> desc, UpdateGroup group, BulkUpdate txn) {
     this.server = server;
     this.desc = desc;
     this.group = group;
@@ -42,7 +42,7 @@ public class ProcessGroup<T> {
 
     List<Object> deleteIds = group.getDeleteIds();
     for (Object id : deleteIds) {
-      txn.addEvent(new DocStoreDeleteEvent(desc, id));
+      txn.send(new DocStoreDeleteEvent(desc, id));
     }
 
     count += deleteIds.size();
@@ -64,7 +64,7 @@ public class ProcessGroup<T> {
   }
 
 
-  private void indexUsingQuery(Query<T> query, final ElasticBatchUpdate txn) throws IOException {
+  private void indexUsingQuery(Query<T> query, final BulkUpdate txn) throws IOException {
 
     desc.docStore().applyPath(query);
     query.setLazyLoadBatchSize(100);
@@ -74,7 +74,7 @@ public class ProcessGroup<T> {
         Object idValue = desc.getBeanId(bean);
         try {
           count++;
-          txn.addEvent(new DocStoreIndexEvent<T>(desc, idValue, bean));
+          txn.send(new DocStoreIndexEvent<T>(desc, idValue, bean));
         } catch (Exception e) {
           throw new PersistenceIOException("Error performing query update to doc store", e);
         }

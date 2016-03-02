@@ -1,4 +1,4 @@
-package com.avaje.ebeanservice.elastic.updategroup;
+package com.avaje.ebeanservice.elastic.update;
 
 import com.avaje.ebean.EbeanServer;
 import com.avaje.ebean.FetchPath;
@@ -8,7 +8,7 @@ import com.avaje.ebean.plugin.BeanDocType;
 import com.avaje.ebean.plugin.BeanType;
 import com.avaje.ebean.plugin.Property;
 import com.avaje.ebeaninternal.server.query.SplitName;
-import com.avaje.ebeanservice.elastic.support.ElasticBatchUpdate;
+import com.avaje.ebeanservice.elastic.bulk.BulkUpdate;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -22,7 +22,7 @@ public class ProcessNested<T> {
 
   private final EbeanServer server;
   private final BeanType<T> desc;
-  private final ElasticBatchUpdate txn;
+  private final BulkUpdate txn;
   private final UpdateNested nested;
 
   private final Map<Object, String> jsonMap = new HashMap<Object,String>();
@@ -42,7 +42,7 @@ public class ProcessNested<T> {
 
   private long count;
 
-  public ProcessNested(EbeanServer server, BeanType<T> desc, ElasticBatchUpdate txn, UpdateNested nested) {
+  public ProcessNested(EbeanServer server, BeanType<T> desc, BulkUpdate txn, UpdateNested nested) {
     this.server = server;
     this.desc = desc;
     this.txn = txn;
@@ -137,6 +137,7 @@ public class ProcessNested<T> {
   protected void processTop(List<Object> nestedIds) {
 
     Query<T> topQuery = server.createQuery(desc.getBeanType());
+    topQuery.setUseDocStore(true);
     topQuery.select(idPropertyName);
     if (!nestedMany) {
       topQuery.fetch(nestedPath, nestedIdPropertyName);

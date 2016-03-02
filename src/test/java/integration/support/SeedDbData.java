@@ -1,4 +1,4 @@
-package org.example.integrationtests;
+package integration.support;
 
 import com.avaje.ebean.Ebean;
 import com.avaje.ebean.EbeanServer;
@@ -17,7 +17,7 @@ import java.sql.Date;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ResetBasicData {
+public class SeedDbData {
 
   private static boolean runOnce;
 
@@ -33,7 +33,7 @@ public class ResetBasicData {
       return;
     }
 
-    final ResetBasicData me = new ResetBasicData();
+    final SeedDbData me = new SeedDbData();
 
     if (server.find(Product.class).findRowCount() > 0) {
       // we can't really delete this base data as
@@ -57,32 +57,6 @@ public class ResetBasicData {
       server.endTransaction();
     }
   }
-
-
-//  public void deleteAll() {
-//    Ebean.execute(new TxRunnable() {
-//      public void run() {
-//
-//        server.createUpdate(OrderShipment.class, "delete from orderShipment").execute();
-//
-//        server.createUpdate(OrderDetail.class, "delete from orderDetail").execute();
-//
-//        server.createUpdate(Order.class, "delete from order").execute();
-//
-//        server.createUpdate(Contact.class, "delete from contact").execute();
-//
-//        server.createUpdate(Customer.class, "delete from Customer").execute();
-//
-//        server.createUpdate(Address.class, "delete from address").execute();
-//
-//        // sql update uses table and column names
-//        server.createSqlUpdate("delete from o_country").execute();
-//        server.createSqlUpdate("delete from o_product").execute();
-//
-//      }
-//    });
-//  }
-
 
   public void insertCountries() {
 

@@ -1,4 +1,4 @@
-package com.avaje.ebeanservice.elastic.updategroup;
+package com.avaje.ebeanservice.elastic.update;
 
 import java.util.ArrayList;
 import java.util.List;

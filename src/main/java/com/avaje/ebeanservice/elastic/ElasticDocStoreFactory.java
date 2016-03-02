@@ -40,7 +40,7 @@ public class ElasticDocStoreFactory implements DocStoreFactory {
     IndexQueueWriter indexQueueWriter = new BaseIndexQueueWriter(server, "eb_elastic_queue");
     IndexMessageSender messageSender = new BaseHttpMessageSender(docStoreConfig.getUrl());
 
-    ElasticUpdateProcessor updateProcessor = new ElasticUpdateProcessor(indexQueueWriter, jsonFactory, objectMapper, messageSender, docStoreConfig.getBulkBatchSize());
+    ElasticUpdateProcessor updateProcessor = new ElasticUpdateProcessor(server, indexQueueWriter, jsonFactory, objectMapper, messageSender, docStoreConfig.getBulkBatchSize());
 
     ElasticDocumentStore docStore = new ElasticDocumentStore(server, updateProcessor, messageSender, jsonFactory);
 

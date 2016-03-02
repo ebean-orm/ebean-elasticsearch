@@ -4,22 +4,20 @@ import com.avaje.ebean.DocStoreQueueEntry;
 import com.avaje.ebean.DocumentStore;
 import com.avaje.ebean.Ebean;
 import com.avaje.ebean.EbeanServer;
+import integration.support.SeedDbData;
 import org.example.domain.Customer;
-import org.junit.Test;
+import org.testng.annotations.Test;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- *
- */
+@Test(enabled = false)
 public class EventQueueProcessTest {
 
-  @Test
   public void test_queue() throws IOException {
 
-    ResetBasicData.reset(true);
+    SeedDbData.reset(true);
 
     EbeanServer server = Ebean.getDefaultServer();
     DocumentStore documentStore = server.docStore();
@@ -32,10 +30,9 @@ public class EventQueueProcessTest {
 
   }
 
-  @Test
   public void test_queue_nested() throws IOException {
 
-    ResetBasicData.reset();
+    SeedDbData.reset();
 
     EbeanServer server = Ebean.getDefaultServer();
     DocumentStore documentStore = server.docStore();
@@ -47,10 +44,9 @@ public class EventQueueProcessTest {
     documentStore.process(entries);
   }
 
-  @Test
   public void test_embedded() throws InterruptedException {
 
-    ResetBasicData.reset();
+    SeedDbData.reset();
 
 
     Customer customer = Ebean.find(Customer.class, 1);

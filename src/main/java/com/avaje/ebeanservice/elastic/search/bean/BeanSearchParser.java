@@ -1,9 +1,10 @@
-package com.avaje.ebeanservice.elastic.search;
+package com.avaje.ebeanservice.elastic.search.bean;
 
 import com.avaje.ebean.plugin.BeanType;
 import com.avaje.ebean.text.json.EJson;
 import com.avaje.ebean.text.json.JsonBeanReader;
 import com.avaje.ebeaninternal.server.deploy.BeanPropertyAssocMany;
+import com.avaje.ebeanservice.elastic.search.BaseSearchResultParser;
 import com.fasterxml.jackson.core.JsonParser;
 
 import java.io.IOException;

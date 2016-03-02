@@ -1,9 +1,9 @@
-package com.avaje.ebeanservice.elastic.search;
+package com.avaje.ebeanservice.elastic.search.rawsource;
 
 import java.util.Map;
 
 /**
- * Created by rob on 24/02/16.
+ * Raw search result hit.
  */
 public class RawSource {
 

@@ -3,13 +3,13 @@ package org.example.integrationtests;
 import com.avaje.ebean.Ebean;
 import com.avaje.ebean.EbeanServer;
 import org.example.domain.Country;
-import org.junit.Test;
+import org.testng.annotations.Test;
 
 import static org.assertj.core.api.StrictAssertions.assertThat;
 
+@Test(enabled = false)
 public class AutomaticIndexTest {
 
-  @Test
   public void index_country_when_inserted() throws InterruptedException {
 
     EbeanServer server = Ebean.getDefaultServer();
@@ -28,7 +28,6 @@ public class AutomaticIndexTest {
     assertThat(ju.getName()).isEqualTo(country.getName());
   }
 
-  @Test
   public void index_country_when_updated() throws InterruptedException {
 
     EbeanServer server = Ebean.getDefaultServer();
@@ -52,7 +51,6 @@ public class AutomaticIndexTest {
     assertThat(ju.getName()).isEqualTo("Kumbo");
   }
 
-  @Test
   public void delete_country_when_deleted() throws InterruptedException {
 
     EbeanServer server = Ebean.getDefaultServer();

@@ -1,4 +1,4 @@
-package com.avaje.ebeanservice.elastic.updategroup;
+package com.avaje.ebeanservice.elastic.update;
 
 import com.avaje.ebean.DocStoreQueueEntry;
 

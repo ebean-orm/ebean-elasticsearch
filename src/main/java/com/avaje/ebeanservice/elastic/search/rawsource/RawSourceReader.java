@@ -1,6 +1,7 @@
-package com.avaje.ebeanservice.elastic.search;
+package com.avaje.ebeanservice.elastic.search.rawsource;
 
 import com.avaje.ebean.text.json.EJson;
+import com.avaje.ebeanservice.elastic.search.BaseSearchResultParser;
 import com.fasterxml.jackson.core.JsonParser;
 
 import java.io.IOException;

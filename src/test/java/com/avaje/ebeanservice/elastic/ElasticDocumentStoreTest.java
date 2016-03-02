@@ -6,13 +6,13 @@ import com.avaje.ebean.Expr;
 import com.avaje.ebean.PagedList;
 import com.avaje.ebean.Query;
 import com.avaje.ebean.QueryEachConsumer;
+import integration.support.SeedDbData;
 import org.example.domain.Contact;
 import org.example.domain.Country;
 import org.example.domain.Customer;
 import org.example.domain.Order;
 import org.example.domain.Product;
-import org.example.integrationtests.ResetBasicData;
-import org.junit.Test;
+import org.testng.annotations.Test;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -23,17 +23,17 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class ElasticDocumentStoreTest {
 
-  @Test
-  public void indexAll() {
-
-    ResetBasicData.reset(false);
-
-    DocumentStore documentStore = Ebean.getDefaultServer().docStore();
-
-    documentStore.indexAll(Country.class);
-    documentStore.indexAll(Product.class);
-    documentStore.indexAll(Customer.class);
-  }
+//  @Test
+//  public void indexAll() {
+//
+//    SeedDbData.reset(false);
+//
+//    DocumentStore documentStore = Ebean.getDefaultServer().docStore();
+//
+//    documentStore.indexAll(Country.class);
+//    documentStore.indexAll(Product.class);
+//    documentStore.indexAll(Customer.class);
+//  }
 
   @Test
   public void indexCopyTo() {
@@ -48,7 +48,7 @@ public class ElasticDocumentStoreTest {
   @Test
   public void indexCopyTo_since() throws InterruptedException {
 
-    ResetBasicData.reset(false);
+    SeedDbData.reset(false);
 
     DocumentStore documentStore = Ebean.getDefaultServer().docStore();
     documentStore.indexAll(Product.class);
@@ -77,7 +77,7 @@ public class ElasticDocumentStoreTest {
   @Test
   public void sortBy_when_propertyIsAnalysed() throws InterruptedException {
 
-    ResetBasicData.reset(false);
+    SeedDbData.reset(false);
 
     DocumentStore documentStore = Ebean.getDefaultServer().docStore();
 //    documentStore.indexAll(Order.class);
@@ -93,7 +93,7 @@ public class ElasticDocumentStoreTest {
   @Test
   public void findPagedList() throws InterruptedException {
 
-    ResetBasicData.reset(false);
+    SeedDbData.reset(false);
     DocumentStore documentStore = Ebean.getDefaultServer().docStore();
     documentStore.indexAll(Order.class);
 
@@ -112,7 +112,7 @@ public class ElasticDocumentStoreTest {
   @Test
   public void query_useDocStore_then_lazyLoadAssocMany() throws InterruptedException {
 
-    ResetBasicData.reset(false);
+    SeedDbData.reset(false);
 
     DocumentStore documentStore = Ebean.getDefaultServer().docStore();
     documentStore.indexAll(Customer.class);
@@ -140,7 +140,7 @@ public class ElasticDocumentStoreTest {
   @Test
   public void query_useDocStore_then_lazyLoadAssocOne() throws InterruptedException {
 
-    ResetBasicData.reset(false);
+    SeedDbData.reset(false);
 
     DocumentStore documentStore = Ebean.getDefaultServer().docStore();
     documentStore.indexAll(Customer.class);
@@ -167,7 +167,7 @@ public class ElasticDocumentStoreTest {
   @Test
   public void term_when_propertyIsAnalysed() {
 
-    ResetBasicData.reset(false);
+    SeedDbData.reset(false);
 
     DocumentStore documentStore = Ebean.getDefaultServer().docStore();
     documentStore.indexAll(Order.class);
@@ -472,7 +472,7 @@ public class ElasticDocumentStoreTest {
   public void integration_test() {
 
 
-    ResetBasicData.reset(true);
+    SeedDbData.reset(true);
 
     DocumentStore documentStore = Ebean.getDefaultServer().docStore();
 

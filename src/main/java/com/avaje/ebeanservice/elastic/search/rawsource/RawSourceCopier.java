@@ -1,25 +1,25 @@
-package com.avaje.ebeanservice.elastic;
+package com.avaje.ebeanservice.elastic.search.rawsource;
 
 import com.avaje.ebean.PersistenceIOException;
 import com.avaje.ebean.QueryEachConsumer;
 import com.avaje.ebean.text.json.EJson;
-import com.avaje.ebeanservice.elastic.search.RawSource;
-import com.avaje.ebeanservice.elastic.support.ElasticBatchUpdate;
+import com.avaje.ebeanservice.elastic.bulk.BulkUpdate;
 import com.fasterxml.jackson.core.JsonGenerator;
 
 import java.io.IOException;
 
 /**
+ * Used to scroll a source index and copy to another index.
  */
-public class CopyRaw implements QueryEachConsumer<RawSource> {
+public class RawSourceCopier implements QueryEachConsumer<RawSource> {
 
-  final ElasticBatchUpdate txn;
+  final BulkUpdate txn;
 
   final String indexType;
 
   final String indexName;
 
-  public CopyRaw(ElasticBatchUpdate txn, String indexType, String indexName) {
+  public RawSourceCopier(BulkUpdate txn, String indexType, String indexName) {
     this.txn = txn;
     this.indexType = indexType;
     this.indexName = indexName;

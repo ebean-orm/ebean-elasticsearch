@@ -1,37 +1,43 @@
 package com.avaje.ebeanservice.elastic.index;
 
 import com.avaje.ebean.PersistenceIOException;
+import com.avaje.ebean.config.DocStoreConfig;
 import com.avaje.ebean.plugin.BeanType;
 import com.avaje.ebean.plugin.SpiServer;
 import com.avaje.ebeanservice.elastic.support.IndexMessageSender;
 import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonGenerator;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.LineNumberReader;
 import java.io.StringWriter;
-import java.util.List;
 
 /**
- *
+ * Index exists, drop, create functions.
  */
-public class IndexService {
+public class EIndexService {
 
-  final SpiServer server;
+  private static final Logger logger = LoggerFactory.getLogger(EIndexService.class);
 
-  final JsonFactory jsonFactory;
+  private final SpiServer server;
 
-  final IndexMappingsBuilder mappingsBuilder;
+  private final JsonFactory jsonFactory;
 
-  final IndexMessageSender sender;
+  private final EIndexMappingsBuilder mappingsBuilder;
 
-  public IndexService(SpiServer server, JsonFactory jsonFactory, IndexMessageSender sender) {
+  private final IndexMessageSender sender;
+
+  public EIndexService(SpiServer server, JsonFactory jsonFactory, IndexMessageSender sender) {
     this.server = server;
     this.jsonFactory = jsonFactory;
     this.sender = sender;
-    this.mappingsBuilder = new IndexMappingsBuilder(jsonFactory);
+    this.mappingsBuilder = new EIndexMappingsBuilder(jsonFactory);
   }
 
   public boolean indexExists(String indexName) throws IOException {
@@ -51,7 +57,9 @@ public class IndexService {
       throw new IllegalArgumentException("No resource "+resourcePath+" found in classPath");
     }
 
-    createIndexWithMapping(indexName, alias, rawJsonMapping);
+    if (!createIndexWithMapping(false, indexName, alias, rawJsonMapping)) {
+      throw new IllegalArgumentException("Index " + indexName + " not created as it already exists?");
+    }
   }
 
   private String readResource(String mappingResource) {
@@ -66,7 +74,7 @@ public class IndexService {
       LineNumberReader lineReader = new LineNumberReader(reader);
 
       StringBuilder buffer = new StringBuilder(300);
-      String line = null;
+      String line;
       while ((line = lineReader.readLine()) != null) {
         buffer.append(line);
       }
@@ -78,22 +86,31 @@ public class IndexService {
     }
   }
 
-  public void createIndexWithMapping(String indexName, String alias, String jsonMapping) throws IOException {
+  public boolean createIndexWithMapping(boolean dropCreate, String indexName, String alias, String jsonMapping) throws IOException {
 
     if (indexExists(indexName)) {
+      if (!dropCreate) {
+        logger.debug("index {} already exists", indexName);
+        return false;
+      }
+      logger.debug("drop index {}", indexName);
       dropIndex(indexName);
     }
     if (alias != null) {
       if (indexExists(alias)) {
+        logger.debug("drop alias {}", alias, indexName);
         dropIndex(alias);
       }
     }
+    logger.debug("create index {}", indexName);
     sender.indexCreate(indexName, jsonMapping);
 
     if (alias != null) {
       String aliasJson = asJson(new AliasChanges().add(indexName, alias));
+      logger.debug("add alias {} for index {}", alias, indexName);
       sender.indexAlias(aliasJson);
     }
+    return true;
   }
 
   private String asJson(AliasChanges aliasChanges) throws IOException {
@@ -108,15 +125,43 @@ public class IndexService {
 
   public void createIndexes() throws IOException {
 
-    List<? extends BeanType<?>> beanTypes = server.getBeanTypes();
-    for (BeanType<?> beanType : beanTypes) {
+    DocStoreConfig docStoreConfig = server.getServerConfig().getDocStoreConfig();
 
+    boolean dropCreate = docStoreConfig.isDropCreate();
+
+    for (BeanType<?> beanType : server.getBeanTypes()) {
       if (beanType.isDocStoreMapped()) {
-        String mappingJson = mappingsBuilder.createMappingJson(beanType);
-        String name = beanType.docStore().getIndexName();
-        createIndexWithMapping(name+"_v1", name, mappingJson);
+        createIndex(dropCreate, beanType);
       }
+    }
+  }
 
+  private void createIndex(boolean dropCreate, BeanType<?> beanType) throws IOException {
+
+    String mappingJson = mappingsBuilder.createMappingJson(beanType);
+    String alias = beanType.docStore().getIndexName();
+    String indexName = alias+"_v1";
+
+    writeMappingFile(indexName, mappingJson);
+
+    createIndexWithMapping(dropCreate, indexName, alias, mappingJson);
+  }
+
+  /**
+   * Write the mapping to a file.
+   */
+  private void writeMappingFile(String indexName, String mappingJson) {
+
+    try {
+      File dir = new File("elastic-index");
+      dir.mkdirs();
+      File file = new File(dir, indexName + ".mapping.json");
+      FileWriter writer = new FileWriter(file);
+      writer.write(mappingJson);
+      writer.flush();
+      writer.close();
+    } catch (IOException e) {
+      logger.error("Error trying to write index mapping", e);
     }
   }
 
