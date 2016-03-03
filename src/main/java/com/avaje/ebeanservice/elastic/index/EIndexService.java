@@ -154,7 +154,9 @@ public class EIndexService {
 
     try {
       File dir = new File("elastic-index");
-      dir.mkdirs();
+      if (!dir.mkdirs()) {
+        logger.warn("Unable to make directories for {}", dir.getAbsolutePath());
+      }
       File file = new File(dir, indexName + ".mapping.json");
       FileWriter writer = new FileWriter(file);
       writer.write(mappingJson);

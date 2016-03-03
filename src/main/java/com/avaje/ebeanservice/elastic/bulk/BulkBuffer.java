@@ -37,7 +37,10 @@ public class BulkBuffer implements DocStoreUpdateContext {
     return new WriteJson(server, gen, fetchPath, null, defaultObjectMapper, defaultInclude);
   }
 
-  public String getBuffer() {
+  /**
+   * Return the buffer content (Bulk API JSON with new lines etc).
+   */
+  public String getContent() {
     return writer.toString();
   }
 

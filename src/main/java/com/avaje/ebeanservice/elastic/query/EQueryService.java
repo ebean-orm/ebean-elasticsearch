@@ -22,7 +22,6 @@ import com.avaje.ebeanservice.elastic.search.rawsource.RawSourceReader;
 import com.avaje.ebeanservice.elastic.support.IndexMessageSender;
 import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonParser;
-import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -50,11 +49,14 @@ public class EQueryService {
     this.send = new EQuerySend(jsonFactory, messageSender);
   }
 
+  /**
+   * Execute the query returning a PagedList of hits.
+   */
   public <T> PagedList<T> findPagedList(Query<T> query) {
 
     int firstRow = query.getFirstRow();
     int maxRows = query.getMaxRows();
-    BeanSearchParser<T> parser = find(query);
+    BeanSearchParser<T> parser = findHits(query);
     try {
       List<T> list = parser.read();
       return new HitsPagedList<T>(firstRow, maxRows, list, parser.getTotal());
@@ -64,9 +66,12 @@ public class EQueryService {
     }
   }
 
+  /**
+   * Execute the query returning the list of beans.
+   */
   public <T> List<T> findList(Query<T> query) {
 
-    BeanSearchParser<T> parser = find(query);
+    BeanSearchParser<T> parser = findHits(query);
     try {
       return parser.read();
     } catch (IOException e) {
@@ -74,7 +79,7 @@ public class EQueryService {
     }
   }
 
-  private <T> BeanSearchParser<T> find(Query<T> query) {
+  private <T> BeanSearchParser<T> findHits(Query<T> query) {
 
     SpiQuery<T> spiQuery = (SpiQuery<T>)query;
     BeanType<T> desc = spiQuery.getBeanDescriptor();
@@ -88,25 +93,9 @@ public class EQueryService {
     }
   }
 
-  @NotNull
-  private <T> BeanSearchParser<T> createBeanParser(SpiQuery<T> spiQuery, BeanType<T> desc, JsonParser json) {
-
-    JsonReadOptions options = getJsonReadOptions(spiQuery);
-    JsonBeanReader<T> beanReader = jsonContext.createBeanReader(spiQuery.getBeanType(), json, options);
-    return new BeanSearchParser<T>(json, desc, beanReader, spiQuery.getLazyLoadMany());
-  }
-
-  private JsonReadOptions getJsonReadOptions(SpiQuery<?> query) {
-
-    JsonReadOptions options = new JsonReadOptions();
-    if (!query.isDisableLazyLoading()) {
-      options.setEnableLazyLoading(true);
-    }
-    options.setPersistenceContext(query.getPersistenceContext());
-    return options;
-  }
-
-
+  /**
+   * Execute a scroll query iterating through the results.
+   */
   public <T> void findEach(Query<T> query, QueryEachConsumer<T> consumer) {
 
     SpiQuery<T> spiQuery = (SpiQuery<T>) query;
@@ -154,10 +143,12 @@ public class EQueryService {
     } finally {
       send.clearScrollIds(scrollIds);
     }
-
   }
 
-  public <T> T getById(Class<T> beanType, Object id) {
+  /**
+   * Execute find by id.
+   */
+  public <T> T findById(Class<T> beanType, Object id) {
     BeanType<T> desc = server.getBeanType(beanType);
     if (desc == null) {
       throw new IllegalArgumentException("Type [" + beanType + "] does not appear to be an entity bean type?");
@@ -195,7 +186,6 @@ public class EQueryService {
     }
 
     long count = findEachRawSource(query, copyRaw);
-
     logger.info("total [{}] entries copied to index:{}", count, newIndex);
     if (count != 0) {
       txn.flush();
@@ -256,4 +246,26 @@ public class EQueryService {
     }
   }
 
+  /**
+   * Return the bean type specific parser used to read the search results.
+   */
+  private <T> BeanSearchParser<T> createBeanParser(SpiQuery<T> query, BeanType<T> desc, JsonParser json) {
+
+    JsonReadOptions options = getJsonReadOptions(query);
+    JsonBeanReader<T> beanReader = jsonContext.createBeanReader(query.getBeanType(), json, options);
+    return new BeanSearchParser<T>(json, desc, beanReader, query.getLazyLoadMany());
+  }
+
+  /**
+   * Return the JsonReadOptions taking into account lazy loading and persistence context.
+   */
+  private JsonReadOptions getJsonReadOptions(SpiQuery<?> query) {
+
+    JsonReadOptions options = new JsonReadOptions();
+    if (!query.isDisableLazyLoading()) {
+      options.setEnableLazyLoading(true);
+    }
+    options.setPersistenceContext(query.getPersistenceContext());
+    return options;
+  }
 }

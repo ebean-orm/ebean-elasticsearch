@@ -1,6 +1,7 @@
 package org.example.domain;
 
 import com.avaje.ebean.annotation.DbEnumValue;
+import com.avaje.ebean.annotation.DocSortable;
 import com.avaje.ebean.annotation.DocStore;
 import com.avaje.ebean.annotation.DocStoreEmbedded;
 
@@ -42,6 +43,7 @@ public class Customer extends BasicDomain {
 
   Status status;
 
+  @DocSortable
   @NotNull
   @Size(max = 40)
   String name;

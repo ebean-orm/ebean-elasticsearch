@@ -8,9 +8,9 @@ import com.avaje.ebeanservice.elastic.support.StringBuilderWriter;
 import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonGenerator;
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.util.Collections;
 import java.util.Map;
 
 /**
@@ -21,10 +21,16 @@ public class BulkSender {
   private static Logger bulkLogger = ElasticDocumentStore.BULK;
 
   private final JsonFactory jsonFactory;
+
   private final JsonConfig.Include defaultInclude;
+
   private final Object defaultObjectMapper;
+
   private final IndexMessageSender messageSender;
 
+  /**
+   * Construct with appropriate JSON configuration.
+   */
   public BulkSender(JsonFactory jsonFactory, JsonConfig.Include defaultInclude, Object defaultObjectMapper, IndexMessageSender messageSender) {
     this.jsonFactory = jsonFactory;
     this.defaultInclude = defaultInclude;
@@ -33,11 +39,11 @@ public class BulkSender {
   }
 
   /**
-   * Create a new BulkBuffer with appropriate JSON setup.
+   * Create a new buffer with appropriate JSON setup.
    */
   public BulkBuffer newBuffer() throws IOException {
 
-    StringBuilderWriter writer = new StringBuilderWriter();
+    StringBuilderWriter writer = new StringBuilderWriter(500);
     JsonGenerator gen = jsonFactory.createGenerator(writer);
     return new BulkBuffer(gen, writer, defaultObjectMapper, defaultInclude);
   }
@@ -45,17 +51,22 @@ public class BulkSender {
   /**
    * Send the bulk buffer returning the response.
    */
-  public Map<String, Object> sendBulk(BulkBuffer bulk) throws IOException {
+  public Map<String, Object> sendBulk(BulkBuffer buffer) throws IOException {
 
-    bulk.flush();
+    buffer.flush();
 
-    String payload = bulk.getBuffer();
-    if (bulkLogger.isTraceEnabled()) {
-      bulkLogger.trace("ElasticBulkMessage Request:\n{}", payload);
+    String content = buffer.getContent();
+    if (content.isEmpty()) {
+      if (bulkLogger.isDebugEnabled()) {
+        bulkLogger.debug("ElasticBulkMessage is empty?");
+      }
+      return Collections.emptyMap();
     }
 
-    String response = messageSender.postBulk(payload);
-
+    if (bulkLogger.isTraceEnabled()) {
+      bulkLogger.trace("ElasticBulkMessage Request:\n{}", content);
+    }
+    String response = messageSender.postBulk(content);
     if (bulkLogger.isTraceEnabled()) {
       bulkLogger.trace("ElasticBulkMessage Response:\n{}", response);
     }

@@ -60,8 +60,8 @@ public class ElasticUpdateProcessor implements DocStoreUpdateProcessor {
   @Override
   public <T> DocStoreQueryUpdate<T> createQueryUpdate(BeanType<T> beanType, int batchSize) throws IOException {
 
-    int batch = (batchSize > 0) ? batchSize : defaultBatchSize;
-    return new ElasticQueryUpdate<T>(bulkSender, batch, beanType);
+    BulkUpdate bulkUpdate = createBulkUpdate(batchSize);
+    return new ElasticQueryUpdate<T>(bulkUpdate, beanType);
   }
 
   /**

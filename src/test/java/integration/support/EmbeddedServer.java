@@ -16,6 +16,9 @@ import org.example.domain.Product;
  */
 public class EmbeddedServer {
 
+  final boolean useExternalElastic = true;
+  final boolean indexOnStart = false;
+
   final Node node;
 
   final EbeanServer server;
@@ -24,19 +27,23 @@ public class EmbeddedServer {
 
   public EmbeddedServer() {
 
-    Settings settings1 = Settings.settingsBuilder()
-        .put("path.home", "target/elastic-data")
-        .put("number_of_shards", "1")
-        .put("number_of_replicas", "1")
-        .put("cluster.name", "EmbeddedTest")
-        .put("node.name", "foo")
-        .build();
+    if (useExternalElastic) {
+      this.node = null;
 
-    this.node = NodeBuilder
-        .nodeBuilder()
-        .settings(settings1)
-        .node();
+    } else {
+      Settings settings1 = Settings.settingsBuilder()
+          .put("path.home", "target/elastic-data")
+          .put("number_of_shards", "1")
+          .put("number_of_replicas", "1")
+          .put("cluster.name", "EmbeddedTest")
+          .put("node.name", "foo")
+          .build();
 
+      this.node = NodeBuilder
+          .nodeBuilder()
+          .settings(settings1)
+          .node();
+    }
     server = Ebean.getDefaultServer();
     documentStore = server.docStore();
 
@@ -47,11 +54,19 @@ public class EmbeddedServer {
 
     SeedDbData.reset(false);
 
-    documentStore.indexAll(Country.class);
-    documentStore.indexAll(Product.class);
-    documentStore.indexAll(Customer.class);
-    documentStore.indexAll(Contact.class);
-    documentStore.indexAll(Order.class);
+    if (indexOnStart) {
+      documentStore.indexAll(Country.class);
+      documentStore.indexAll(Product.class);
+      documentStore.indexAll(Customer.class);
+      documentStore.indexAll(Contact.class);
+      documentStore.indexAll(Order.class);
+      try {
+        // allow the indexing time to store
+        Thread.sleep(1000);
+      } catch (InterruptedException e) {
+        throw new RuntimeException(e);
+      }
+    }
   }
 
 

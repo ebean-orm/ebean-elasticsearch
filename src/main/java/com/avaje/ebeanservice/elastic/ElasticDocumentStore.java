@@ -6,9 +6,11 @@ import com.avaje.ebean.PagedList;
 import com.avaje.ebean.PersistenceIOException;
 import com.avaje.ebean.Query;
 import com.avaje.ebean.QueryEachConsumer;
+import com.avaje.ebean.config.DocStoreConfig;
 import com.avaje.ebean.plugin.BeanType;
 import com.avaje.ebean.plugin.SpiServer;
 import com.avaje.ebeaninternal.api.SpiQuery;
+import com.avaje.ebeaninternal.server.deploy.BeanDescriptor;
 import com.avaje.ebeanservice.docstore.api.DocStoreQueryUpdate;
 import com.avaje.ebeanservice.elastic.bulk.BulkUpdate;
 import com.avaje.ebeanservice.elastic.index.EIndexService;
@@ -48,11 +50,10 @@ public class ElasticDocumentStore implements DocumentStore {
   @Override
   public long process(List<DocStoreQueueEntry> entries) throws IOException {
 
-    BulkUpdate txn = updateProcessor.createBulkUpdate(0);
+    BulkUpdate bulk = updateProcessor.createBulkUpdate(0);
     try {
-
-      long count = updateProcessor.processQueue(txn, entries);
-      txn.flush();
+      long count = updateProcessor.processQueue(bulk, entries);
+      bulk.flush();
       return count;
 
     } catch (IOException e) {
@@ -98,10 +99,7 @@ public class ElasticDocumentStore implements DocumentStore {
 
   @Override
   public void indexAll(Class<?> beanType) {
-    BeanType<?> type = server.getBeanType(beanType);
-    checkMapped(type);
-    Query<?> query = server.createQuery(beanType);
-    indexByQuery(query);
+    indexByQuery(server.createQuery(beanType));
   }
 
   @Override
@@ -113,14 +111,12 @@ public class ElasticDocumentStore implements DocumentStore {
   public <T> void indexByQuery(Query<T> query, int bulkBatchSize) {
 
     SpiQuery<T> spiQuery = (SpiQuery<T>) query;
-    Class<T> beanType = spiQuery.getBeanType();
-
-    BeanType<T> beanDescriptor = server.getBeanType(beanType);
-    checkMapped(beanDescriptor);
+    BeanDescriptor<T> desc = spiQuery.getBeanDescriptor();
+    checkMapped(desc);
 
     try {
-      DocStoreQueryUpdate<T> update = updateProcessor.createQueryUpdate(beanDescriptor, bulkBatchSize);
-      indexByQuery(beanDescriptor, query, update);
+      DocStoreQueryUpdate<T> update = updateProcessor.createQueryUpdate(desc, bulkBatchSize);
+      indexByQuery(desc, query, update);
       update.flush();
 
     } catch (IOException e) {
@@ -163,13 +159,16 @@ public class ElasticDocumentStore implements DocumentStore {
 
   @Override
   public <T> T getById(Class<T> beanType, Object id) {
-    return queryService.getById(beanType, id);
+    return queryService.findById(beanType, id);
   }
 
   public void onStartup() {
 
     try {
-      indexService.createIndexes();
+      DocStoreConfig docStoreConfig = server.getServerConfig().getDocStoreConfig();
+      if (docStoreConfig.isActive()) {
+        indexService.createIndexes();
+      }
 
     } catch (IOException e) {
       throw new PersistenceIOException(e);

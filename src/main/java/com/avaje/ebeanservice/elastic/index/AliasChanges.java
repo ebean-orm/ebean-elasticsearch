@@ -7,22 +7,37 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Created by rob on 24/02/16.
+ * Holds index alias Add and Remove changes.
  */
 public class AliasChanges {
 
-  List<Entry> entries = new ArrayList<Entry>();
+  private final List<Entry> entries = new ArrayList<Entry>();
 
+  /**
+   * Add an index alias ADD change.
+   *
+   * @param index The index name
+   * @param alias The alias name
+   */
   public AliasChanges add(String index, String alias) {
     entries.add(new Entry(true, index, alias));
     return this;
   }
 
+  /**
+   * Add an index alias REMOVE change.
+   *
+   * @param index The index name
+   * @param alias The alias name
+   */
   public AliasChanges remove(String index, String alias) {
     entries.add(new Entry(false, index, alias));
     return this;
   }
 
+  /**
+   * Return true if there are no changes.
+   */
   public boolean isEmpty() {
     return entries.isEmpty();
   }
@@ -38,19 +53,19 @@ public class AliasChanges {
     gen.writeEndObject();
   }
 
-  public class Entry {
+  private class Entry {
 
-    final boolean add;
-    final String index;
-    final String alias;
+    private final boolean add;
+    private final String index;
+    private final String alias;
 
-    public Entry(boolean add, String index, String alias) {
+    Entry(boolean add, String index, String alias) {
       this.add = add;
       this.index = index;
       this.alias = alias;
     }
 
-    public void writeJson(JsonGenerator gen) throws IOException {
+    void writeJson(JsonGenerator gen) throws IOException {
 
       gen.writeStartObject();
       gen.writeFieldName(add? "add" : "remove");
@@ -59,7 +74,6 @@ public class AliasChanges {
       gen.writeStringField("alias", alias);
       gen.writeEndObject();
       gen.writeEndObject();
-
     }
   }
 }

@@ -19,19 +19,22 @@ import java.io.IOException;
  */
 public class EIndexMappingsBuilder {
 
-  final JsonFactory jsonFactory;
+  private final JsonFactory jsonFactory;
 
-  final EIndexTypeMapping typeMapping;
+  private final EIndexTypeMapping typeMapping;
 
-  final PrettyPrinter compactJson = new CompactJsonPrettyPrinter();
+  private final PrettyPrinter compactJson = new CompactJsonPrettyPrinter();
 
-  final PrettyPrinter prettyJson = new DefaultPrettyPrinter();
+  private final PrettyPrinter prettyJson = new DefaultPrettyPrinter();
 
   public EIndexMappingsBuilder(JsonFactory jsonFactory) {
     this.jsonFactory = jsonFactory;
     this.typeMapping = new EIndexTypeMapping();
   }
 
+  /**
+   * Return the mapping json for a given bean type.
+   */
   public String createMappingJson(BeanType<?> beanType) {
 
     try {
@@ -79,11 +82,11 @@ public class EIndexMappingsBuilder {
     }
   }
 
-  class IndexVisitor extends DocPropertyAdapter {
+  private class IndexVisitor extends DocPropertyAdapter {
 
-    final JsonGenerator gen;
+    private final JsonGenerator gen;
 
-    final EIndexTypeMapping typeMapping;
+    private final EIndexTypeMapping typeMapping;
 
     public IndexVisitor(JsonGenerator gen, EIndexTypeMapping typeMapping) {
       this.gen = gen;

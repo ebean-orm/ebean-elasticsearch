@@ -1,7 +1,6 @@
 package com.avaje.ebeanservice.elastic.bulk;
 
 import com.avaje.ebeanservice.docstore.api.DocStoreUpdate;
-import com.avaje.ebeanservice.elastic.ElasticUpdateProcessor;
 
 import java.io.IOException;
 import java.util.Map;
@@ -22,7 +21,6 @@ public class BulkUpdate {
   public BulkUpdate(int batchSize, BulkSender bulkSender) throws IOException {
     this.bulkSender = bulkSender;
     this.batchSize = batchSize;
-    currentBuffer = bulkSender.newBuffer();
   }
 
   /**
@@ -33,29 +31,35 @@ public class BulkUpdate {
   }
 
   /**
-   * Flush the current buffer sending the Bulk API request to ElasticSearch.
-   */
-  public void flush() throws IOException {
-
-    // send the current buffer and collect any errors
-    Map<String, Object> response = bulkSender.sendBulk(currentBuffer);
-    collectErrors(response);
-
-    // create a new buffer and reset count to 0
-    currentBuffer = bulkSender.newBuffer();
-    count = 0;
-  }
-
-  /**
    * Obtain a BulkBuffer for writing bulk requests to.
    * <p>
    * This automatically manages the bulk buffer batch size and flushing.
    * </p>
    */
   public BulkBuffer obtain() throws IOException {
-    if (count++ > batchSize) {
-      flush();
+    if (currentBuffer == null) {
+      return newBuffer();
     }
+    if (++count > batchSize) {
+      flush();
+      return newBuffer();
+    }
+    return currentBuffer;
+  }
+
+  /**
+   * Flush the current buffer sending the Bulk API request to ElasticSearch.
+   */
+  public void flush() throws IOException {
+
+    if (currentBuffer != null) {
+      collectErrors(bulkSender.sendBulk(currentBuffer));
+    }
+  }
+
+  private BulkBuffer newBuffer() throws IOException {
+    count = 1;
+    currentBuffer = bulkSender.newBuffer();
     return currentBuffer;
   }
 
