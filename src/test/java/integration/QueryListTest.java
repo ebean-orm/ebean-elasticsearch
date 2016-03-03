@@ -163,7 +163,7 @@ public class QueryListTest extends BaseTest {
 
     List<Customer> customers = query.findList();
 
-    assertEquals(customers.size(), 1);
-    assertEquals(query.getGeneratedSql(), "{\"query\":{\"filtered\":{\"filter\":{\"range\":{\"name.raw\":{\"gte\":\"R\",\"lte\":\"S\"}}}}}}");
+    assertEquals(customers.size(), 0);
+    assertTrue(query.getGeneratedSql().contains("{\"query\":{\"filtered\":{\"filter\":{\"range\":{\"anniversary\":{\"gte\":"));
   }
 }
