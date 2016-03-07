@@ -415,7 +415,5 @@ public class ElasticDocumentStoreTest extends BaseTest {
         System.out.print("bean" + bean);
       }
     });
-
-
   }
 }
