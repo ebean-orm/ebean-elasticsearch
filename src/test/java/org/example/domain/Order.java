@@ -2,6 +2,7 @@ package org.example.domain;
 
 import com.avaje.ebean.annotation.DocCode;
 import com.avaje.ebean.annotation.DocMapping;
+import com.avaje.ebean.annotation.DocProperty;
 import com.avaje.ebean.annotation.DocStore;
 import com.avaje.ebean.annotation.DocStoreEmbedded;
 import com.avaje.ebean.annotation.EnumValue;
@@ -18,11 +19,10 @@ import java.util.List;
 /**
  * Order entity bean.
  */
-//(doc = "*,details(*,product(id,name,sku)")//, customer(id,name)
 @DocStore(
     mapping = {
-        @DocMapping(name = "status", code = true),
-        @DocMapping(name = "customer.name", sortable = true)
+        @DocMapping(name = "status", options = @DocProperty(code = true)),
+        @DocMapping(name = "customer.name", options = @DocProperty(sortable = true))
     }
 )
 
@@ -69,7 +69,7 @@ public class Order extends BasicDomain {
   }
 
   public String toString() {
-    return "order id:"+id;
+    return "order id:" + id;
   }
 
   public Status getStatus() {

@@ -74,7 +74,6 @@ public class EIndexMappingsBuilder {
       gen.writeEndObject();
       gen.flush();
 
-
       return writer.toString();
 
     } catch (IOException e) {
@@ -101,33 +100,61 @@ public class EIndexMappingsBuilder {
         gen.setPrettyPrinter(compactJson);
         gen.writeStartObject();
 
-        // map from general document type to elastic type
-        String type = typeMapping.get(property.getType());
-
-        gen.writeStringField("type", type);
-
         DocPropertyOptions options = property.getOptions();
-        if (options != null) {
-          if (isTrue(options.getStore())) {
-            gen.writeBooleanField("store", true);
-          }
-          if (options.getBoost() != null) {
-            gen.writeNumberField("boost", options.getBoost());
-          }
-          if (options.getNullValue() != null) {
-            gen.writeStringField("null_value", options.getNullValue());
-          }
-          if (isTrue(options.getCode())) {
-            gen.writeStringField("index", "not_analyzed");
+        if (options != null && isFalse(options.getEnabled())) {
+          gen.writeBooleanField("enabled", false);
+        } else {
 
-          } else if (isTrue(options.getSortable())) {
-            // add raw field option
-            gen.writeObjectFieldStart("fields");
-            gen.writeObjectFieldStart("raw");
-            gen.writeStringField("type", "string");
-            gen.writeStringField("index", "not_analyzed");
-            gen.writeEndObject();
-            gen.writeEndObject();
+          // map from general document type to elastic type
+          String type = typeMapping.get(property.getType());
+          gen.writeStringField("type", type);
+
+          if (options != null) {
+
+            if (options.isOptionsSet()) {
+              gen.writeStringField("index_options", options.getOptions().name().toLowerCase());
+            }
+            if (isFalse(options.getIncludeInAll())) {
+              gen.writeBooleanField("include_in_all", false);
+            }
+            if (isFalse(options.getNorms())) {
+              gen.writeObjectFieldStart("norms");
+              gen.writeBooleanField("enabled", false);
+              gen.writeEndObject();
+            }
+            if (isFalse(options.getDocValues())) {
+              gen.writeBooleanField("docValues", false);
+            }
+            if (isTrue(options.getStore())) {
+              gen.writeBooleanField("store", true);
+            }
+            if (options.getBoost() != null) {
+              gen.writeNumberField("boost", options.getBoost());
+            }
+            if (options.getNullValue() != null) {
+              gen.writeStringField("null_value", options.getNullValue());
+            }
+            if (options.getCopyTo() != null) {
+              gen.writeStringField("copy_to", options.getCopyTo());
+            }
+            if (options.getAnalyzer() != null) {
+              gen.writeStringField("analyzer", options.getAnalyzer());
+            }
+            if (options.getSearchAnalyzer() != null) {
+              gen.writeStringField("search_analyzer", options.getSearchAnalyzer());
+            }
+            if (isTrue(options.getCode())) {
+              gen.writeStringField("index", "not_analyzed");
+
+            } else if (isTrue(options.getSortable())) {
+              // add raw field option
+              gen.writeObjectFieldStart("fields");
+              gen.writeObjectFieldStart("raw");
+              gen.writeStringField("type", "string");
+              gen.writeStringField("index", "not_analyzed");
+              gen.writeEndObject();
+              gen.writeEndObject();
+            }
           }
         }
         gen.writeEndObject();
@@ -140,6 +167,10 @@ public class EIndexMappingsBuilder {
 
     private boolean isTrue(Boolean option) {
       return Boolean.TRUE.equals(option);
+    }
+
+    private boolean isFalse(Boolean option) {
+      return Boolean.FALSE.equals(option);
     }
 
     @Override
