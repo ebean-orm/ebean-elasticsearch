@@ -3,7 +3,7 @@ package integration.support;
 import com.avaje.ebean.Ebean;
 import com.avaje.ebean.EbeanServer;
 import com.avaje.ebean.Transaction;
-import com.avaje.ebean.annotation.DocStoreEvent;
+import com.avaje.ebean.annotation.DocStoreMode;
 import org.example.domain.Address;
 import org.example.domain.Contact;
 import org.example.domain.Country;
@@ -44,7 +44,7 @@ public class SeedDbData {
 
     Transaction transaction = server.beginTransaction();
     if (!updateDocStore) {
-      transaction.setDocStoreUpdateMode(DocStoreEvent.IGNORE);
+      transaction.setDocStoreUpdateMode(DocStoreMode.IGNORE);
     }
     try {
 
