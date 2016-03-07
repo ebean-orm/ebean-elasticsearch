@@ -49,7 +49,7 @@ public class ProductTest extends BaseTest {
 
     Thread.sleep(2000);
 
-    Order order = Ebean.getDefaultServer().docStore().getById(Order.class, 2);
+    Order order = Ebean.getDefaultServer().docStore().find(Order.class, 2);
 
     assertNotNull(order);
     assertThat(order.getId()).isEqualTo(2);

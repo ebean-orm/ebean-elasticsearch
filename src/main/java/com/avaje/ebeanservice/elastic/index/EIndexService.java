@@ -48,9 +48,9 @@ public class EIndexService {
     sender.indexDelete(indexName);
   }
 
-  public void createIndex(String indexName, String alias, String mappingResource) throws IOException {
+  public void createIndex(String indexName, String alias) throws IOException {
 
-    String resourcePath = "/index-mapping/" + mappingResource +".mapping.json";
+    String resourcePath = "/index-mapping/" + indexName +".mapping.json";
 
     String rawJsonMapping = readResource(resourcePath);
     if (rawJsonMapping == null) {
@@ -95,12 +95,6 @@ public class EIndexService {
       }
       logger.debug("drop index {}", indexName);
       dropIndex(indexName);
-    }
-    if (alias != null) {
-      if (indexExists(alias)) {
-        logger.debug("drop alias {}", alias, indexName);
-        dropIndex(alias);
-      }
     }
     logger.debug("create index {}", indexName);
     sender.indexCreate(indexName, jsonMapping);

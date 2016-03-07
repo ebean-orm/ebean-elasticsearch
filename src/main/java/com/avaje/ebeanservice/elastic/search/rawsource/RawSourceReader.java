@@ -10,7 +10,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- *
+ * Reads JSON response parsing it into a list of RawSource objects.
  */
 public class RawSourceReader extends BaseSearchResultParser {
 

@@ -71,7 +71,7 @@ public class PartialUpdateTest {
     // wait for the update to propagate to Elastic
     Thread.sleep(1200);
 
-    Customer robDoc = server.docStore().getById(Customer.class, rob.getId());
+    Customer robDoc = server.docStore().find(Customer.class, rob.getId());
 
     StrictAssertions.assertThat(robDoc.getSmallNote()).isEqualTo(rob.getSmallNote());
     assertThat(robDoc.getStatus()).isEqualTo(rob.getStatus());

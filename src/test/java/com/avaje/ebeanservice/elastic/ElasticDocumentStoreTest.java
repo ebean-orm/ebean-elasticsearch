@@ -8,7 +8,6 @@ import com.avaje.ebean.Query;
 import com.avaje.ebean.QueryEachConsumer;
 import integration.support.SeedDbData;
 import org.example.domain.Contact;
-import org.example.domain.Country;
 import org.example.domain.Customer;
 import org.example.domain.Order;
 import org.example.domain.Product;
@@ -55,7 +54,7 @@ public class ElasticDocumentStoreTest {
 
     String newIndex = "product_v2";
     documentStore.dropIndex(newIndex);
-    documentStore.createIndex(newIndex, null, "product_v2");
+    documentStore.createIndex(newIndex, null);
 
     long startEpochMillis = System.currentTimeMillis();
 

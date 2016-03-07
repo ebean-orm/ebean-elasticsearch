@@ -21,17 +21,17 @@ public class BeanSourceReader<T> {
 
   private final BeanType<T> desc;
 
-  private final JsonBeanReader<T> reader;
-
   private final List<T> beans = new ArrayList<T>();
 
   private final boolean hasContext;
 
   private final PersistenceContext persistenceContext;
 
+  private final BeanPropertyAssocMany<?> lazyLoadMany;
+
   private T currentBean;
 
-  private final BeanPropertyAssocMany<?> lazyLoadMany;
+  private JsonBeanReader<T> reader;
 
   public BeanSourceReader(BeanType<T> desc, JsonBeanReader<T> reader, BeanPropertyAssocMany<?> lazyLoadMany) {
     this.desc = desc;
@@ -104,5 +104,10 @@ public class BeanSourceReader<T> {
     desc.setBeanId(bean, id);
     beans.add(bean);
     loadPersistenceContext(bean);
+  }
+
+  public void moreJson(JsonParser parser) {
+    beans.clear();
+    reader = reader.forJson(parser);
   }
 }

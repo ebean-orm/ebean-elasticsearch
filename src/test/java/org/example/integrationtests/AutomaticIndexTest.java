@@ -22,7 +22,7 @@ public class AutomaticIndexTest {
 
     Thread.sleep(2000);
 
-    Country ju = server.docStore().getById(Country.class, "JU");
+    Country ju = server.docStore().find(Country.class, "JU");
     assertThat(ju).isNotNull();
     assertThat(ju.getCode()).isEqualTo(country.getCode());
     assertThat(ju.getName()).isEqualTo(country.getName());
@@ -45,7 +45,7 @@ public class AutomaticIndexTest {
 
     Thread.sleep(2000);
 
-    Country ju = server.docStore().getById(Country.class, country.getCode());
+    Country ju = server.docStore().find(Country.class, country.getCode());
     assertThat(ju).isNotNull();
     assertThat(ju.getCode()).isEqualTo(country.getCode());
     assertThat(ju.getName()).isEqualTo("Kumbo");
@@ -67,7 +67,7 @@ public class AutomaticIndexTest {
 
     Thread.sleep(2000);
 
-    Country ju = server.docStore().getById(Country.class, country.getCode());
+    Country ju = server.docStore().find(Country.class, country.getCode());
     assertThat(ju).isNull();
   }
 

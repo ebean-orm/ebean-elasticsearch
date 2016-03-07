@@ -6,11 +6,11 @@ import com.avaje.ebean.PagedList;
 import com.avaje.ebean.PersistenceIOException;
 import com.avaje.ebean.Query;
 import com.avaje.ebean.QueryEachConsumer;
+import com.avaje.ebean.QueryEachWhileConsumer;
 import com.avaje.ebean.config.DocStoreConfig;
 import com.avaje.ebean.plugin.BeanType;
 import com.avaje.ebean.plugin.SpiServer;
 import com.avaje.ebeaninternal.api.SpiQuery;
-import com.avaje.ebeaninternal.server.deploy.BeanDescriptor;
 import com.avaje.ebeanservice.docstore.api.DocStoreQueryUpdate;
 import com.avaje.ebeanservice.elastic.bulk.BulkUpdate;
 import com.avaje.ebeanservice.elastic.index.EIndexService;
@@ -71,9 +71,23 @@ public class ElasticDocumentStore implements DocumentStore {
   }
 
   @Override
-  public void createIndex(String indexName, String alias, String mappingResource) {
+  public void createIndex(String indexName, String alias) {
     try {
-      indexService.createIndex(indexName, alias, mappingResource);
+      indexService.createIndex(indexName, alias);
+    } catch (IOException e) {
+      throw new PersistenceIOException(e);
+    }
+  }
+
+  @Override
+  public long copyIndex(Query<?> query, String newIndex, int bulkBatchSize) {
+    try {
+      BulkUpdate txn = updateProcessor.createBulkUpdate(bulkBatchSize);
+      long count = queryService.copyIndexSince((SpiQuery<?>)query, newIndex, txn);
+      txn.flush();
+
+      return count;
+
     } catch (IOException e) {
       throw new PersistenceIOException(e);
     }
@@ -81,11 +95,13 @@ public class ElasticDocumentStore implements DocumentStore {
 
   @Override
   public long copyIndex(Class<?> beanType, String newIndex, long epochMillis) {
-    BeanType<?> type = server.getBeanType(beanType);
-    checkMapped(type);
+    BeanType<?> type = checkMapped(server.getBeanType(beanType));
     try {
       BulkUpdate txn = updateProcessor.createBulkUpdate(0);
-      return queryService.copyIndexSince(type, newIndex, txn, epochMillis);
+      long count = queryService.copyIndexSince(type, newIndex, txn, epochMillis);
+      txn.flush();
+
+      return count;
 
     } catch (IOException e) {
       throw new PersistenceIOException(e);
@@ -111,8 +127,7 @@ public class ElasticDocumentStore implements DocumentStore {
   public <T> void indexByQuery(Query<T> query, int bulkBatchSize) {
 
     SpiQuery<T> spiQuery = (SpiQuery<T>) query;
-    BeanDescriptor<T> desc = spiQuery.getBeanDescriptor();
-    checkMapped(desc);
+    BeanType<T> desc = checkMapped(spiQuery.getBeanDescriptor());
 
     try {
       DocStoreQueryUpdate<T> update = updateProcessor.createQueryUpdate(desc, bulkBatchSize);
@@ -148,6 +163,11 @@ public class ElasticDocumentStore implements DocumentStore {
   }
 
   @Override
+  public <T> void findEachWhile(Query<T> query, QueryEachWhileConsumer<T> consumer) {
+    queryService.findEachWhile(query, consumer);
+  }
+
+  @Override
   public <T> List<T> findList(Query<T> query) {
     return queryService.findList(query);
   }
@@ -158,7 +178,7 @@ public class ElasticDocumentStore implements DocumentStore {
   }
 
   @Override
-  public <T> T getById(Class<T> beanType, Object id) {
+  public <T> T find(Class<T> beanType, Object id) {
     return queryService.findById(beanType, id);
   }
 
@@ -175,12 +195,13 @@ public class ElasticDocumentStore implements DocumentStore {
     }
   }
 
-  private void checkMapped(BeanType<?> type) {
+  private <T> BeanType<T> checkMapped(BeanType<T> type) {
     if (type == null) {
       throw new IllegalStateException("No bean type mapping found?");
     }
     if (!type.isDocStoreMapped()) {
       throw new IllegalStateException("No doc store mapping for bean type "+type.getFullName());
     }
+    return type;
   }
 }

@@ -13,16 +13,19 @@ import java.io.IOException;
  */
 public class RawSourceCopier implements QueryEachConsumer<RawSource> {
 
-  final BulkUpdate txn;
+  private final BulkUpdate txn;
 
-  final String indexType;
+  private final String targetIndexType;
 
-  final String indexName;
+  private final String targetIndexName;
 
-  public RawSourceCopier(BulkUpdate txn, String indexType, String indexName) {
+  /**
+   * Construct with target index type and name.
+   */
+  public RawSourceCopier(BulkUpdate txn, String targetIndexType, String targetIndexName) {
     this.txn = txn;
-    this.indexType = indexType;
-    this.indexName = indexName;
+    this.targetIndexType = targetIndexType;
+    this.targetIndexName = targetIndexName;
   }
 
   @Override
@@ -45,8 +48,8 @@ public class RawSourceCopier implements QueryEachConsumer<RawSource> {
     gen.writeFieldName("index");
     gen.writeStartObject();
     gen.writeStringField("_id", idValue.toString());
-    gen.writeStringField("_type", indexType);
-    gen.writeStringField("_index", indexName);
+    gen.writeStringField("_type", targetIndexType);
+    gen.writeStringField("_index", targetIndexName);
     gen.writeEndObject();
     gen.writeEndObject();
     gen.writeRaw("\n");

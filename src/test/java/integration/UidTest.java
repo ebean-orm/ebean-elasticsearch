@@ -8,8 +8,6 @@ import java.util.List;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.testng.Assert.assertEquals;
 
-/**
- */
 public class UidTest extends BaseTest {
 
   Content content = new Content();

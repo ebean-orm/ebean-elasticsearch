@@ -24,6 +24,17 @@ public class BeanSearchParser<T> extends BaseSearchResultParser {
     this.listener = new BeanSourceReader<T>(desc, reader, lazyLoadMany);
   }
 
+  public BeanSearchParser(JsonParser parser, BeanSearchParser<T> source) {
+    super(parser);
+    this.listener = source.listener;
+  }
+
+
+  public BeanSearchParser<T> moreJson(JsonParser parser) {
+    this.listener.moreJson(parser);
+    return new BeanSearchParser<T>(parser, this);
+  }
+
   /**
    * Return true if all the hits have been read.
    */
