@@ -44,7 +44,7 @@ public class SeedDbData {
 
     Transaction transaction = server.beginTransaction();
     if (!updateDocStore) {
-      transaction.setDocStoreUpdateMode(DocStoreMode.IGNORE);
+      transaction.setDocStoreMode(DocStoreMode.IGNORE);
     }
     try {
 
