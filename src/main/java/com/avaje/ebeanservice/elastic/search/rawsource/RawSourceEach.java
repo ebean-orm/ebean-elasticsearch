@@ -1,8 +1,8 @@
 package com.avaje.ebeanservice.elastic.search.rawsource;
 
-import com.avaje.ebean.Query;
 import com.avaje.ebean.QueryEachConsumer;
 import com.avaje.ebean.plugin.BeanDocType;
+import com.avaje.ebeaninternal.api.SpiQuery;
 import com.avaje.ebeanservice.elastic.query.EQuerySend;
 import com.fasterxml.jackson.core.JsonParser;
 
@@ -33,7 +33,7 @@ public class RawSourceEach {
   /**
    * Consume initial scroll results returning true if we should continue.
    */
-  public boolean consumeInitial(QueryEachConsumer<RawSource> consumer, BeanDocType beanDocType, Query<?> query) throws IOException {
+  public boolean consumeInitial(QueryEachConsumer<RawSource> consumer, BeanDocType beanDocType, SpiQuery<?> query) throws IOException {
 
     JsonParser json = send.findScroll(beanDocType, query);
     consume(consumer, read(json));

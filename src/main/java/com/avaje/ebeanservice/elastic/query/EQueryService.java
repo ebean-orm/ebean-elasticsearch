@@ -45,7 +45,7 @@ public class EQueryService {
   public EQueryService(SpiServer server, JsonFactory jsonFactory, IndexMessageSender messageSender) {
     this.server = server;
     this.jsonContext = server.json();
-    this.send = new EQuerySend(jsonFactory, messageSender);
+    this.send = new EQuerySend(jsonContext, jsonFactory, messageSender);
   }
 
   /**
@@ -201,7 +201,7 @@ public class EQueryService {
     RawSourceEach each = new RawSourceEach(send);
     try {
 
-      if (each.consumeInitial(consumer, beanDocType, query)) {
+      if (each.consumeInitial(consumer, beanDocType, spiQuery)) {
         while (!each.consumeNext(consumer)) {
           // continue
         }

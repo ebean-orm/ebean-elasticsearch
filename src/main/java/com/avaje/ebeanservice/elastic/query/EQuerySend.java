@@ -1,8 +1,10 @@
 package com.avaje.ebeanservice.elastic.query;
 
-import com.avaje.ebean.Query;
 import com.avaje.ebean.plugin.BeanDocType;
+import com.avaje.ebean.text.json.JsonContext;
+import com.avaje.ebeaninternal.api.SpiQuery;
 import com.avaje.ebeanservice.docstore.api.DocumentNotFoundException;
+import com.avaje.ebeanservice.elastic.support.ElasticQueryContext;
 import com.avaje.ebeanservice.elastic.support.IndexMessageResponse;
 import com.avaje.ebeanservice.elastic.support.IndexMessageSender;
 import com.fasterxml.jackson.core.JsonFactory;
@@ -20,26 +22,29 @@ public class EQuerySend {
 
   private static final Logger logger = LoggerFactory.getLogger(EQuerySend.class);
 
+  private final JsonContext jsonContext;
+
   private final JsonFactory jsonFactory;
 
   private final IndexMessageSender messageSender;
 
-  public EQuerySend(JsonFactory jsonFactory, IndexMessageSender messageSender) {
+  public EQuerySend(JsonContext jsonContext, JsonFactory jsonFactory, IndexMessageSender messageSender) {
+    this.jsonContext = jsonContext;
     this.jsonFactory = jsonFactory;
     this.messageSender = messageSender;
   }
 
-  public JsonParser findHits(BeanDocType type, Query<?> query) throws IOException, DocumentNotFoundException {
+  public JsonParser findHits(BeanDocType type, SpiQuery<?> query) throws IOException, DocumentNotFoundException {
     return findInternal(false, type, query);
   }
 
-  public JsonParser findScroll(BeanDocType type, Query<?> query) throws IOException, DocumentNotFoundException {
+  public JsonParser findScroll(BeanDocType type, SpiQuery<?> query) throws IOException, DocumentNotFoundException {
     return findInternal(true, type, query);
   }
 
-  private JsonParser findInternal(boolean scroll, BeanDocType type, Query<?> query) throws IOException, DocumentNotFoundException {
+  private JsonParser findInternal(boolean scroll, BeanDocType type, SpiQuery<?> query) throws IOException, DocumentNotFoundException {
 
-    IndexMessageResponse response = messageSender.postQuery(scroll, type.getIndexType(), type.getIndexName(), query.asElasticQuery());
+    IndexMessageResponse response = messageSender.postQuery(scroll, type.getIndexType(), type.getIndexName(), asJson(query));
     switch (response.getCode()) {
       case 404:
         throw new DocumentNotFoundException("404 for query?");
@@ -48,6 +53,13 @@ public class EQuerySend {
       default:
         throw new IOException("Unhandled response code " + response.getCode() + " body:" + response.getBody());
     }
+  }
+
+  /**
+   * Return the query as ElasticSearch JSON format.
+   */
+  private String asJson(SpiQuery<?> query) {
+    return ElasticQueryContext.asJson(jsonContext, query);
   }
 
   public JsonParser findById(String indexType, String indexName, Object docId) throws IOException, DocumentNotFoundException {

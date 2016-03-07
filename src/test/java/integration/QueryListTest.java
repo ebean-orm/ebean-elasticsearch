@@ -137,6 +137,20 @@ public class QueryListTest extends BaseTest {
   }
 
   @Test
+  public void where_notIn() {
+
+    Query<Customer> query = server.find(Customer.class)
+        .setUseDocStore(true)
+        .where().notIn("name", "Rob", "Junk", "Fiona")
+        .query();
+
+    List<Customer> customers = query.findList();
+
+    assertEquals(query.getGeneratedSql(), "{\"query\":{\"filtered\":{\"filter\":{\"bool\":{\"must_not\":[{\"terms\":{\"name.raw\":[\"Rob\",\"Junk\",\"Fiona\"]}}]}}}}}");
+    assertEquals(customers.size(), 2);
+  }
+
+  @Test
   public void where_between_onRaw() {
 
     Query<Customer> query = server.find(Customer.class)
