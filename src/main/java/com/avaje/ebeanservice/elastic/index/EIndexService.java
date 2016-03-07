@@ -27,6 +27,8 @@ public class EIndexService {
 
   private final SpiServer server;
 
+  private final DocStoreConfig config;
+
   private final JsonFactory jsonFactory;
 
   private final EIndexMappingsBuilder mappingsBuilder;
@@ -37,6 +39,7 @@ public class EIndexService {
     this.server = server;
     this.jsonFactory = jsonFactory;
     this.sender = sender;
+    this.config = server.getServerConfig().getDocStoreConfig();
     this.mappingsBuilder = new EIndexMappingsBuilder(jsonFactory);
   }
 
@@ -50,11 +53,11 @@ public class EIndexService {
 
   public void createIndex(String indexName, String alias) throws IOException {
 
-    String resourcePath = "/index-mapping/" + indexName +".mapping.json";
+    String resourcePath = "/" + getMappingPath() + "/" + indexName + getMappingSuffix();
 
     String rawJsonMapping = readResource(resourcePath);
     if (rawJsonMapping == null) {
-      throw new IllegalArgumentException("No resource "+resourcePath+" found in classPath");
+      throw new IllegalArgumentException("No resource " + resourcePath + " found in classPath");
     }
 
     if (!createIndexWithMapping(false, indexName, alias, rawJsonMapping)) {
@@ -110,7 +113,7 @@ public class EIndexService {
   private String asJson(AliasChanges aliasChanges) throws IOException {
 
     StringWriter writer = new StringWriter();
-    JsonGenerator gen  = jsonFactory.createGenerator(writer);
+    JsonGenerator gen = jsonFactory.createGenerator(writer);
 
     aliasChanges.writeJson(gen);
     gen.flush();
@@ -119,9 +122,7 @@ public class EIndexService {
 
   public void createIndexes() throws IOException {
 
-    DocStoreConfig docStoreConfig = server.getServerConfig().getDocStoreConfig();
-
-    boolean dropCreate = docStoreConfig.isDropCreate();
+    boolean dropCreate = config.isDropCreate();
 
     for (BeanType<?> beanType : server.getBeanTypes()) {
       if (beanType.isDocStoreMapped()) {
@@ -134,7 +135,7 @@ public class EIndexService {
 
     String mappingJson = mappingsBuilder.createMappingJson(beanType);
     String alias = beanType.docStore().getIndexName();
-    String indexName = alias+"_v1";
+    String indexName = alias + "_v1";
 
     writeMappingFile(indexName, mappingJson);
 
@@ -146,12 +147,19 @@ public class EIndexService {
    */
   private void writeMappingFile(String indexName, String mappingJson) {
 
+    File resourceDir = new File(config.getPathToResources());
+    if (!resourceDir.exists()) {
+      logger.error("docStore.pathToResources [{}] does not exist?", config.getPathToResources());
+      return;
+    }
     try {
-      File dir = new File("elastic-index");
+      String mappingPath = getMappingPath();
+      File dir = new File(resourceDir, mappingPath);
       if (!dir.mkdirs()) {
         logger.warn("Unable to make directories for {}", dir.getAbsolutePath());
       }
-      File file = new File(dir, indexName + ".mapping.json");
+      String mappingSuffix = getMappingSuffix();
+      File file = new File(dir, indexName + mappingSuffix);
       FileWriter writer = new FileWriter(file);
       writer.write(mappingJson);
       writer.flush();
@@ -159,6 +167,23 @@ public class EIndexService {
     } catch (IOException e) {
       logger.error("Error trying to write index mapping", e);
     }
+  }
+
+  private String getMappingSuffix() {
+    String mappingSuffix = config.getMappingSuffix();
+    if (mappingSuffix == null) {
+      mappingSuffix = ".mapping.json";
+    }
+    return mappingSuffix;
+  }
+
+  private String getMappingPath() {
+
+    String mappingPath = config.getMappingPath();
+    if (mappingPath == null) {
+      mappingPath = "elastic-mapping";
+    }
+    return mappingPath;
   }
 
 }

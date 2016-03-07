@@ -18,6 +18,11 @@ public class NativeClientQueryTest extends BaseTest {
 
     Node node = embeddedServer.getNode();
 
+    if (node == null) {
+      // do not run without embedded server
+      return;
+    }
+
     Client client = node.client();
     SearchResponse response = client.prepareSearch("product")
         .setSource(rawJson)
