@@ -7,12 +7,12 @@
         "shipDate": { "type": "date" },
         "customer" : {
           "properties" : {
-            "id": { "type": "long", "index": "not_analyzed" },
+            "id": { "type": "long" },
             "status": { "type": "string", "index": "not_analyzed" },
             "name": { "type": "string", "fields": { "raw": { "type": "string", "index": "not_analyzed" } } },
             "billingAddress" : {
               "properties" : {
-                "id": { "type": "long", "index": "not_analyzed" },
+                "id": { "type": "long" },
                 "line1": { "type": "string" },
                 "line2": { "type": "string" },
                 "city": { "type": "string" },
@@ -32,13 +32,13 @@
         "details" : {
           "type" : "nested",
           "properties" : {
-            "id": { "type": "long", "index": "not_analyzed" },
+            "id": { "type": "long" },
             "orderQty": { "type": "integer" },
             "shipQty": { "type": "integer" },
             "unitPrice": { "type": "double" },
             "product" : {
               "properties" : {
-                "id": { "type": "long", "index": "not_analyzed" },
+                "id": { "type": "long" },
                 "sku": { "type": "string", "fields": { "raw": { "type": "string", "index": "not_analyzed" } } }
               }
             },

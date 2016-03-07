@@ -62,8 +62,8 @@ public class QueryListTest extends BaseTest {
 
     List<Product> products = query.findList();
 
-    assertEquals(products.size(), 2);
     assertEquals(query.getGeneratedSql(), "{\"query\":{\"filtered\":{\"filter\":{\"wildcard\":{\"sku\":\"*1\"}}}}}");
+    assertEquals(products.size(), 2);
   }
 
   @Test
@@ -76,8 +76,8 @@ public class QueryListTest extends BaseTest {
 
     List<Product> products = query.findList();
 
-    assertEquals(products.size(), 3);
     assertEquals(query.getGeneratedSql(), "{\"query\":{\"filtered\":{\"filter\":{\"wildcard\":{\"sku\":\"c?0*\"}}}}}");
+    assertEquals(products.size(), 3);
   }
 
   @Test

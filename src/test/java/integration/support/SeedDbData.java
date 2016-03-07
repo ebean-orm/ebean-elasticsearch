@@ -102,6 +102,10 @@ public class SeedDbData {
     p.setSku("C003");
     server.save(p);
 
+    p = new Product();
+    p.setName("ZChair");
+    p.setSku("Z99Z");
+    server.save(p);
   }
 
   public void insertTestCustAndOrders() {

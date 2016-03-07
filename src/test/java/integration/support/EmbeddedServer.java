@@ -17,7 +17,7 @@ import org.example.domain.Product;
 public class EmbeddedServer {
 
   final boolean useExternalElastic = true;
-  final boolean indexOnStart = false;
+  final boolean indexOnStart = true;
 
   final Node node;
 

@@ -8,7 +8,7 @@
         "anniversary": { "type": "date" },
         "billingAddress" : {
           "properties" : {
-            "id": { "type": "long", "index": "not_analyzed" },
+            "id": { "type": "long" },
             "line1": { "type": "string" },
             "line2": { "type": "string" },
             "city": { "type": "string" },
@@ -25,7 +25,7 @@
         },
         "shippingAddress" : {
           "properties" : {
-            "id": { "type": "long", "index": "not_analyzed" },
+            "id": { "type": "long" },
             "line1": { "type": "string" },
             "line2": { "type": "string" },
             "city": { "type": "string" },
