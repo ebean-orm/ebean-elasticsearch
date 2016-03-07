@@ -9,7 +9,9 @@ import com.avaje.ebean.plugin.BeanDocType;
 import com.avaje.ebean.plugin.BeanType;
 import com.avaje.ebean.plugin.Property;
 import com.avaje.ebean.plugin.SpiServer;
+import com.avaje.ebean.text.json.JsonBeanReader;
 import com.avaje.ebean.text.json.JsonContext;
+import com.avaje.ebean.text.json.JsonReadOptions;
 import com.avaje.ebeaninternal.api.SpiQuery;
 import com.avaje.ebeanservice.docstore.api.DocumentNotFoundException;
 import com.avaje.ebeanservice.elastic.bulk.BulkUpdate;
@@ -143,9 +145,15 @@ public class EQueryService {
     BeanDocType beanDocType = desc.docStore();
     try {
       JsonParser parser = send.findById(beanDocType.getIndexType(), beanDocType.getIndexName(), id);
-      T bean = desc.jsonRead(parser, null, null);
+
+      JsonReadOptions options = new JsonReadOptions().setEnableLazyLoading(true);
+
+      JsonBeanReader<T> reader = new EQuery<T>(desc, jsonContext, options).createReader(parser);
+      T bean = reader.read();
       desc.setBeanId(bean, id);
 
+      // register with persistence context and load context
+      reader.persistenceContextPut(desc.getBeanId(bean), bean);
       return bean;
 
     } catch (DocumentNotFoundException e) {

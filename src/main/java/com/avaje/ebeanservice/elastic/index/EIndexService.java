@@ -101,7 +101,12 @@ public class EIndexService {
     }
     logger.debug("create index {}", indexName);
     sender.indexCreate(indexName, jsonMapping);
-
+    if (alias != null) {
+      if (indexExists(alias)) {
+        logger.debug("drop alias {}", alias, indexName);
+        dropIndex(alias);
+      }
+    }
     if (alias != null) {
       String aliasJson = asJson(new AliasChanges().add(indexName, alias));
       logger.debug("add alias {} for index {}", alias, indexName);
@@ -155,7 +160,7 @@ public class EIndexService {
     try {
       String mappingPath = getMappingPath();
       File dir = new File(resourceDir, mappingPath);
-      if (!dir.mkdirs()) {
+      if (!dir.exists() && !dir.mkdirs()) {
         logger.warn("Unable to make directories for {}", dir.getAbsolutePath());
       }
       String mappingSuffix = getMappingSuffix();

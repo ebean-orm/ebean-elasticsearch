@@ -29,6 +29,13 @@ public class EQuery<T> {
     this.jsonOptions = getJsonReadOptions(query);
   }
 
+  public EQuery(BeanType<T> beanType, JsonContext jsonContext, JsonReadOptions options) {
+    this.query = null;
+    this.beanType = beanType;
+    this.jsonContext = jsonContext;
+    this.jsonOptions = options;
+  }
+
   /**
    * Return the JsonReadOptions taking into account lazy loading and persistence context.
    */
@@ -50,8 +57,8 @@ public class EQuery<T> {
     return createParser(json, reader);
   }
 
-  private JsonBeanReader<T> createReader(JsonParser initialJson) {
-    return jsonContext.createBeanReader(query.getBeanType(), initialJson, jsonOptions);
+  public JsonBeanReader<T> createReader(JsonParser initialJson) {
+    return jsonContext.createBeanReader(beanType, initialJson, jsonOptions);
   }
 
   private BeanSearchParser<T> createParser(JsonParser initialJson, JsonBeanReader<T> reader) {

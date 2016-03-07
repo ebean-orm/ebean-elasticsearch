@@ -9,15 +9,13 @@ import com.fasterxml.jackson.core.JsonParser;
 
 import java.io.IOException;
 import java.util.List;
-import java.util.Map;
 
 /**
+ * Reads JSON results for a given bean type.
  */
 public class BeanSearchParser<T> extends BaseSearchResultParser {
 
   private final BeanSourceReader<T> listener;
-
-  private Map<String, Object> fields;
 
   public BeanSearchParser(JsonParser parser, BeanType<T> desc, JsonBeanReader<T> reader, BeanPropertyAssocMany<?> lazyLoadMany) {
     super(parser);
@@ -28,7 +26,6 @@ public class BeanSearchParser<T> extends BaseSearchResultParser {
     super(parser);
     this.listener = source.listener;
   }
-
 
   public BeanSearchParser<T> moreJson(JsonParser parser) {
     this.listener.moreJson(parser);
@@ -53,7 +50,6 @@ public class BeanSearchParser<T> extends BaseSearchResultParser {
    * Return the JSON returning the list of beans.
    */
   public List<T> read() throws IOException {
-
     readAll();
     return listener.getList();
   }
@@ -63,8 +59,7 @@ public class BeanSearchParser<T> extends BaseSearchResultParser {
   }
 
   public void readFields() throws IOException {
-    fields = EJson.parseObject(parser);
-    listener.readFields(fields, id, score);
+    listener.readFields(EJson.parseObject(parser), id, score);
   }
 
   @Override
