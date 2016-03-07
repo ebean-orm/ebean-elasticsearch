@@ -1,0 +1,15 @@
+{
+  "mappings" : {
+    "content" : {
+      "properties" : {
+        "status": { "type": "string", "index": "not_analyzed" },
+        "title": { "type": "string" },
+        "author": { "type": "string" },
+        "content": { "type": "string" },
+        "whenCreated": { "type": "date" },
+        "whenModified": { "type": "date" },
+        "version": { "type": "long" }
+      }
+    }
+  }
+}
