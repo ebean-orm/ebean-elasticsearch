@@ -7,6 +7,7 @@ import org.testng.annotations.Test;
 
 import java.util.List;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.testng.Assert.assertEquals;
 
 public class InheritanceQueryTest extends BaseTest {
@@ -20,7 +21,7 @@ public class InheritanceQueryTest extends BaseTest {
     List<Vehicle> list = query.findList();
 
     assertEquals(query.getGeneratedSql(), "{\"query\":{\"match_all\":{}}}");
-    assertEquals(list.size(), 5);
+    assertThat(list.size()).isGreaterThan(4);
   }
 
   @Test

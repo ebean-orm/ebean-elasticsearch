@@ -1,7 +1,6 @@
 package com.avaje.ebeanservice.elastic.search.bean;
 
 import com.avaje.ebean.bean.EntityBean;
-import com.avaje.ebean.bean.PersistenceContext;
 import com.avaje.ebean.plugin.BeanType;
 import com.avaje.ebean.plugin.ExpressionPath;
 import com.avaje.ebean.text.json.JsonBeanReader;
@@ -25,8 +24,6 @@ public class BeanSourceReader<T> {
 
   private final boolean hasContext;
 
-  private final PersistenceContext persistenceContext;
-
   private final BeanPropertyAssocMany<?> lazyLoadMany;
 
   private T currentBean;
@@ -36,8 +33,7 @@ public class BeanSourceReader<T> {
   public BeanSourceReader(BeanType<T> desc, JsonBeanReader<T> reader, BeanPropertyAssocMany<?> lazyLoadMany) {
     this.desc = desc;
     this.reader = reader;
-    this.persistenceContext = reader.getPersistenceContext();
-    this.hasContext = persistenceContext != null;
+    this.hasContext = reader.getPersistenceContext() != null;
     this.lazyLoadMany = lazyLoadMany;
   }
 
@@ -60,6 +56,7 @@ public class BeanSourceReader<T> {
     }
   }
 
+  @SuppressWarnings("unchecked")
   public void readFields(Map<String, Object> fields, String id, double score) {
 
     if (currentBean != null) {
@@ -93,7 +90,7 @@ public class BeanSourceReader<T> {
 
       if (!path.containsMany()) {
         if (value.size() == 1) {
-          path.set(bean, value.get(0));
+          path.pathSet(bean, value.get(0));
         }
       }
     }
