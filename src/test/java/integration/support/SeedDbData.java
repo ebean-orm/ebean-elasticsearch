@@ -12,6 +12,9 @@ import org.example.domain.Order;
 import org.example.domain.OrderDetail;
 import org.example.domain.OrderShipment;
 import org.example.domain.Product;
+import org.example.domain.TruckRef;
+import org.example.domain.VehicleCar;
+import org.example.domain.VehicleTruck;
 
 import java.sql.Date;
 import java.util.ArrayList;
@@ -51,6 +54,7 @@ public class SeedDbData {
       me.insertCountries();
       me.insertProducts();
       me.insertTestCustAndOrders();
+      me.insertVehicles();
       runOnce = true;
       server.commitTransaction();
     } finally {
@@ -58,7 +62,7 @@ public class SeedDbData {
     }
   }
 
-  public void insertCountries() {
+  private void insertCountries() {
 
     if (server.find(Country.class).findRowCount() > 0) {
       return;
@@ -75,8 +79,49 @@ public class SeedDbData {
     server.save(au);
   }
 
+  private void insertVehicles() {
 
-  public void insertProducts() {
+    Date today = new Date(System.currentTimeMillis());
+    TruckRef truckRef = new TruckRef();
+    truckRef.setSomething("something");
+
+    VehicleTruck truck = new VehicleTruck();
+    truck.setCapacity(22.0);
+    truck.setLicenseNumber("T22");
+    truck.setRegistrationDate(today);
+    truck.setTruckRef(truckRef);
+    truck.save();
+
+    truck = new VehicleTruck();
+    truck.setCapacity(42.0);
+    truck.setLicenseNumber("T42");
+    truck.setRegistrationDate(today);
+    truck.save();
+
+    VehicleCar car = new VehicleCar();
+    car.setDriver("Mario");
+    car.setNotes("Fast dude");
+    car.setLicenseNumber("M1");
+    car.setRegistrationDate(today);
+    car.save();
+
+    car = new VehicleCar();
+    car.setDriver("Alpha");
+    car.setNotes("Not so fast");
+    car.setLicenseNumber("Alpha1");
+    car.setRegistrationDate(today);
+    car.save();
+
+    car = new VehicleCar();
+    car.setDriver("Zapper");
+    car.setNotes("Super fast");
+    car.setLicenseNumber("Zap1");
+    car.setRegistrationDate(today);
+    car.save();
+
+  }
+
+  private void insertProducts() {
 
     if (server.find(Product.class).findRowCount() > 0) {
       return;
@@ -108,7 +153,7 @@ public class SeedDbData {
     server.save(p);
   }
 
-  public void insertTestCustAndOrders() {
+  private void insertTestCustAndOrders() {
 
 
     Customer cust1 = insertCustomer("Rob");
@@ -142,7 +187,7 @@ public class SeedDbData {
     return c;
   }
 
-  public static Contact createContact(String firstName, String lastName) {
+  private static Contact createContact(String firstName, String lastName) {
     Contact contact = new Contact(firstName, lastName);
     String email = contact.getLastName() + (contactEmailNum++) + "@test.com";
     contact.setEmail(email.toLowerCase());

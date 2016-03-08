@@ -34,7 +34,7 @@ public class ProcessNested<T> {
   private final BeanType<?> nestedDesc;
 
   private final Property nestedProperty;
-  private final String idPropertyName;
+  private final String selectId;
   private final String nestedIdPropertyName;
   private final boolean nestedMany;
   private final BeanDocType<T> beanDocType;
@@ -64,8 +64,16 @@ public class ProcessNested<T> {
       manyRootDoc = beanDocType.getEmbeddedManyRoot(nestedPath);
     }
 
-    this.idPropertyName = desc.getIdProperty().getName();
+    this.selectId = createSelectId(desc);
     this.nestedIdPropertyName = nestedDesc.getIdProperty().getName();
+  }
+
+  private String createSelectId(BeanType<T> desc) {
+    String id =desc.getIdProperty().getName();
+    if (desc.hasInheritance()) {
+      id += ","+desc.getDiscColumn();
+    }
+    return id;
   }
 
   /**
@@ -138,7 +146,7 @@ public class ProcessNested<T> {
 
     Query<T> topQuery = server.createQuery(desc.getBeanType());
     topQuery.setUseDocStore(true);
-    topQuery.select(idPropertyName);
+    topQuery.select(selectId);
     if (!nestedMany) {
       topQuery.fetch(nestedPath, nestedIdPropertyName);
     }

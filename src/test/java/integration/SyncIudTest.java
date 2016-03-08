@@ -19,7 +19,7 @@ public class SyncIudTest extends BaseTest {
     country.save();
 
     // give time to propagate
-    sleepToPropagate(1500);
+    sleepToPropagate();
 
     Country sa = fetchSaFromDocStore();
     assertNotNull(sa);
@@ -33,7 +33,7 @@ public class SyncIudTest extends BaseTest {
     sa.save();
 
     // give time to propagate
-    sleepToPropagate(1100);
+    sleepToPropagate();
 
     Country confirm = fetchSaFromDocStore();
     assertEquals(confirm.getName(), sa.getName());
@@ -46,7 +46,7 @@ public class SyncIudTest extends BaseTest {
 
     Ebean.delete(Country.class, "SA");
     // give time to propagate
-    sleepToPropagate(1100);
+    sleepToPropagate();
 
     Country confirm = fetchSaFromDocStore();
 

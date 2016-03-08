@@ -5,6 +5,7 @@ import com.avaje.ebean.plugin.BeanType;
 import com.avaje.ebeanservice.docstore.api.mapping.DocPropertyAdapter;
 import com.avaje.ebeanservice.docstore.api.mapping.DocPropertyMapping;
 import com.avaje.ebeanservice.docstore.api.mapping.DocPropertyOptions;
+import com.avaje.ebeanservice.docstore.api.mapping.DocPropertyType;
 import com.avaje.ebeanservice.docstore.api.mapping.DocumentMapping;
 import com.avaje.ebeanservice.elastic.support.StringBuilderWriter;
 import com.fasterxml.jackson.core.JsonFactory;
@@ -106,11 +107,14 @@ public class EIndexMappingsBuilder {
         } else {
 
           // map from general document type to elastic type
-          String type = typeMapping.get(property.getType());
-          gen.writeStringField("type", type);
+          DocPropertyType logicalType = property.getType();
+          gen.writeStringField("type", typeMapping.get(logicalType));
 
-          if (options != null) {
-
+          if (options == null) {
+            if (notAnalysed(logicalType)) {
+              gen.writeStringField("index", "not_analyzed");
+            }
+          } else {
             if (options.isOptionsSet()) {
               gen.writeStringField("index_options", options.getOptions().name().toLowerCase());
             }
@@ -143,7 +147,7 @@ public class EIndexMappingsBuilder {
             if (options.getSearchAnalyzer() != null) {
               gen.writeStringField("search_analyzer", options.getSearchAnalyzer());
             }
-            if (isTrue(options.getCode())) {
+            if (isTrue(options.getCode()) || notAnalysed(logicalType)) {
               gen.writeStringField("index", "not_analyzed");
 
             } else if (isTrue(options.getSortable())) {
@@ -213,5 +217,15 @@ public class EIndexMappingsBuilder {
         throw new PersistenceIOException(e);
       }
     }
+  }
+
+  /**
+   * Return true if this type should not be analysed.
+   */
+  private boolean notAnalysed(DocPropertyType logicalType) {
+    switch (logicalType) {
+      case ENUM: return true;
+    }
+    return false;
   }
 }

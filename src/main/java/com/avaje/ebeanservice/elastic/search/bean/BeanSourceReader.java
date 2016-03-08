@@ -66,7 +66,15 @@ public class BeanSourceReader<T> {
       applyFields(currentBean, fields);
 
     } else {
-      T bean = desc.createBean();
+      T bean;
+      if (desc.hasInheritance()) {
+        String discCol = desc.getDiscColumn();
+        List<Object> list = (List<Object>)fields.remove(discCol);
+        bean = desc.createBeanUsingDisc(list.get(0));
+      } else {
+        bean = desc.createBean();
+      }
+
       desc.setBeanId(bean, id);
       applyFields(bean, fields);
       beans.add(bean);

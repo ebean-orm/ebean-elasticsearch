@@ -22,7 +22,7 @@ public class SyncCustNameUpdateTest extends BaseTest {
     cust.setName("Cust NonAddress");
     cust.save();
 
-    sleepToPropagate(1000);
+    sleepToPropagate();
 
     List<Order> orders = server.find(Order.class)
         .where().eq("customer.id", cust.getId())

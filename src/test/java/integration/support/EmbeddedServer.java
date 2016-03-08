@@ -11,12 +11,14 @@ import org.example.domain.Country;
 import org.example.domain.Customer;
 import org.example.domain.Order;
 import org.example.domain.Product;
+import org.example.domain.Vehicle;
 
 /**
  */
 public class EmbeddedServer {
 
-  final boolean useExternalElastic = true;
+  final boolean useExternalElastic = false;
+
   final boolean indexOnStart = true;
 
   final Node node;
@@ -60,6 +62,7 @@ public class EmbeddedServer {
       documentStore.indexAll(Customer.class);
       documentStore.indexAll(Contact.class);
       documentStore.indexAll(Order.class);
+      documentStore.indexAll(Vehicle.class);
       try {
         // allow the indexing time to store
         Thread.sleep(1000);
@@ -77,9 +80,4 @@ public class EmbeddedServer {
   public EbeanServer getServer() {
     return server;
   }
-
-//  public void stop() {
-//    node.close();
-//  }
-
 }

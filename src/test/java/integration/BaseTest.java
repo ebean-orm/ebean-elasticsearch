@@ -12,9 +12,9 @@ public abstract class BaseTest {
 
   public static DocumentStore docStore = server.docStore();
 
-  public void sleepToPropagate(long millis) {
+  public void sleepToPropagate() {
     try {
-      Thread.sleep(millis);
+      Thread.sleep(1100);
     } catch (InterruptedException e) {
       throw new RuntimeException(e);
     }

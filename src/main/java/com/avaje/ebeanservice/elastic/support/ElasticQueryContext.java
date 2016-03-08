@@ -57,6 +57,9 @@ public class ElasticQueryContext implements DocQueryContext {
 
   private String currentNestedPath;
 
+  /**
+   * Return the query in ElasticSearch JSON form.
+   */
   public static String asJson(JsonContext jsonContext, SpiQuery<?> query) {
     return new ElasticQueryContext(jsonContext, query).asElasticQuery();
   }
@@ -70,10 +73,11 @@ public class ElasticQueryContext implements DocQueryContext {
     this.desc = query.getBeanDescriptor();
     this.writer = new StringWriter(200);
     this.json = jsonContext.createGenerator(writer);
+
+    desc.addInheritanceWhere(query);
   }
 
   private String asElasticQuery() {
-
     try {
       writeElastic(query);
       String jsonQuery = flush();
@@ -211,7 +215,7 @@ public class ElasticQueryContext implements DocQueryContext {
    * This just returns the original propertyName if no 'raw' property is mapped.
    */
   private String rawProperty(String propertyName) {
-    return desc.docStore().rawProperty(propertyName);
+    return desc.root().docStore().rawProperty(propertyName);
   }
 
   /**

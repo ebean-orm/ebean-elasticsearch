@@ -20,7 +20,7 @@ public class UidTest extends BaseTest {
     content.setContent("Some good JSON support is needed");
     content.save();
 
-    sleepToPropagate(2000);
+    sleepToPropagate();
 
     Content found = server.find(Content.class)
         .setId(content.getId())
