@@ -1,7 +1,8 @@
-package org.example.integrationtests;
+package integration;
 
 import com.avaje.ebean.Ebean;
 import com.avaje.ebean.EbeanServer;
+import integration.BaseTest;
 import integration.support.SeedDbData;
 import org.assertj.core.api.StrictAssertions;
 import org.example.domain.Customer;
@@ -10,13 +11,13 @@ import org.testng.annotations.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-@Test(enabled = false)
-public class PartialUpdateTest {
+@Test
+public class PartialUpdateTest extends BaseTest {
 
   public void partial_product_update() throws InterruptedException {
 
     Product prod = new Product();
-    prod.setSku("KB91");
+    prod.setSku("KB9F");
     prod.setName("Night Keyboard");
 
     Ebean.save(prod);
@@ -34,7 +35,7 @@ public class PartialUpdateTest {
     assertThat(Ebean.getBeanState(partial).getLoadedProps()).contains("whenModified");
     assertThat(Ebean.getBeanState(partial).getLoadedProps()).doesNotContain("version");
 
-    Thread.sleep(2000);
+    sleepToPropagate();
 
     Product partialWithVersion = Ebean.find(Product.class)
         .select("name,version")
@@ -46,37 +47,26 @@ public class PartialUpdateTest {
 
     assertThat(Ebean.getBeanState(partialWithVersion).getLoadedProps()).contains("whenModified", "version");
 
-    Thread.sleep(2000);
-
   }
 
   public void partial_update() throws InterruptedException {
-
-    // this will automatically index all the customers
-    SeedDbData.reset(true);
-
-    Thread.sleep(200);
-
-    EbeanServer server = Ebean.getDefaultServer();
 
     Customer rob = server.find(Customer.class)
         .select("id, status, name, smallNote")
         .where().eq("name", "Rob")
         .findUnique();
 
-    //rob.setName("Rob B");
     rob.setSmallNote("Modify small note");
     server.save(rob);
 
-    // wait for the update to propagate to Elastic
-    Thread.sleep(1200);
+    sleepToPropagate();
 
     Customer robDoc = server.docStore().find(Customer.class, rob.getId());
 
-    StrictAssertions.assertThat(robDoc.getSmallNote()).isEqualTo(rob.getSmallNote());
+    assertThat(robDoc.getSmallNote()).isEqualTo(rob.getSmallNote());
     assertThat(robDoc.getStatus()).isEqualTo(rob.getStatus());
-    StrictAssertions.assertThat(robDoc.getName()).isEqualTo("Rob");
-    StrictAssertions.assertThat(robDoc.getBillingAddress().getCountry().getCode()).isEqualTo("NZ");
+    assertThat(robDoc.getName()).isEqualTo("Rob");
+    assertThat(robDoc.getBillingAddress().getCountry().getCode()).isEqualTo("NZ");
 
   }
 }
