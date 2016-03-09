@@ -1,12 +1,13 @@
-package com.avaje.ebeanservice.elastic.support;
+package com.avaje.ebeanservice.elastic.querywriter;
 
 import com.avaje.ebean.Expr;
 import com.avaje.ebean.LikeType;
 import com.avaje.ebean.OrderBy;
 import com.avaje.ebean.PersistenceIOException;
+import com.avaje.ebean.TextJunction;
 import com.avaje.ebean.plugin.BeanType;
 import com.avaje.ebean.plugin.ExpressionPath;
-import com.avaje.ebean.text.json.JsonContext;
+import com.avaje.ebean.search.Match;
 import com.avaje.ebeaninternal.api.SpiExpression;
 import com.avaje.ebeaninternal.api.SpiExpressionList;
 import com.avaje.ebeaninternal.api.SpiQuery;
@@ -30,9 +31,10 @@ import java.util.Set;
  */
 public class ElasticQueryContext implements DocQueryContext {
 
-  private static final String MUST = "must";
-  private static final String SHOULD = "should";
-  private static final String MUST_NOT = "must_not";
+  private static final TextJunction.Type MUST = TextJunction.Type.MUST;
+  private static final TextJunction.Type SHOULD = TextJunction.Type.SHOULD;
+  private static final TextJunction.Type MUST_NOT = TextJunction.Type.MUST_NOT;
+
   private static final String BOOL = "bool";
   private static final String TERM = "term";
   private static final String RANGE = "range";
@@ -40,12 +42,11 @@ public class ElasticQueryContext implements DocQueryContext {
   private static final String IDS = "ids";
   private static final String VALUES = "values";
   private static final String PREFIX = "prefix";
-  private static final String MATCH = "match";
   private static final String WILDCARD = "wildcard";
   private static final String EXISTS = "exists";
   private static final String FIELD = "field";
 
-  private final JsonContext jsonContext;
+  private final ElasticJsonContext context;
 
   private final SpiQuery<?> query;
 
@@ -60,19 +61,19 @@ public class ElasticQueryContext implements DocQueryContext {
   /**
    * Return the query in ElasticSearch JSON form.
    */
-  public static String asJson(JsonContext jsonContext, SpiQuery<?> query) {
-    return new ElasticQueryContext(jsonContext, query).asElasticQuery();
+  public static String asJson(ElasticJsonContext context, SpiQuery<?> query) {
+    return new ElasticQueryContext(context, query).asElasticQuery();
   }
 
   /**
    * Construct given the JSON generator and root bean type.
    */
-  private ElasticQueryContext(JsonContext jsonContext, SpiQuery<?> query) {
-    this.jsonContext = jsonContext;
+  private ElasticQueryContext(ElasticJsonContext context, SpiQuery<?> query) {
+    this.context = context;
     this.query = query;
     this.desc = query.getBeanDescriptor();
     this.writer = new StringWriter(200);
-    this.json = jsonContext.createGenerator(writer);
+    this.json = context.createGenerator(writer);
 
     desc.addInheritanceWhere(query);
   }
@@ -93,18 +94,19 @@ public class ElasticQueryContext implements DocQueryContext {
   private void writeElastic(SpiQuery<?> query) throws IOException {
 
     json.writeStartObject();
-    if (query.getFirstRow() > 0) {
-      json.writeNumberField("from", query.getFirstRow());
-    }
-    if (query.getMaxRows() > 0) {
-      json.writeNumberField("size", query.getMaxRows());
-    }
-
-    write(query.getDetail());
+    writePaging(query);
+    writeFetchPartial(query.getDetail());
     writeOrderBy(query.getOrderBy());
 
     json.writeFieldName("query");
-    json.writeStartObject();
+
+    boolean hasFullText = writeFullText(query);
+    writeFilter(query, hasFullText);
+
+    json.writeEndObject();
+  }
+
+  private void writeFilter(SpiQuery<?> query, boolean hasFullText) throws IOException {
 
     SpiExpression idEquals = null;
     if (query.getId() != null) {
@@ -114,33 +116,61 @@ public class ElasticQueryContext implements DocQueryContext {
     SpiExpressionList<?> where = query.getWhereExpressions();
     boolean hasWhere = (where != null && !where.isEmpty());
     if (idEquals != null || hasWhere) {
-      json.writeFieldName("filtered");
-      json.writeStartObject();
+      if (!hasFullText) {
+        json.writeStartObject();
+        json.writeFieldName("filtered");
+        json.writeStartObject();
+      }
       json.writeFieldName("filter");
       if (hasWhere) {
         where.writeDocQuery(this, idEquals);
       } else {
         idEquals.writeDocQuery(this);
       }
-      json.writeEndObject();
-    } else {
-      json.writeObjectFieldStart("match_all");
-      json.writeEndObject();
+      if (!hasFullText) {
+        json.writeEndObject();
+        json.writeEndObject();
+      }
+    } else if (!hasFullText) {
+      writeMatchAll();
     }
+  }
+
+  private boolean writeFullText(SpiQuery<?> query) throws IOException {
+
+    SpiExpressionList<?> text = query.getTextExpression();
+    if (text != null && !text.isEmpty()) {
+      text.writeDocQuery(this);
+      return true;
+    }
+    return false;
+  }
+
+  private void writeMatchAll() throws IOException {
+    json.writeStartObject();
+    json.writeObjectFieldStart("match_all");
     json.writeEndObject();
     json.writeEndObject();
   }
 
+  private void writePaging(SpiQuery<?> query) throws IOException {
+    if (query.getFirstRow() > 0) {
+      json.writeNumberField("from", query.getFirstRow());
+    }
+    if (query.getMaxRows() > 0) {
+      json.writeNumberField("size", query.getMaxRows());
+    }
+  }
 
   /**
-   * Write the Elastic search source include and fields if necessary.
+   * Write the Elastic search source include and fields if necessary for partial fetching.
    * <p>
-   *   Fetch all property is put into includes.
-   *   Fetch on 'many' path is put into includes.
-   *   Fetch on 'one' paths and root path are put into fields.
+   * Fetch all property is put into includes.
+   * Fetch on 'many' path is put into includes.
+   * Fetch on 'one' paths and root path are put into fields.
    * </p>
    */
-  private void write(OrmQueryDetail detail) throws IOException {
+  private void writeFetchPartial(OrmQueryDetail detail) throws IOException {
 
     Set<String> includes = new LinkedHashSet<String>();
     Set<String> fields = new LinkedHashSet<String>();
@@ -193,6 +223,7 @@ public class ElasticQueryContext implements DocQueryContext {
       json.writeEndArray();
     }
   }
+
   /**
    * Flush the JsonGenerator buffer.
    */
@@ -245,13 +276,40 @@ public class ElasticQueryContext implements DocQueryContext {
   }
 
   /**
-   * Start a Bool expression list with the given type (MUST, MUST_NOT, SHOULD).
+   * Start a Bool which could contain a MUST, SHOULD or MUST_NOT.
    */
-  private void writeBoolStart(String type) throws IOException {
-    endNested();
+  @Override
+  public void startBoolGroup() throws IOException {
     json.writeStartObject();
     json.writeObjectFieldStart(BOOL);
-    json.writeArrayFieldStart(type);
+  }
+
+  @Override
+  public void startBoolGroupList(TextJunction.Type type) throws IOException {
+    json.writeArrayFieldStart(type.literal());
+  }
+
+  /**
+   * Start a Bool expression list with the given type (MUST, MUST_NOT, SHOULD).
+   */
+  private void writeBoolStart(TextJunction.Type type) throws IOException {
+    endNested();
+    startBoolGroup();
+    startBoolGroupList(type);
+  }
+
+  @Override
+  public void endBoolGroupList() throws IOException {
+    json.writeEndArray();
+  }
+
+  /**
+   * Write the end of a Bool expression list.
+   */
+  @Override
+  public void endBoolGroup() throws IOException {
+    json.writeEndObject();
+    json.writeEndObject();
   }
 
   /**
@@ -259,9 +317,8 @@ public class ElasticQueryContext implements DocQueryContext {
    */
   @Override
   public void endBool() throws IOException {
-    json.writeEndArray();
-    json.writeEndObject();
-    json.writeEndObject();
+    endBoolGroupList();
+    endBoolGroup();
   }
 
   @Override
@@ -333,7 +390,7 @@ public class ElasticQueryContext implements DocQueryContext {
     json.writeObjectFieldStart(RANGE);
     json.writeObjectFieldStart(rawProperty(propertyName));
     json.writeFieldName(rangeType);
-    jsonContext.writeScalar(json, value);
+    context.writeScalar(json, value);
     json.writeEndObject();
     json.writeEndObject();
     json.writeEndObject();
@@ -350,9 +407,9 @@ public class ElasticQueryContext implements DocQueryContext {
     json.writeObjectFieldStart(RANGE);
     json.writeObjectFieldStart(rawProperty(propertyName));
     json.writeFieldName(lowOp.docExp());
-    jsonContext.writeScalar(json, valueLow);
+    context.writeScalar(json, valueLow);
     json.writeFieldName(highOp.docExp());
-    jsonContext.writeScalar(json, valueHigh);
+    context.writeScalar(json, valueHigh);
     json.writeEndObject();
     json.writeEndObject();
     json.writeEndObject();
@@ -372,7 +429,7 @@ public class ElasticQueryContext implements DocQueryContext {
     json.writeObjectFieldStart(TERMS);
     json.writeArrayFieldStart(rawProperty(propertyName));
     for (Object value : values) {
-      jsonContext.writeScalar(json, value);
+      context.writeScalar(json, value);
     }
     json.writeEndArray();
     json.writeEndObject();
@@ -393,7 +450,7 @@ public class ElasticQueryContext implements DocQueryContext {
     json.writeObjectFieldStart(IDS);
     json.writeArrayFieldStart(VALUES);
     for (Object id : idList) {
-      jsonContext.writeScalar(json, id);
+      context.writeScalar(json, id);
     }
     json.writeEndArray();
     json.writeEndObject();
@@ -456,12 +513,12 @@ public class ElasticQueryContext implements DocQueryContext {
 
     String[] values = value.toLowerCase().split(" ");
     if (values.length == 1) {
-      writeMatch(propName, value);
+      writeMatch(propName, value, null);
     } else {
       // Boolean AND all the terms together
       startBool(true);
       for (String val : values) {
-        writeMatch(propName, val);
+        writeMatch(propName, val, null);
       }
       endBool();
     }
@@ -470,9 +527,11 @@ public class ElasticQueryContext implements DocQueryContext {
   /**
    * Write a prefix expression.
    */
-  private void writeMatch(String propertyName, String value) throws IOException {
+  public void writeMatch(String propertyName, String value, Match options) throws IOException {
+
     // use analysed field
-    writeRawWithPrepareNested(MATCH, propertyName, value.toLowerCase());
+    prepareNestedPath(propertyName);
+    context.writeMatch(json, propertyName, value, options);
   }
 
   /**
@@ -528,7 +587,7 @@ public class ElasticQueryContext implements DocQueryContext {
     json.writeStartObject();
     json.writeObjectFieldStart(type);
     json.writeFieldName(propertyName);
-    jsonContext.writeScalar(json, value);
+    context.writeScalar(json, value);
     json.writeEndObject();
     json.writeEndObject();
   }

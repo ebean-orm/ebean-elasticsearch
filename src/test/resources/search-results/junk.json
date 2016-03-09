@@ -1,21 +1,18 @@
 {
-  "fields": [
-    "status",
-    "details.id",
-    "details.orderQty"
-  ],
   "query": {
-    "filtered": {
-      "filter": {
-        "nested": {
-          "path": "details",
-          "filter": {
-            "term": {
-              "details.id": 3
-            }
+    "bool": {
+      "must": [
+        {
+          "match": {
+            "customer.name": "Rob"
           }
         }
-      }
+      ]
+    }
+  },
+  "filter": {
+    "term": {
+      "status": "NEW"
     }
   }
 }
