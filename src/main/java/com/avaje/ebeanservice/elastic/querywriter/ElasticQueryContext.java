@@ -8,6 +8,7 @@ import com.avaje.ebean.TextJunction;
 import com.avaje.ebean.plugin.BeanType;
 import com.avaje.ebean.plugin.ExpressionPath;
 import com.avaje.ebean.search.Match;
+import com.avaje.ebean.search.MultiMatch;
 import com.avaje.ebeaninternal.api.SpiExpression;
 import com.avaje.ebeaninternal.api.SpiExpressionList;
 import com.avaje.ebeaninternal.api.SpiQuery;
@@ -532,6 +533,13 @@ public class ElasticQueryContext implements DocQueryContext {
     // use analysed field
     prepareNestedPath(propertyName);
     context.writeMatch(json, propertyName, value, options);
+  }
+
+  @Override
+  public void writeMultiMatch(String search, MultiMatch options) throws IOException {
+
+    // assuming fields are not in nested path
+    context.writeMultiMatch(json, search, options);
   }
 
   /**

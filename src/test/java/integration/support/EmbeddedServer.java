@@ -19,7 +19,7 @@ public class EmbeddedServer {
 
   final boolean useExternalElastic = true;
 
-  final boolean indexOnStart = true;
+  final boolean indexOnStart = false;
 
   final Node node;
 

@@ -1,6 +1,7 @@
 package com.avaje.ebeanservice.elastic.querywriter;
 
 import com.avaje.ebean.search.Match;
+import com.avaje.ebean.search.MultiMatch;
 import com.avaje.ebean.text.json.JsonContext;
 import com.fasterxml.jackson.core.JsonGenerator;
 
@@ -40,5 +41,9 @@ public class ElasticJsonContext {
    */
   public void writeMatch(JsonGenerator json, String propertyName, String value, Match options) throws IOException {
     matchWriter.writeMatch(json, propertyName, value, options);
+  }
+
+  public void writeMultiMatch(JsonGenerator json, String search, MultiMatch options) throws IOException {
+    matchWriter.writeMultiMatch(json, search, options);
   }
 }
