@@ -60,7 +60,8 @@ public class QueryMultiMatchTest extends BaseTest {
         .query();
 
     List<Customer> list = query.findList();
-    assertEquals(query.getGeneratedSql(), "{\"query\":{\"multi_match\":{\"query\":\"Rob\",\"fields\":[\"name\",\"smallNotes\"],\"type\":\"cross_fields\",\"tie_breaker\":0.3,\"max_expansions\":10,\"operator\":\"and\",\"boost\":2.0,\"cutoff_frequency\":2.0,\"max_expansions\":10,\"minimum_should_match\":\"1\",\"zero_terms_query\":\"all\",\"analyzer\":\"whitespace\"}}}");
+
+    assertEquals(query.getGeneratedSql(), "{\"query\":{\"multi_match\":{\"query\":\"Rob\",\"fields\":[\"name\",\"smallNotes\"],\"type\":\"cross_fields\",\"tie_breaker\":0.3,\"max_expansions\":10,\"operator\":\"and\",\"boost\":2.0,\"cutoff_frequency\":2.0,\"minimum_should_match\":\"1\",\"zero_terms_query\":\"all\",\"analyzer\":\"whitespace\"}}}");
     assertThat(list).hasSize(0);
   }
 

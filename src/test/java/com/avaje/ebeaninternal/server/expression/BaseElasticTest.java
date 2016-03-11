@@ -5,7 +5,7 @@ import com.avaje.ebean.Ebean;
 import com.avaje.ebean.plugin.SpiServer;
 import com.avaje.ebeaninternal.api.SpiQuery;
 import com.avaje.ebeanservice.elastic.querywriter.ElasticJsonContext;
-import com.avaje.ebeanservice.elastic.querywriter.ElasticQueryContext;
+import com.avaje.ebeanservice.elastic.querywriter.ElasticDocQueryContext;
 
 import java.io.IOException;
 
@@ -15,7 +15,7 @@ public abstract class BaseElasticTest  {
 
   public String asJson(SpiQuery<?> query) throws IOException {
     ElasticJsonContext context = new ElasticJsonContext(Ebean.json());
-    return ElasticQueryContext.asJson(context, query);
+    return ElasticDocQueryContext.asJson(context, query);
   }
 
 }

@@ -17,7 +17,7 @@ public class QueryMatchOptionTest extends BaseTest {
 
     Query<Customer> query = server.find(Customer.class)
         .text()
-        .match("name", "Cust NoAddress", Match.OR())
+        .match("name", "Cust NoAddress", new Match().opOr())
         .query();
 
     List<Customer> list = query.findList();
@@ -30,7 +30,7 @@ public class QueryMatchOptionTest extends BaseTest {
 
     Query<Customer> query = server.find(Customer.class)
         .text()
-        .match("name", "Cust NoAddress", Match.AND())
+        .match("name", "Cust NoAddress", new Match().opAnd())
         .query();
 
     List<Customer> list = query.findList();
@@ -44,7 +44,7 @@ public class QueryMatchOptionTest extends BaseTest {
 
     Query<Customer> query = server.find(Customer.class)
         .text()
-        .match("name", "Cust DoesNotExist", Match.AND())
+        .match("name", "Cust DoesNotExist", new Match().opAnd())
         .query();
 
     List<Customer> list = query.findList();
@@ -54,7 +54,7 @@ public class QueryMatchOptionTest extends BaseTest {
   @Test
   public void matchAllPhraseOptions() {
 
-    Match options = Match.AND().phrase()
+    Match options = new Match().opAnd().phrase()
         .analyzer("whitespace")
         .boost(2)
         .cutoffFrequency(1)
@@ -76,7 +76,7 @@ public class QueryMatchOptionTest extends BaseTest {
   @Test
   public void matchAllPhrasePrefixOptions() {
 
-    Match options = Match.AND().phrase()
+    Match options = new Match().opAnd().phrase()
         .analyzer("whitespace")
         .boost(2)
         .cutoffFrequency(1)
@@ -97,7 +97,7 @@ public class QueryMatchOptionTest extends BaseTest {
   @Test
   public void matchPhrasePrefix() {
 
-    Match options = Match.AND().phrase()
+    Match options = new Match().opAnd().phrase()
         .phrasePrefix();
 
     Query<Customer> query = server.find(Customer.class)

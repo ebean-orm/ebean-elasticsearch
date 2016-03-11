@@ -2,6 +2,9 @@ package com.avaje.ebeanservice.elastic.querywriter;
 
 import com.avaje.ebean.search.Match;
 import com.avaje.ebean.search.MultiMatch;
+import com.avaje.ebean.search.TextCommonTerms;
+import com.avaje.ebean.search.TextQueryString;
+import com.avaje.ebean.search.TextSimple;
 import com.avaje.ebean.text.json.JsonContext;
 import com.fasterxml.jackson.core.JsonGenerator;
 
@@ -9,17 +12,29 @@ import java.io.IOException;
 import java.io.StringWriter;
 
 /**
- * Context for helping write JSON.
+ * Context for helping write JSON expressions.
  */
 public class ElasticJsonContext {
 
   private final JsonContext jsonContext;
 
-  private final MatchWriter matchWriter;
+  private final WriteMatchExpression matchWriter;
 
+  private final WriteCommonTermsExpression commonTermsWriter;
+
+  private final WriteTextSimpleExpression simpleWriter;
+
+  private final WriteQueryStringExpression queryStringWriter;
+
+  /**
+   * Construct with the Ebean JsonContext (which handles all scalar types know to Ebean).
+   */
   public ElasticJsonContext(JsonContext jsonContext) {
     this.jsonContext = jsonContext;
-    this.matchWriter = new MatchWriter(jsonContext);
+    this.matchWriter = new WriteMatchExpression(jsonContext);
+    this.commonTermsWriter = new WriteCommonTermsExpression();
+    this.simpleWriter = new WriteTextSimpleExpression();
+    this.queryStringWriter = new WriteQueryStringExpression();
   }
 
   /**
@@ -43,7 +58,31 @@ public class ElasticJsonContext {
     matchWriter.writeMatch(json, propertyName, value, options);
   }
 
+  /**
+   * Write a multi-match expression.
+   */
   public void writeMultiMatch(JsonGenerator json, String search, MultiMatch options) throws IOException {
     matchWriter.writeMultiMatch(json, search, options);
+  }
+
+  /**
+   * Write a common terms expression.
+   */
+  public void writeCommonTerms(JsonGenerator json, String search, TextCommonTerms options) throws IOException {
+    commonTermsWriter.write(json, search, options);
+  }
+
+  /**
+   * Write a query string expression.
+   */
+  public void writeQueryString(JsonGenerator json, String search, TextQueryString options) throws IOException {
+    queryStringWriter.write(json, search, options);
+  }
+
+  /**
+   * Write a simple query expression.
+   */
+  public void writeSimple(JsonGenerator json, String search, TextSimple options) throws IOException {
+    simpleWriter.write(json, search, options);
   }
 }

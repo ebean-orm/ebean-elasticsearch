@@ -9,6 +9,9 @@ import com.avaje.ebean.plugin.BeanType;
 import com.avaje.ebean.plugin.ExpressionPath;
 import com.avaje.ebean.search.Match;
 import com.avaje.ebean.search.MultiMatch;
+import com.avaje.ebean.search.TextCommonTerms;
+import com.avaje.ebean.search.TextQueryString;
+import com.avaje.ebean.search.TextSimple;
 import com.avaje.ebeaninternal.api.SpiExpression;
 import com.avaje.ebeaninternal.api.SpiExpressionList;
 import com.avaje.ebeaninternal.api.SpiQuery;
@@ -30,7 +33,7 @@ import java.util.Set;
 /**
  * Context for writing elastic search expressions.
  */
-public class ElasticQueryContext implements DocQueryContext {
+public class ElasticDocQueryContext implements DocQueryContext {
 
   private static final TextJunction.Type MUST = TextJunction.Type.MUST;
   private static final TextJunction.Type SHOULD = TextJunction.Type.SHOULD;
@@ -63,13 +66,13 @@ public class ElasticQueryContext implements DocQueryContext {
    * Return the query in ElasticSearch JSON form.
    */
   public static String asJson(ElasticJsonContext context, SpiQuery<?> query) {
-    return new ElasticQueryContext(context, query).asElasticQuery();
+    return new ElasticDocQueryContext(context, query).asElasticQuery();
   }
 
   /**
    * Construct given the JSON generator and root bean type.
    */
-  private ElasticQueryContext(ElasticJsonContext context, SpiQuery<?> query) {
+  private ElasticDocQueryContext(ElasticJsonContext context, SpiQuery<?> query) {
     this.context = context;
     this.query = query;
     this.desc = query.getBeanDescriptor();
@@ -540,6 +543,21 @@ public class ElasticQueryContext implements DocQueryContext {
 
     // assuming fields are not in nested path
     context.writeMultiMatch(json, search, options);
+  }
+
+  @Override
+  public void writeTextSimple(String search, TextSimple options) throws IOException {
+    context.writeSimple(json, search, options);
+  }
+
+  @Override
+  public void writeTextCommonTerms(String search, TextCommonTerms options) throws IOException {
+    context.writeCommonTerms(json, search, options);
+  }
+
+  @Override
+  public void writeTextQueryString(String search, TextQueryString options) throws IOException {
+    context.writeQueryString(json, search, options);
   }
 
   /**

@@ -1,18 +1,13 @@
 {
   "query": {
-    "bool": {
-      "must": [
-        {
-          "match": {
-            "customer.name": "Rob"
-          }
-        }
-      ]
-    }
-  },
-  "filter": {
-    "term": {
-      "status": "NEW"
+    "common": {
+      "body": {
+        "query": "the brown",
+        "cutoff_frequency": 0.001,
+        "low_freq_operator": "and",
+        "high_freq_operator": "and",
+        "minimum_should_match": "50%"
+      }
     }
   }
 }

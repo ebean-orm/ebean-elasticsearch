@@ -1,6 +1,6 @@
 package com.avaje.ebeanservice.elastic.querywriter;
 
-import com.avaje.ebean.search.BaseMatch;
+import com.avaje.ebean.search.AbstractMatch;
 import com.avaje.ebean.search.Match;
 import com.avaje.ebean.search.MultiMatch;
 import com.avaje.ebean.text.json.JsonContext;
@@ -11,7 +11,7 @@ import java.io.IOException;
 /**
  * Writes MATCH expressions as Elastic JSON.
  */
-class MatchWriter {
+class WriteMatchExpression extends WriteBase {
 
   private static final String MATCH = "match";
 
@@ -19,7 +19,7 @@ class MatchWriter {
 
   private final JsonContext jsonContext;
 
-  MatchWriter(JsonContext jsonContext) {
+  WriteMatchExpression(JsonContext jsonContext) {
     this.jsonContext = jsonContext;
   }
 
@@ -40,9 +40,7 @@ class MatchWriter {
       writeBaseOptions(json, options);
       if (options.isPhrasePrefix()) {
         json.writeStringField("type", "phrase_prefix");
-        if (options.getMaxExpansions() > 0) {
-          json.writeNumberField("max_expansions", options.getMaxExpansions());
-        }
+        writeMaxExpansions(json, options.getMaxExpansions());
 
       } else if (options.isPhrase()) {
         json.writeStringField("type", "phrase");
@@ -72,50 +70,25 @@ class MatchWriter {
     if (options.getType() != MultiMatch.Type.BEST_FIELDS) {
       json.writeStringField("type", options.getType().name().toLowerCase());
     }
-    if (options.getTieBreaker() != 0) {
-      json.writeNumberField("tie_breaker", options.getTieBreaker());
-    }
-    if (options.getMaxExpansions() > 0) {
-      json.writeNumberField("max_expansions", options.getMaxExpansions());
-    }
+    writeTieBreaker(json, options.getTieBreaker());
+    writeMaxExpansions(json, options.getMaxExpansions());
     writeBaseOptions(json, options);
+
     json.writeEndObject();
     json.writeEndObject();
   }
 
-  private void writeBaseOptions(JsonGenerator json, BaseMatch options) throws IOException {
 
-    if (options.isAnd()) {
-      json.writeStringField("operator", "and");
-    }
-    if (options.getBoost() != 0) {
-      json.writeNumberField("boost", options.getBoost());
-    }
-    if (options.getCutoffFrequency() != 0) {
-      json.writeNumberField("cutoff_frequency", options.getCutoffFrequency());
-    }
-    if (options.getMaxExpansions() != 0) {
-      json.writeNumberField("max_expansions", options.getMaxExpansions());
-    }
-    if (has(options.getMinShouldMatch())) {
-      json.writeStringField("minimum_should_match", options.getMinShouldMatch());
-    }
-    if (has(options.getZeroTerms())) {
-      json.writeStringField("zero_terms_query", options.getZeroTerms());
-    }
-    if (has(options.getAnalyzer())) {
-      json.writeStringField("analyzer", options.getAnalyzer());
-    }
-    if (has(options.getFuzziness())) {
-      json.writeStringField("fuzziness", options.getFuzziness());
-    }
-    if (has(options.getRewrite())) {
-      json.writeStringField("rewrite", options.getRewrite());
-    }
-  }
+  private void writeBaseOptions(JsonGenerator json, AbstractMatch options) throws IOException {
 
-  private boolean has(String value) {
-    return value != null && !value.trim().isEmpty();
+    writeOperator(json, options.isOperatorAnd());
+    writeBoost(json, options.getBoost());
+    writeCutoffFrequency(json, options.getCutoffFrequency());
+    writeMinShouldMatch(json, options.getMinShouldMatch());
+    writeZeroTerms(json, options.getZeroTerms());
+    writeAnalyzer(json, options.getAnalyzer());
+    writeFuzziness(json, options.getFuzziness());
+    writeRewrite(json, options.getRewrite());
   }
 
 }

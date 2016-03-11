@@ -5,7 +5,7 @@ import com.avaje.ebean.text.json.JsonContext;
 import com.avaje.ebeaninternal.api.SpiQuery;
 import com.avaje.ebeanservice.docstore.api.DocumentNotFoundException;
 import com.avaje.ebeanservice.elastic.querywriter.ElasticJsonContext;
-import com.avaje.ebeanservice.elastic.querywriter.ElasticQueryContext;
+import com.avaje.ebeanservice.elastic.querywriter.ElasticDocQueryContext;
 import com.avaje.ebeanservice.elastic.support.IndexMessageResponse;
 import com.avaje.ebeanservice.elastic.support.IndexMessageSender;
 import com.fasterxml.jackson.core.JsonFactory;
@@ -60,7 +60,7 @@ public class EQuerySend {
    * Return the query as ElasticSearch JSON format.
    */
   private String asJson(SpiQuery<?> query) {
-    return ElasticQueryContext.asJson(elasticJsonContext, query);
+    return ElasticDocQueryContext.asJson(elasticJsonContext, query);
   }
 
   public JsonParser findById(String indexType, String indexName, Object docId) throws IOException, DocumentNotFoundException {
