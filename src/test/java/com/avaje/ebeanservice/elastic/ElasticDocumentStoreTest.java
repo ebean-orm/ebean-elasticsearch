@@ -57,9 +57,10 @@ public class ElasticDocumentStoreTest extends BaseTest {
   public void sortBy_when_propertyIsAnalysed() throws InterruptedException {
 
     Query<Order> query = Ebean.find(Order.class)
-        .orderBy().asc("customer.name");//"orderDate.name");
+        .setUseDocStore(true)
+        .orderBy().asc("customer.name");
 
-    List<Order> list = docStore.findList(query);
+    List<Order> list = query.findList();
     System.out.print("as" + list);
   }
 
@@ -67,11 +68,12 @@ public class ElasticDocumentStoreTest extends BaseTest {
   public void findPagedList() throws InterruptedException {
 
     Query<Order> query = Ebean.find(Order.class)
+        .setUseDocStore(true)
         .where().in("customer.id", 1, 2)
         .setMaxRows(2)
         .orderBy().asc("customer.name");
 
-    PagedList<Order> list = docStore.findPagedList(query);
+    PagedList<Order> list = query.findPagedList();
 
     assertThat(list.getTotalRowCount()).isEqualTo(5);
     assertThat(list.getList()).hasSize(2);
@@ -122,16 +124,18 @@ public class ElasticDocumentStoreTest extends BaseTest {
   public void term_when_propertyIsAnalysed() {
 
     Query<Order> query = Ebean.find(Order.class)
+        .setUseDocStore(true)
         .where().eq("customer.name", "Rob")
         .orderBy().asc("customer.name");
 
-    List<Order> list1 = docStore.findList(query);
+    List<Order> list1 = query.findList();
 
     Query<Order> query2 = Ebean.find(Order.class)
+        .setUseDocStore(true)
         .where().ne("customer.name", "Rob")
         .orderBy().asc("customer.name");
 
-    List<Order> list2 = docStore.findList(query2);
+    List<Order> list2 = query2.findList();
 
     assertThat(list1).hasSize(3);
     assertThat(list2).hasSize(2);
@@ -141,10 +145,11 @@ public class ElasticDocumentStoreTest extends BaseTest {
   public void in_when() {
 
     Query<Order> query = Ebean.find(Order.class)
+        .setUseDocStore(true)
         .where().in("customer.id", 1, 2)
         .orderBy().asc("customer.name");
 
-    List<Order> list = docStore.findList(query);
+    List<Order> list = query.findList();
 
     assertThat(list).hasSize(5);
   }
@@ -154,10 +159,11 @@ public class ElasticDocumentStoreTest extends BaseTest {
 
     List<Integer> ids = Arrays.asList(1, 3);
     Query<Order> query = Ebean.find(Order.class)
+        .setUseDocStore(true)
         .where().idIn(ids)
         .orderBy().asc("customer.name");
 
-    List<Order> list = docStore.findList(query);
+    List<Order> list = query.findList();
 
     assertThat(list).hasSize(2);
   }
@@ -166,10 +172,10 @@ public class ElasticDocumentStoreTest extends BaseTest {
   public void exists_when() {
 
     Query<Order> query = Ebean.find(Order.class)
+        .setUseDocStore(true)
         .where().isNotNull("status").query();
 
-    List<Order> list = docStore.findList(query);
-
+    List<Order> list = query.findList();
     assertThat(list).hasSize(2);
   }
 
@@ -177,11 +183,11 @@ public class ElasticDocumentStoreTest extends BaseTest {
   public void exists_when_multipleFields() {
 
     Query<Order> query = Ebean.find(Order.class)
+        .setUseDocStore(true)
         .where().isNotNull("status").isNotNull("customer.id")
         .query();
 
-    List<Order> list = docStore.findList(query);
-
+    List<Order> list = query.findList();
     assertThat(list).hasSize(2);
   }
 
@@ -189,9 +195,10 @@ public class ElasticDocumentStoreTest extends BaseTest {
   public void notExists_when() {
 
     Query<Order> query = Ebean.find(Order.class)
+        .setUseDocStore(true)
         .where().isNull("status").query();
 
-    List<Order> list = docStore.findList(query);
+    List<Order> list = query.findList();
 
     assertThat(list).hasSize(3);
   }
@@ -201,12 +208,12 @@ public class ElasticDocumentStoreTest extends BaseTest {
   public void disjunction_when() {
 
     Query<Order> query = Ebean.find(Order.class)
+        .setUseDocStore(true)
         .where()
         .disjunction().isNotNull("status").gt("customer.id", 1)
         .query();
 
-    List<Order> list = docStore.findList(query);
-
+    List<Order> list = query.findList();
     assertThat(list).hasSize(3);
   }
 
@@ -215,12 +222,12 @@ public class ElasticDocumentStoreTest extends BaseTest {
   public void conjunction_when() {
 
     Query<Order> query = Ebean.find(Order.class)
+        .setUseDocStore(true)
         .where()
         .conjunction().isNotNull("status").gt("customer.id", 1)
         .query();
 
-    List<Order> list = docStore.findList(query);
-
+    List<Order> list = query.findList();
     assertThat(list).hasSize(1);
   }
 
@@ -228,12 +235,12 @@ public class ElasticDocumentStoreTest extends BaseTest {
   public void logicConjunction_when() {
 
     Query<Order> query = Ebean.find(Order.class)
+        .setUseDocStore(true)
         .where()
         .and(Expr.isNotNull("status"), Expr.gt("customer.id", 1))
         .query();
 
-    List<Order> list = docStore.findList(query);
-
+    List<Order> list = query.findList();
     assertThat(list).hasSize(1);
   }
 
@@ -241,12 +248,12 @@ public class ElasticDocumentStoreTest extends BaseTest {
   public void logicDisjunction_when() {
 
     Query<Order> query = Ebean.find(Order.class)
+        .setUseDocStore(true)
         .where()
         .or(Expr.isNotNull("status"), Expr.gt("customer.id", 1))
         .query();
 
-    List<Order> list = docStore.findList(query);
-
+    List<Order> list = query.findList();
     assertThat(list).hasSize(3);
   }
 
@@ -254,12 +261,12 @@ public class ElasticDocumentStoreTest extends BaseTest {
   public void existsQuery_when() {
 
     Query<Order> query = Ebean.find(Order.class)
+        .setUseDocStore(true)
         .where()
         .or(Expr.isNotNull("status"), Expr.gt("customer.id", 1))
         .query();
 
-    List<Order> list = docStore.findList(query);
-
+    List<Order> list = query.findList();
     assertThat(list).hasSize(3);
   }
 
@@ -268,12 +275,12 @@ public class ElasticDocumentStoreTest extends BaseTest {
   public void greaterThan() {
 
     Query<Order> query = Ebean.find(Order.class)
+        .setUseDocStore(true)
         .where()
         .gt("customer.id", 1)
         .query();
 
-    List<Order> list = docStore.findList(query);
-
+    List<Order> list = query.findList();
     assertThat(list).hasSize(2);
   }
 
@@ -281,12 +288,12 @@ public class ElasticDocumentStoreTest extends BaseTest {
   public void between() {
 
     Query<Order> query = Ebean.find(Order.class)
+        .setUseDocStore(true)
         .where()
         .between("customer.id", 1, 2)
         .query();
 
-    List<Order> list = docStore.findList(query);
-
+    List<Order> list = query.findList();
     assertThat(list).hasSize(5);
   }
 
@@ -296,12 +303,12 @@ public class ElasticDocumentStoreTest extends BaseTest {
     long now = System.currentTimeMillis();
 
     Query<Order> query = Ebean.find(Order.class)
+        .setUseDocStore(true)
         .where()
         .betweenProperties("orderDate", "shipDate", now)
         .query();
 
-    List<Order> list = docStore.findList(query);
-
+    List<Order> list = query.findList();
     assertThat(list).hasSize(0);
   }
 
@@ -313,12 +320,12 @@ public class ElasticDocumentStoreTest extends BaseTest {
     allEq.put("customer.id", 1);
 
     Query<Order> query = Ebean.find(Order.class)
+        .setUseDocStore(true)
         .where()
         .allEq(allEq)
         .query();
 
-    List<Order> list = docStore.findList(query);
-
+    List<Order> list = query.findList();
     assertThat(list).hasSize(1);
   }
 
@@ -327,12 +334,12 @@ public class ElasticDocumentStoreTest extends BaseTest {
   public void ieq() {
 
     Query<Order> query = Ebean.find(Order.class)
+        .setUseDocStore(true)
         .where()
         .ieq("customer.name", "Rob")
         .query();
 
-    List<Order> list = docStore.findList(query);
-
+    List<Order> list = query.findList();
     assertThat(list).hasSize(3);
   }
 
@@ -340,12 +347,12 @@ public class ElasticDocumentStoreTest extends BaseTest {
   public void ieq_when_hasMultipleTermsSpaces() {
 
     Query<Order> query = Ebean.find(Order.class)
+        .setUseDocStore(true)
         .where()
         .ieq("customer.name", "Cust Noaddress")
         .query();
 
-    List<Order> list = docStore.findList(query);
-
+    List<Order> list = query.findList();
     assertThat(list).hasSize(2);
   }
 
@@ -354,12 +361,12 @@ public class ElasticDocumentStoreTest extends BaseTest {
   public void jsonPathBetween_when() {
 
     Query<Order> query = Ebean.find(Order.class)
+        .setUseDocStore(true)
         .where()
         .jsonBetween("customer", "id", 1, 2)
         .query();
 
-    List<Order> list = docStore.findList(query);
-
+    List<Order> list = query.findList();
     assertThat(list).hasSize(5);
   }
 
@@ -367,12 +374,12 @@ public class ElasticDocumentStoreTest extends BaseTest {
   public void jsonPathEqualTo_when() {
 
     Query<Order> query = Ebean.find(Order.class)
+        .setUseDocStore(true)
         .where()
         .jsonEqualTo("customer", "id", 1)
         .query();
 
-    List<Order> list = docStore.findList(query);
-
+    List<Order> list = query.findList();
     assertThat(list).hasSize(3);
   }
 
@@ -380,6 +387,7 @@ public class ElasticDocumentStoreTest extends BaseTest {
   public void integration_test() {
 
     Query<Order> query = Ebean.find(Order.class)
+        .setUseDocStore(true)
         .select("status")
         .fetch("customer","id,name")
         .fetch("details","id")
@@ -387,14 +395,8 @@ public class ElasticDocumentStoreTest extends BaseTest {
         .where().eq("customer.id", 1)
         .query();
 
-    List<Order> list = docStore.findList(query);
-
+    List<Order> list = query.findList();
     System.out.print("as" + list);
-
-    List<Order> list1 = query.findList();
-
-    System.out.print("as" + list1);
-
   }
 
 
@@ -402,6 +404,7 @@ public class ElasticDocumentStoreTest extends BaseTest {
   public void integration_test_findEach() {
 
     Query<Order> query = Ebean.find(Order.class)
+        .setUseDocStore(true)
         .select("status")
         .fetch("customer","id,name")
         .fetch("details","id")
@@ -409,7 +412,7 @@ public class ElasticDocumentStoreTest extends BaseTest {
         .where().eq("customer.id", 1)
         .query();
 
-    docStore.findEach(query, new QueryEachConsumer<Order>() {
+    query.findEach(new QueryEachConsumer<Order>() {
       @Override
       public void accept(Order bean) {
         System.out.print("bean" + bean);

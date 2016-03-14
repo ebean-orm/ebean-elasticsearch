@@ -27,8 +27,8 @@ public class BeanSearchParser<T> extends BaseSearchResultParser {
     this.listener = source.listener;
   }
 
-  public BeanSearchParser<T> moreJson(JsonParser parser) {
-    this.listener.moreJson(parser);
+  public BeanSearchParser<T> moreJson(JsonParser parser, boolean resetContext) {
+    this.listener.moreJson(parser, resetContext);
     return new BeanSearchParser<T>(parser, this);
   }
 

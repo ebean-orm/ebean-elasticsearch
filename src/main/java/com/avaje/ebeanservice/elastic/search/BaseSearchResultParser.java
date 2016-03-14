@@ -20,6 +20,7 @@ public abstract class BaseSearchResultParser {
   protected boolean timedOut;
   protected Map<String, Object> shards;
   protected String scrollId;
+  protected boolean terminatedEarly;
   protected String field;
   protected long total;
   protected double maxScore;
@@ -196,6 +197,8 @@ public abstract class BaseSearchResultParser {
       shards = EJson.parseObject(parser);
     } else if ("_scroll_id".equals(field)) {
       scrollId = readString();
+    } else if ("terminated_early".equals(field)) {
+      terminatedEarly = readBoolean();
     } else if ("hits".equals(field)) {
       // read object start
       parser.nextToken();

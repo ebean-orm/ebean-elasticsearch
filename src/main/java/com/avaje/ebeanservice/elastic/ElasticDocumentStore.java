@@ -11,6 +11,7 @@ import com.avaje.ebean.config.DocStoreConfig;
 import com.avaje.ebean.plugin.BeanType;
 import com.avaje.ebean.plugin.SpiServer;
 import com.avaje.ebeaninternal.api.SpiQuery;
+import com.avaje.ebeanservice.docstore.api.DocQueryRequest;
 import com.avaje.ebeanservice.docstore.api.DocStoreQueryUpdate;
 import com.avaje.ebeanservice.elastic.bulk.BulkUpdate;
 import com.avaje.ebeanservice.elastic.index.EIndexService;
@@ -158,28 +159,28 @@ public class ElasticDocumentStore implements DocumentStore {
   }
 
   @Override
-  public <T> void findEach(Query<T> query, QueryEachConsumer<T> consumer) {
-    queryService.findEach(query, consumer);
+  public <T> void findEach(DocQueryRequest<T> request, QueryEachConsumer<T> consumer) {
+    queryService.findEach(request, consumer);
   }
 
   @Override
-  public <T> void findEachWhile(Query<T> query, QueryEachWhileConsumer<T> consumer) {
-    queryService.findEachWhile(query, consumer);
+  public <T> void findEachWhile(DocQueryRequest<T> request, QueryEachWhileConsumer<T> consumer) {
+    queryService.findEachWhile(request, consumer);
   }
 
   @Override
-  public <T> List<T> findList(Query<T> query) {
-    return queryService.findList(query);
+  public <T> List<T> findList(DocQueryRequest<T> request) {
+    return queryService.findList(request);
   }
 
   @Override
-  public <T> PagedList<T> findPagedList(Query<T> query) {
-    return queryService.findPagedList(query);
+  public <T> PagedList<T> findPagedList(DocQueryRequest<T> request) {
+    return queryService.findPagedList(request);
   }
 
   @Override
-  public <T> T find(Class<T> beanType, Object id) {
-    return queryService.findById(beanType, id);
+  public <T> T find(DocQueryRequest<T> request) {
+    return queryService.findById(request);
   }
 
   public void onStartup() {

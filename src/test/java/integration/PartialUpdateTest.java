@@ -61,12 +61,13 @@ public class PartialUpdateTest extends BaseTest {
 
     sleepToPropagate();
 
-    Customer robDoc = server.docStore().find(Customer.class, rob.getId());
+    Customer robDoc = server.find(Customer.class)
+        .setId(rob.getId()).setUseDocStore(true)
+        .findUnique();
 
     assertThat(robDoc.getSmallNote()).isEqualTo(rob.getSmallNote());
     assertThat(robDoc.getStatus()).isEqualTo(rob.getStatus());
     assertThat(robDoc.getName()).isEqualTo("Rob");
     assertThat(robDoc.getBillingAddress().getCountry().getCode()).isEqualTo("NZ");
-
   }
 }

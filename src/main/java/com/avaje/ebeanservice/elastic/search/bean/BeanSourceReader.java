@@ -111,8 +111,8 @@ public class BeanSourceReader<T> {
     loadPersistenceContext(bean);
   }
 
-  public void moreJson(JsonParser parser) {
+  public void moreJson(JsonParser parser, boolean resetContext) {
     beans.clear();
-    reader = reader.forJson(parser);
+    reader = reader.forJson(parser, resetContext);
   }
 }

@@ -26,10 +26,6 @@ public class SeedDbData {
 
   private static EbeanServer server = Ebean.getServer(null);
 
-  public static synchronized void reset() {
-    reset(true);
-  }
-
   public static synchronized void reset(boolean updateDocStore) {
 
     if (runOnce) {

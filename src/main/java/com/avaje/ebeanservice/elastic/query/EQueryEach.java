@@ -3,7 +3,7 @@ package com.avaje.ebeanservice.elastic.query;
 import com.avaje.ebean.QueryEachConsumer;
 import com.avaje.ebean.QueryEachWhileConsumer;
 import com.avaje.ebean.text.json.JsonContext;
-import com.avaje.ebeaninternal.api.SpiQuery;
+import com.avaje.ebeanservice.docstore.api.DocQueryRequest;
 import com.avaje.ebeanservice.elastic.search.bean.BeanSearchParser;
 import com.fasterxml.jackson.core.JsonParser;
 
@@ -17,6 +17,8 @@ import java.util.Set;
  */
 public class EQueryEach<T> extends EQuery<T> {
 
+  private final DocQueryRequest<T> request;
+
   private final EQuerySend send;
 
   private final Set<String> allScrollIds = new LinkedHashSet<String>();
@@ -25,9 +27,10 @@ public class EQueryEach<T> extends EQuery<T> {
 
   private String currentScrollId;
 
-  public EQueryEach(SpiQuery<T> query, EQuerySend send, JsonContext jsonContext) {
-    super(query, jsonContext);
+  public EQueryEach(DocQueryRequest<T> request, EQuerySend send, JsonContext jsonContext) {
+    super(request.getQuery(), jsonContext, request.createJsonReadOptions());
     this.send = send;
+    this.request = request;
   }
 
   /**
@@ -58,7 +61,7 @@ public class EQueryEach<T> extends EQuery<T> {
    */
   private List<T> fetchNextScroll() throws IOException {
     JsonParser moreJson = send.findNextScroll(currentScrollId);
-    beanParser = beanParser.moreJson(moreJson);
+    beanParser = beanParser.moreJson(moreJson, true);
     return read();
   }
 
@@ -84,7 +87,9 @@ public class EQueryEach<T> extends EQuery<T> {
    * Consume the initial scroll returning true if there are more.
    */
   public boolean consumeInitial(QueryEachConsumer<T> consumer) throws IOException {
-    consumeEach(fetchInitial(), consumer);
+    List<T> list = fetchInitial();
+    request.executeSecondaryQueries(true);
+    consumeEach(list, consumer);
     return !allHitsRead();
   }
 
@@ -92,7 +97,9 @@ public class EQueryEach<T> extends EQuery<T> {
    * Consume subsequent scroll returning true if there are more.
    */
   public boolean consumeMore(QueryEachConsumer<T> consumer) throws IOException {
-    consumeEach(fetchNextScroll(), consumer);
+    List<T> list = fetchNextScroll();
+    request.executeSecondaryQueries(true);
+    consumeEach(list, consumer);
     return !zeroHits();
   }
 

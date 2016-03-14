@@ -21,12 +21,11 @@ public class EQuery<T> {
 
   protected final JsonReadOptions jsonOptions;
 
-  public EQuery(SpiQuery<T> query, JsonContext jsonContext) {
+  public EQuery(SpiQuery<T> query, JsonContext jsonContext, JsonReadOptions jsonOptions) {
     this.query = query;
     this.beanType = query.getBeanDescriptor();
     this.jsonContext = jsonContext;
-
-    this.jsonOptions = getJsonReadOptions(query);
+    this.jsonOptions = jsonOptions;
   }
 
   public EQuery(BeanType<T> beanType, JsonContext jsonContext, JsonReadOptions options) {
@@ -34,19 +33,6 @@ public class EQuery<T> {
     this.beanType = beanType;
     this.jsonContext = jsonContext;
     this.jsonOptions = options;
-  }
-
-  /**
-   * Return the JsonReadOptions taking into account lazy loading and persistence context.
-   */
-  protected JsonReadOptions getJsonReadOptions(SpiQuery<?> query) {
-
-    JsonReadOptions options = new JsonReadOptions();
-    if (!query.isDisableLazyLoading()) {
-      options.setEnableLazyLoading(true);
-    }
-    options.setPersistenceContext(query.getPersistenceContext());
-    return options;
   }
 
   /**

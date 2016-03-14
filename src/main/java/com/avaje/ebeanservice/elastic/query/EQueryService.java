@@ -13,6 +13,7 @@ import com.avaje.ebean.text.json.JsonBeanReader;
 import com.avaje.ebean.text.json.JsonContext;
 import com.avaje.ebean.text.json.JsonReadOptions;
 import com.avaje.ebeaninternal.api.SpiQuery;
+import com.avaje.ebeanservice.docstore.api.DocQueryRequest;
 import com.avaje.ebeanservice.docstore.api.DocumentNotFoundException;
 import com.avaje.ebeanservice.elastic.bulk.BulkUpdate;
 import com.avaje.ebeanservice.elastic.search.HitsPagedList;
@@ -51,13 +52,17 @@ public class EQueryService {
   /**
    * Execute the query returning a PagedList of hits.
    */
-  public <T> PagedList<T> findPagedList(Query<T> query) {
+  public <T> PagedList<T> findPagedList(DocQueryRequest<T> request) {
 
+    SpiQuery<T> query = request.getQuery();
     int firstRow = query.getFirstRow();
     int maxRows = query.getMaxRows();
-    BeanSearchParser<T> parser = findHits(query);
+
+    BeanSearchParser<T> parser = findHits(query, request.createJsonReadOptions());
     try {
       List<T> list = parser.read();
+      request.executeSecondaryQueries(false);
+
       return new HitsPagedList<T>(firstRow, maxRows, list, parser.getTotal());
 
     } catch (IOException e) {
@@ -65,35 +70,34 @@ public class EQueryService {
     }
   }
 
-  /**
-   * Execute the query returning the list of beans.
-   */
-  public <T> List<T> findList(Query<T> query) {
+  public <T> List<T> findList(DocQueryRequest<T> request) {
 
-    BeanSearchParser<T> parser = findHits(query);
+    BeanSearchParser<T> parser = findHits(request.getQuery(), request.createJsonReadOptions());
     try {
-      return parser.read();
-    } catch (IOException e) {
-      throw new PersistenceIOException(e);
-    }
-  }
-
-  private <T> BeanSearchParser<T> findHits(Query<T> query) {
-
-    SpiQuery<T> spiQuery = (SpiQuery<T>) query;
-    BeanType<T> desc = spiQuery.getBeanDescriptor();
-    try {
-      JsonParser json = send.findHits(desc.docStore(), spiQuery);
-      return createBeanParser(spiQuery, json);
+      List<T> list = parser.read();
+      request.executeSecondaryQueries(false);
+      return list;
 
     } catch (IOException e) {
       throw new PersistenceIOException(e);
     }
   }
 
-  public <T> void findEachWhile(Query<T> query, QueryEachWhileConsumer<T> consumer) {
+  private <T> BeanSearchParser<T> findHits(SpiQuery<T> query, JsonReadOptions readOptions) {
 
-    EQueryEach<T> each = new EQueryEach<T>((SpiQuery<T>) query, send, jsonContext);
+    BeanType<T> desc = query.getBeanDescriptor();
+    try {
+      JsonParser json = send.findHits(desc.docStore(), query);
+      return createBeanParser(query, json, readOptions);
+
+    } catch (IOException e) {
+      throw new PersistenceIOException(e);
+    }
+  }
+
+  public <T> void findEachWhile(DocQueryRequest<T> request, QueryEachWhileConsumer<T> consumer) {
+
+    EQueryEach<T> each = new EQueryEach<T>(request, send, jsonContext);
     try {
       if (!each.consumeInitialWhile(consumer)) {
         return;
@@ -111,12 +115,9 @@ public class EQueryService {
     }
   }
 
-  /**
-   * Execute a scroll query iterating through the results.
-   */
-  public <T> void findEach(Query<T> query, QueryEachConsumer<T> consumer) {
+  public <T> void findEach(DocQueryRequest<T> request, QueryEachConsumer<T> consumer) {
 
-    EQueryEach<T> each = new EQueryEach<T>((SpiQuery<T>) query, send, jsonContext);
+    EQueryEach<T> each = new EQueryEach<T>(request, send, jsonContext);
     try {
       if (each.consumeInitial(consumer)) {
         while (true) {
@@ -133,25 +134,27 @@ public class EQueryService {
     }
   }
 
+  public <T> T findById(DocQueryRequest<T> request) {
+
+    SpiQuery<T> query = request.getQuery();
+
+    T bean = findById(query.getBeanDescriptor(), query.getId(), request.createJsonReadOptions());
+    request.executeSecondaryQueries(false);
+    return bean;
+  }
+
   /**
    * Execute find by id.
    */
-  public <T> T findById(Class<T> beanType, Object id) {
-    BeanType<T> desc = server.getBeanType(beanType);
-    if (desc == null) {
-      throw new IllegalArgumentException("Type [" + beanType + "] does not appear to be an entity bean type?");
-    }
+  private <T> T findById(BeanType<T> desc, Object id, JsonReadOptions options) {
 
     BeanDocType beanDocType = desc.docStore();
     try {
       JsonParser parser = send.findById(beanDocType.getIndexType(), beanDocType.getIndexName(), id);
 
-      JsonReadOptions options = new JsonReadOptions().setEnableLazyLoading(true);
-
       JsonBeanReader<T> reader = new EQuery<T>(desc, jsonContext, options).createReader(parser);
       T bean = reader.read();
       desc.setBeanId(bean, id);
-
       // register with persistence context and load context
       reader.persistenceContextPut(desc.getBeanId(bean), bean);
       return bean;
@@ -165,11 +168,9 @@ public class EQueryService {
     }
   }
 
-
   public long copyIndexSince(BeanType<?> desc, String newIndex, BulkUpdate txn, long epochMillis) throws IOException {
 
-
-    SpiQuery<?> query = (SpiQuery<?>)server.createQuery(desc.getBeanType());
+    SpiQuery<?> query = (SpiQuery<?>) server.createQuery(desc.getBeanType());
     if (epochMillis > 0) {
       Property whenModified = desc.getWhenModifiedProperty();
       if (whenModified != null) {
@@ -218,8 +219,8 @@ public class EQueryService {
   /**
    * Return the bean type specific parser used to read the search results.
    */
-  private <T> BeanSearchParser<T> createBeanParser(SpiQuery<T> query, JsonParser json) {
-    return new EQuery<T>(query, jsonContext).createParser(json);
+  private <T> BeanSearchParser<T> createBeanParser(SpiQuery<T> query, JsonParser json, JsonReadOptions options) {
+    return new EQuery<T>(query, jsonContext, options).createParser(json);
   }
 
 }
