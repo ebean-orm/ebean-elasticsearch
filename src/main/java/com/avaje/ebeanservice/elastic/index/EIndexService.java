@@ -35,12 +35,21 @@ public class EIndexService {
 
   private final IndexMessageSender sender;
 
+  private final boolean generateMapping;
+
+  private final boolean createIndexes;
+
+  private final boolean dropCreateIndexes;
+
   public EIndexService(SpiServer server, JsonFactory jsonFactory, IndexMessageSender sender) {
     this.server = server;
     this.jsonFactory = jsonFactory;
     this.sender = sender;
     this.config = server.getServerConfig().getDocStoreConfig();
     this.mappingsBuilder = new EIndexMappingsBuilder(jsonFactory);
+    this.generateMapping = config.isGenerateMapping();
+    this.dropCreateIndexes = config.isDropCreate();
+    this.createIndexes = config.isCreate() || dropCreateIndexes;
   }
 
   public boolean indexExists(String indexName) throws IOException {
@@ -53,8 +62,7 @@ public class EIndexService {
 
   public void createIndex(String indexName, String alias) throws IOException {
 
-    String resourcePath = "/" + getMappingPath() + "/" + indexName + getMappingSuffix();
-
+    String resourcePath = indexResourcePath(indexName);
     String rawJsonMapping = readResource(resourcePath);
     if (rawJsonMapping == null) {
       throw new IllegalArgumentException("No resource " + resourcePath + " found in classPath");
@@ -63,6 +71,10 @@ public class EIndexService {
     if (!createIndexWithMapping(false, indexName, alias, rawJsonMapping)) {
       throw new IllegalArgumentException("Index " + indexName + " not created as it already exists?");
     }
+  }
+
+  private String indexResourcePath(String indexName) {
+    return "/" + getMappingPath() + "/" + indexName + getMappingSuffix();
   }
 
   private String readResource(String mappingResource) {
@@ -125,26 +137,38 @@ public class EIndexService {
     return writer.toString();
   }
 
-  public void createIndexes() throws IOException {
-
-    boolean dropCreate = config.isDropCreate();
-
-    for (BeanType<?> beanType : server.getBeanTypes()) {
-      if (beanType.isDocStoreMapped()) {
-        createIndex(dropCreate, beanType);
+  public void createIndexesOnStartup() throws IOException {
+    if (generateMapping || createIndexes) {
+      for (BeanType<?> beanType : server.getBeanTypes()) {
+        if (beanType.isDocStoreMapped()) {
+          createIndex(beanType);
+        }
       }
     }
   }
 
-  private void createIndex(boolean dropCreate, BeanType<?> beanType) throws IOException {
+  private void createIndex(BeanType<?> beanType) throws IOException {
 
-    String mappingJson = mappingsBuilder.createMappingJson(beanType);
     String alias = beanType.docStore().getIndexName();
+    // hardcode _v1 suffix until there is some plan for handling 'index migrations'
     String indexName = alias + "_v1";
 
-    writeMappingFile(indexName, mappingJson);
+    String mappingJson = null;
+    if (generateMapping) {
+      mappingJson = mappingsBuilder.createMappingJson(beanType);
+      writeMappingFile(indexName, mappingJson);
+    }
 
-    createIndexWithMapping(dropCreate, indexName, alias, mappingJson);
+    if (createIndexes) {
+      if (mappingJson == null) {
+        String mappingPath = indexResourcePath(indexName);
+        mappingJson = readResource(mappingPath);
+        if (mappingJson == null) {
+          throw new IllegalArgumentException("No resource " + mappingPath + " found in classPath");
+        }
+      }
+      createIndexWithMapping(dropCreateIndexes, indexName, alias, mappingJson);
+    }
   }
 
   /**

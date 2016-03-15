@@ -188,7 +188,7 @@ public class ElasticDocumentStore implements DocumentStore {
     try {
       DocStoreConfig docStoreConfig = server.getServerConfig().getDocStoreConfig();
       if (docStoreConfig.isActive()) {
-        indexService.createIndexes();
+        indexService.createIndexesOnStartup();
       }
 
     } catch (IOException e) {
