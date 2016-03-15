@@ -25,6 +25,33 @@ public class QueryListTest extends BaseTest {
   }
 
   @Test
+  public void orderBy_raw() {
+
+    Query<Product> query = server.find(Product.class)
+        .setUseDocStore(true)
+        .order().asc("name");
+
+    List<Product> products = query.findList();
+
+    assertEquals(query.getGeneratedSql(), "{\"sort\":[{\"name.raw\":{\"order\":\"asc\"}}],\"query\":{\"match_all\":{}}}");
+    assertEquals(products.size(), 6);
+  }
+
+  @Test
+  public void equals_raw() {
+
+    Query<Product> query = server.find(Product.class)
+        .setUseDocStore(true)
+        .where().eq("name","Chair")
+        .query();
+
+    List<Product> products = query.findList();
+
+    assertEquals(query.getGeneratedSql(), "{\"query\":{\"filtered\":{\"filter\":{\"term\":{\"name.raw\":\"Chair\"}}}}}");
+    assertEquals(products.size(), 1);
+  }
+
+  @Test
   public void where_startsWith_product() {
 
     Query<Product> query = server.find(Product.class)
