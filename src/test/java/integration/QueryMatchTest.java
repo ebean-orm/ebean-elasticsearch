@@ -47,7 +47,7 @@ public class QueryMatchTest extends BaseTest {
         .must()
           .match("name", "Rob")
           .match("smallNote", "interesting")
-          .setUseDocStore(true);
+        .query();
 
     List<Customer> list = query.findList();
     assertEquals(query.getGeneratedSql(), "{\"query\":{\"bool\":{\"must\":[{\"match\":{\"name\":\"Rob\"}},{\"match\":{\"smallNote\":\"interesting\"}}]}}}");
@@ -61,6 +61,7 @@ public class QueryMatchTest extends BaseTest {
         .text()
         .must()
           .match("name", "Rob")
+          .eq("status", Customer.Status.NEW)
         .endMust()
         .should()
           .match("smallNote", "foo")
@@ -68,7 +69,7 @@ public class QueryMatchTest extends BaseTest {
         .setUseDocStore(true);
 
     List<Customer> list = query.findList();
-    assertEquals(query.getGeneratedSql(), "{\"query\":{\"bool\":{\"must\":[{\"match\":{\"name\":\"Rob\"}}],\"should\":[{\"match\":{\"smallNote\":\"foo\"}},{\"match\":{\"smallNote\":\"bar\"}}]}}}");
+    assertEquals(query.getGeneratedSql(), "{\"query\":{\"bool\":{\"must\":[{\"match\":{\"name\":\"Rob\"}},{\"term\":{\"status\":\"NEW\"}}],\"should\":[{\"match\":{\"smallNote\":\"foo\"}},{\"match\":{\"smallNote\":\"bar\"}}]}}}");
     assertThat(list).hasSize(1);
   }
 

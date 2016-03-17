@@ -2,12 +2,14 @@ package integration;
 
 import com.avaje.ebean.Query;
 import org.example.domain.Customer;
+import org.example.domain.Order;
 import org.example.domain.Product;
 import org.testng.annotations.Test;
 
 import java.sql.Timestamp;
 import java.util.List;
 
+import static org.assertj.core.api.StrictAssertions.assertThat;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertTrue;
 
@@ -25,6 +27,92 @@ public class QueryListTest extends BaseTest {
   }
 
   @Test
+  public void firstRowMaxRows_orders() {
+
+    Query<Order> query = server.find(Order.class)
+        .setUseDocStore(true)
+        .setFirstRow(10)
+        .setMaxRows(10);
+
+    query.findList();
+    assertEquals(query.getGeneratedSql(), "{\"from\":10,\"size\":10,\"query\":{\"match_all\":{}}}");
+  }
+
+  @Test
+  public void text() {
+
+    Query<Order> query = server.find(Order.class)
+        .text()
+          .where().eq("customer.name","Rob")
+        .query();
+
+    query.findList();
+    assertEquals(query.getGeneratedSql(), "{\"query\":{\"filtered\":{\"filter\":{\"term\":{\"customer.name.raw\":\"Rob\"}}}}}");
+  }
+
+  @Test
+  public void text_match() {
+
+    Query<Order> query = server.find(Order.class)
+        .text()
+          .match("customer.name","Rob")
+          .query();
+
+    query.findList();
+    assertEquals(query.getGeneratedSql(), "{\"query\":{\"match\":{\"customer.name\":\"Rob\"}}}");
+  }
+
+  @Test
+  public void where_match() {
+
+    Query<Order> query = server.find(Order.class)
+        .where()
+          .match("customer.name","Rob")
+        .query();
+
+    query.findList();
+    assertEquals(query.getGeneratedSql(), "{\"query\":{\"filtered\":{\"filter\":{\"match\":{\"customer.name\":\"Rob\"}}}}}");
+  }
+
+  @Test
+  public void where_match_must() {
+
+    Query<Order> query = server.find(Order.class)
+        .where()
+          .match("customer.name","Rob")
+          .eq("customer.status", Customer.Status.NEW)
+          .query();
+
+    query.findList();
+    assertEquals(query.getGeneratedSql(), "{\"query\":{\"filtered\":{\"filter\":{\"bool\":{\"must\":[{\"match\":{\"customer.name\":\"Rob\"}},{\"term\":{\"customer.status\":\"NEW\"}}]}}}}}");
+  }
+
+  @Test
+  public void selectFetch_orders() {
+
+    Query<Order> query = server.find(Order.class)
+        .setUseDocStore(true)
+        .select("id")
+        .fetch("customer", "id,name");
+
+    query.findList();
+    assertEquals(query.getGeneratedSql(), "{\"fields\":[\"customer.id\",\"customer.name\",\"id\"],\"query\":{\"match_all\":{}}}");
+  }
+
+  @Test
+  public void selectFetch_withInclude() {
+
+    Query<Order> query = server.find(Order.class)
+        .setUseDocStore(true)
+        .select("id")
+        .fetch("customer", "id,name")
+        .fetch("details");
+
+    query.findList();
+    assertEquals(query.getGeneratedSql(), "{\"_source\":{\"include\":[\"details.*\"]},\"fields\":[\"customer.id\",\"customer.name\",\"id\"],\"query\":{\"match_all\":{}}}");
+  }
+
+  @Test
   public void orderBy_raw() {
 
     Query<Product> query = server.find(Product.class)
@@ -34,7 +122,7 @@ public class QueryListTest extends BaseTest {
     List<Product> products = query.findList();
 
     assertEquals(query.getGeneratedSql(), "{\"sort\":[{\"name.raw\":{\"order\":\"asc\"}}],\"query\":{\"match_all\":{}}}");
-    assertEquals(products.size(), 6);
+    assertThat(products.size()).isGreaterThan(4);
   }
 
   @Test

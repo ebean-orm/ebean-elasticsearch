@@ -1,10 +1,10 @@
 package com.avaje.ebeanservice.elastic.querywriter;
 
 import com.avaje.ebean.Expr;
+import com.avaje.ebean.Junction;
 import com.avaje.ebean.LikeType;
 import com.avaje.ebean.OrderBy;
 import com.avaje.ebean.PersistenceIOException;
-import com.avaje.ebean.TextJunction;
 import com.avaje.ebean.plugin.BeanType;
 import com.avaje.ebean.plugin.ExpressionPath;
 import com.avaje.ebean.search.Match;
@@ -35,9 +35,9 @@ import java.util.Set;
  */
 public class ElasticDocQueryContext implements DocQueryContext {
 
-  private static final TextJunction.Type MUST = TextJunction.Type.MUST;
-  private static final TextJunction.Type SHOULD = TextJunction.Type.SHOULD;
-  private static final TextJunction.Type MUST_NOT = TextJunction.Type.MUST_NOT;
+  private static final Junction.Type MUST = Junction.Type.MUST;
+  private static final Junction.Type SHOULD = Junction.Type.SHOULD;
+  private static final Junction.Type MUST_NOT = Junction.Type.MUST_NOT;
 
   private static final String BOOL = "bool";
   private static final String TERM = "term";
@@ -289,14 +289,14 @@ public class ElasticDocQueryContext implements DocQueryContext {
   }
 
   @Override
-  public void startBoolGroupList(TextJunction.Type type) throws IOException {
+  public void startBoolGroupList(Junction.Type type) throws IOException {
     json.writeArrayFieldStart(type.literal());
   }
 
   /**
    * Start a Bool expression list with the given type (MUST, MUST_NOT, SHOULD).
    */
-  private void writeBoolStart(TextJunction.Type type) throws IOException {
+  private void writeBoolStart(Junction.Type type) throws IOException {
     endNested();
     startBoolGroup();
     startBoolGroupList(type);
