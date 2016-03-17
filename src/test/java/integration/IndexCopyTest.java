@@ -12,6 +12,21 @@ import static org.testng.Assert.assertEquals;
 public class IndexCopyTest extends BaseTest {
 
   @Test
+  public void indexByQuery() {
+
+    long since = 1457045750115L;
+
+    Query<Product> query = server.find(Product.class)
+        .where()
+        .ge("whenModified", new Timestamp(since))
+        .startsWith("sku", "C")
+        .query();
+
+    server.docStore().indexByQuery(query, 1000);
+  }
+
+
+  @Test
   public void copyIndex() {
 
     DocumentStore documentStore = server.docStore();
