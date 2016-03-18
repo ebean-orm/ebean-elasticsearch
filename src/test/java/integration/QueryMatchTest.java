@@ -62,7 +62,7 @@ public class QueryMatchTest extends BaseTest {
         .must()
           .match("name", "Rob")
           .eq("status", Customer.Status.NEW)
-        .endMust()
+          .endJunction()
         .should()
           .match("smallNote", "foo")
           .match("smallNote", "bar")

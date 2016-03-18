@@ -63,6 +63,117 @@ public class QueryListTest extends BaseTest {
   }
 
   @Test
+  public void text_must() {
+
+    Query<Order> query = server.find(Order.class)
+        .text()
+          .must().eq("customer.name","Rob")
+        .query();
+
+    query.findList();
+    assertEquals(query.getGeneratedSql(), "{\"query\":{\"bool\":{\"must\":[{\"term\":{\"customer.name.raw\":\"Rob\"}}]}}}");
+  }
+
+  @Test
+  public void text_mustNot() {
+
+    Query<Order> query = server.find(Order.class)
+        .text()
+        .mustNot().eq("customer.name","Rob")
+        .query();
+
+    query.findList();
+    assertEquals(query.getGeneratedSql(), "{\"query\":{\"bool\":{\"must_not\":[{\"term\":{\"customer.name.raw\":\"Rob\"}}]}}}");
+  }
+
+  @Test
+  public void text_should() {
+
+    Query<Order> query = server.find(Order.class)
+        .text()
+        .should().eq("customer.name","Rob")
+        .query();
+
+    query.findList();
+    assertEquals(query.getGeneratedSql(), "{\"query\":{\"bool\":{\"should\":[{\"term\":{\"customer.name.raw\":\"Rob\"}}]}}}");
+  }
+
+  @Test
+  public void text_and_expect_must() {
+
+    Query<Order> query = server.find(Order.class)
+        .text()
+        .and().eq("customer.name","Rob")
+        .query();
+
+    query.findList();
+    assertEquals(query.getGeneratedSql(), "{\"query\":{\"bool\":{\"must\":[{\"term\":{\"customer.name.raw\":\"Rob\"}}]}}}");
+  }
+
+  @Test
+  public void text_or_expect_should() {
+
+    Query<Order> query = server.find(Order.class)
+        .text()
+        .or().eq("customer.name","Rob")
+        .query();
+
+    query.findList();
+    assertEquals(query.getGeneratedSql(), "{\"query\":{\"bool\":{\"should\":[{\"term\":{\"customer.name.raw\":\"Rob\"}}]}}}");
+  }
+
+  @Test
+  public void text_not_expect_mustNot() {
+
+    Query<Order> query = server.find(Order.class)
+        .text()
+        .not().eq("customer.name","Rob")
+        .query();
+
+    query.findList();
+    assertEquals(query.getGeneratedSql(), "{\"query\":{\"bool\":{\"must_not\":[{\"term\":{\"customer.name.raw\":\"Rob\"}}]}}}");
+  }
+
+  @Test
+  public void text_eq_expect_noBoolJustTerm() {
+
+    Query<Order> query = server.find(Order.class)
+        .text()
+          .eq("customer.name","Rob")
+          .query();
+
+    query.findList();
+    assertEquals(query.getGeneratedSql(), "{\"query\":{\"term\":{\"customer.name.raw\":\"Rob\"}}}");
+  }
+
+  @Test
+  public void text_multipleExpressions_expect_boolShould() {
+
+    Query<Order> query = server.find(Order.class)
+        .text()
+          .gt("customer.id",1)
+          .eq("customer.name","Rob")
+          .query();
+
+    query.findList();
+    assertEquals(query.getGeneratedSql(), "{\"query\":{\"bool\":{\"should\":[{\"range\":{\"customer.id\":{\"gt\":1}}},{\"term\":{\"customer.name.raw\":\"Rob\"}}]}}}");
+  }
+
+  @Test
+  public void where_multipleExpressions_expect_filteredMust() {
+
+    Query<Order> query = server.find(Order.class)
+        .setUseDocStore(true)
+        .where()
+          .gt("customer.id",1)
+          .eq("customer.name","Rob")
+          .query();
+
+    query.findList();
+    assertEquals(query.getGeneratedSql(), "{\"query\":{\"filtered\":{\"filter\":{\"bool\":{\"must\":[{\"range\":{\"customer.id\":{\"gt\":1}}},{\"term\":{\"customer.name.raw\":\"Rob\"}}]}}}}}");
+  }
+
+  @Test
   public void where_match() {
 
     Query<Order> query = server.find(Order.class)
@@ -75,7 +186,7 @@ public class QueryListTest extends BaseTest {
   }
 
   @Test
-  public void where_match_must() {
+  public void where_matchAndMultiple_expect_filteredMust() {
 
     Query<Order> query = server.find(Order.class)
         .where()
@@ -88,7 +199,7 @@ public class QueryListTest extends BaseTest {
   }
 
   @Test
-  public void selectFetch_orders() {
+  public void selectFetch_orders_expect_fields() {
 
     Query<Order> query = server.find(Order.class)
         .setUseDocStore(true)
@@ -100,7 +211,7 @@ public class QueryListTest extends BaseTest {
   }
 
   @Test
-  public void selectFetch_withInclude() {
+  public void selectFetch_expect_sourceIncludeAndFields() {
 
     Query<Order> query = server.find(Order.class)
         .setUseDocStore(true)

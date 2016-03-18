@@ -254,13 +254,11 @@ public class ElasticDocQueryContext implements DocQueryContext {
   }
 
   /**
-   * Start Bool MUST or SHOULD.
-   * <p>
-   * If conjunction is true then MUST(and) and if false is SHOULD(or).
+   * Start Bool expression.
    */
   @Override
-  public void startBool(boolean conjunction) throws IOException {
-    writeBoolStart((conjunction) ? MUST : SHOULD);
+  public void startBool(Junction.Type type) throws IOException {
+    writeBoolStart(type);
   }
 
   /**
@@ -290,6 +288,22 @@ public class ElasticDocQueryContext implements DocQueryContext {
 
   @Override
   public void startBoolGroupList(Junction.Type type) throws IOException {
+    switch (type) {
+      case AND:
+        writeBoolArray(MUST);
+        break;
+      case OR:
+        writeBoolArray(SHOULD);
+        break;
+      case NOT:
+        writeBoolArray(MUST_NOT);
+        break;
+      default:
+        writeBoolArray(type);
+    }
+  }
+
+  private void writeBoolArray(Junction.Type type) throws IOException {
     json.writeArrayFieldStart(type.literal());
   }
 
@@ -519,8 +533,7 @@ public class ElasticDocQueryContext implements DocQueryContext {
     if (values.length == 1) {
       writeMatch(propName, value, null);
     } else {
-      // Boolean AND all the terms together
-      startBool(true);
+      startBool(Junction.Type.AND);
       for (String val : values) {
         writeMatch(propName, val, null);
       }
