@@ -27,9 +27,12 @@ public class BeanSearchParser<T> extends BaseSearchResultParser {
     this.listener = source.listener;
   }
 
-  public BeanSearchParser<T> moreJson(JsonParser parser, boolean resetContext) {
-    this.listener.moreJson(parser, resetContext);
-    return new BeanSearchParser<T>(parser, this);
+  /**
+   * Create another bean parser for more JSON (aka scroll queries).
+   */
+  public BeanSearchParser<T> moreJson(JsonParser moreJson, boolean resetContext) {
+    this.listener.moreJson(moreJson, resetContext);
+    return new BeanSearchParser<T>(moreJson, this);
   }
 
   /**
@@ -54,16 +57,25 @@ public class BeanSearchParser<T> extends BaseSearchResultParser {
     return listener.getList();
   }
 
+  /**
+   * Read the source from the response.
+   */
   public void readSource() throws IOException {
-    listener.readSource(parser, id);
+    listener.readSource(id);
   }
 
+  /**
+   * Read the fields from the response.
+   */
   public void readFields() throws IOException {
-    listener.readFields(EJson.parseObject(parser), id, score);
+    listener.readFields(EJson.parseObject(parser), id);
   }
 
+  /**
+   * For Id only results (typically creates a reference bean).
+   */
   @Override
   public void readIdOnly() {
-    listener.readIdOnly(id, score);
+    listener.readIdOnly(id);
   }
 }

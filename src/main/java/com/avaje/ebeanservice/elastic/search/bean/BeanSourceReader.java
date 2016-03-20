@@ -37,7 +37,7 @@ public class BeanSourceReader<T> {
     this.lazyLoadMany = lazyLoadMany;
   }
 
-  public void readSource(JsonParser parser, String id) throws IOException {
+  public void readSource(String id) throws IOException {
 
     currentBean = reader.read();
     desc.setBeanId(currentBean, id);
@@ -57,7 +57,7 @@ public class BeanSourceReader<T> {
   }
 
   @SuppressWarnings("unchecked")
-  public void readFields(Map<String, Object> fields, String id, double score) {
+  public void readFields(Map<String, Object> fields, String id) {
 
     if (currentBean != null) {
       applyFields(currentBean, fields);
@@ -104,7 +104,7 @@ public class BeanSourceReader<T> {
     return beans.size();
   }
 
-  public void readIdOnly(String id, double score) {
+  public void readIdOnly(String id) {
     T bean = desc.createBean();
     desc.setBeanId(bean, id);
     beans.add(bean);

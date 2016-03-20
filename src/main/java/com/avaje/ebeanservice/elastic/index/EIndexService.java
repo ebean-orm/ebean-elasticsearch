@@ -52,14 +52,23 @@ public class EIndexService {
     this.createIndexes = config.isCreate() || dropCreateIndexes;
   }
 
+  /**
+   * Return true if the index exists.
+   */
   public boolean indexExists(String indexName) throws IOException {
     return sender.indexExists(indexName);
   }
 
+  /**
+   * Drop the index.
+   */
   public void dropIndex(String indexName) throws IOException {
     sender.indexDelete(indexName);
   }
 
+  /**
+   * Create the index reading the mapping from the expected resource location.
+   */
   public void createIndex(String indexName, String alias) throws IOException {
 
     String resourcePath = indexResourcePath(indexName);
@@ -101,6 +110,16 @@ public class EIndexService {
     }
   }
 
+  /**
+   * Create an index given the mapping.
+   *
+   * @param dropCreate If true drop the index prior to creating it.
+   * @param indexName The name of the index (typically suffixed with a version number).
+   * @param alias The optional alias name. If not null creates the alias for the index.
+   * @param jsonMapping The mapping for the index.
+   *
+   * @return True if the index was created or false if it already exists and dropCreate was false.
+   */
   public boolean createIndexWithMapping(boolean dropCreate, String indexName, String alias, String jsonMapping) throws IOException {
 
     if (indexExists(indexName)) {
@@ -137,6 +156,9 @@ public class EIndexService {
     return writer.toString();
   }
 
+  /**
+   * On startup generate mappings and create indexes as per configuration options.
+   */
   public void createIndexesOnStartup() throws IOException {
     if (generateMapping || createIndexes) {
       for (BeanType<?> beanType : server.getBeanTypes()) {

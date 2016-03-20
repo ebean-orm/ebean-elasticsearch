@@ -70,6 +70,9 @@ public class EQueryService {
     }
   }
 
+  /**
+   * Execute the findList query request.
+   */
   public <T> List<T> findList(DocQueryRequest<T> request) {
 
     BeanSearchParser<T> parser = findHits(request.getQuery(), request.createJsonReadOptions());
@@ -95,6 +98,9 @@ public class EQueryService {
     }
   }
 
+  /**
+   * Execute the findEachWhile query request.
+   */
   public <T> void findEachWhile(DocQueryRequest<T> request, QueryEachWhileConsumer<T> consumer) {
 
     EQueryEach<T> each = new EQueryEach<T>(request, send, jsonContext);
@@ -115,6 +121,9 @@ public class EQueryService {
     }
   }
 
+  /**
+   * Execute the findEach query request.
+   */
   public <T> void findEach(DocQueryRequest<T> request, QueryEachConsumer<T> consumer) {
 
     EQueryEach<T> each = new EQueryEach<T>(request, send, jsonContext);
@@ -134,6 +143,9 @@ public class EQueryService {
     }
   }
 
+  /**
+   * Execute the find by id query request.
+   */
   public <T> T findById(DocQueryRequest<T> request) {
 
     SpiQuery<T> query = request.getQuery();
@@ -168,6 +180,9 @@ public class EQueryService {
     }
   }
 
+  /**
+   * Execute copyIndexSince which does a raw index to index copy.
+   */
   public long copyIndexSince(BeanType<?> desc, String newIndex, BulkUpdate txn, long epochMillis) throws IOException {
 
     SpiQuery<?> query = (SpiQuery<?>) server.createQuery(desc.getBeanType());
@@ -181,6 +196,9 @@ public class EQueryService {
     return copyIndexSince(query, newIndex, txn);
   }
 
+  /**
+   * Execute copyIndexSince which does a raw index to index copy.
+   */
   public long copyIndexSince(SpiQuery<?> query, String newIndex, BulkUpdate txn) throws IOException {
 
     BeanType<?> desc = query.getBeanDescriptor();

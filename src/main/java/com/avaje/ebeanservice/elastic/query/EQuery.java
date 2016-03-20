@@ -9,7 +9,7 @@ import com.avaje.ebeanservice.elastic.search.bean.BeanSearchParser;
 import com.fasterxml.jackson.core.JsonParser;
 
 /**
- * Base class for query requests.
+ * Class for processing query requests.
  */
 public class EQuery<T> {
 
@@ -43,12 +43,15 @@ public class EQuery<T> {
     return createParser(json, reader);
   }
 
-  public JsonBeanReader<T> createReader(JsonParser initialJson) {
-    return jsonContext.createBeanReader(beanType, initialJson, jsonOptions);
+  /**
+   * Create a bean reader for the given json.
+   */
+  public JsonBeanReader<T> createReader(JsonParser json) {
+    return jsonContext.createBeanReader(beanType, json, jsonOptions);
   }
 
-  private BeanSearchParser<T> createParser(JsonParser initialJson, JsonBeanReader<T> reader) {
-    return new BeanSearchParser<T>(initialJson, beanType, reader, query.getLazyLoadMany());
+  private BeanSearchParser<T> createParser(JsonParser json, JsonBeanReader<T> reader) {
+    return new BeanSearchParser<T>(json, beanType, reader, query.getLazyLoadMany());
   }
 
 }

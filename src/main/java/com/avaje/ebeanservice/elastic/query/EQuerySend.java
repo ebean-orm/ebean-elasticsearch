@@ -35,10 +35,16 @@ public class EQuerySend {
     this.elasticJsonContext = new ElasticJsonContext(jsonContext);
   }
 
+  /**
+   * Execute as find hits returning the resulting JSON response.
+   */
   public JsonParser findHits(BeanDocType type, SpiQuery<?> query) throws IOException, DocumentNotFoundException {
     return findInternal(false, type, query);
   }
 
+  /**
+   * Execute as find scroll returning the resulting JSON response.
+   */
   public JsonParser findScroll(BeanDocType type, SpiQuery<?> query) throws IOException, DocumentNotFoundException {
     return findInternal(true, type, query);
   }
@@ -63,6 +69,9 @@ public class EQuerySend {
     return ElasticDocQueryContext.asJson(elasticJsonContext, query);
   }
 
+  /**
+   * Execute Get by Id returning the JSON response.
+   */
   public JsonParser findById(String indexType, String indexName, Object docId) throws IOException, DocumentNotFoundException {
 
     IndexMessageResponse response = messageSender.getDocSource(indexType, indexName, docId.toString());
@@ -76,6 +85,9 @@ public class EQuerySend {
     }
   }
 
+  /**
+   * Execute find next scroll returning the JSON response.
+   */
   public JsonParser findNextScroll(String scrollId) throws IOException, DocumentNotFoundException {
 
     IndexMessageResponse response = messageSender.getScroll(scrollId);
@@ -89,7 +101,9 @@ public class EQuerySend {
     }
   }
 
-
+  /**
+   * Clear all the scroll Ids.
+   */
   public void clearScrollIds(Set<String> scrollIds) {
     try {
       messageSender.clearScrollIds(scrollIds);

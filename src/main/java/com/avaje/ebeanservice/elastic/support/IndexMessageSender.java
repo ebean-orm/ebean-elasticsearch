@@ -18,17 +18,38 @@ public interface IndexMessageSender {
    */
   IndexMessageResponse getDocSource(String indexType, String indexName, String docId) throws IOException;
 
+  /**
+   * Send a query request.
+   */
   IndexMessageResponse postQuery(boolean scroll, String indexType, String indexName, String jsonQuery) throws IOException;
 
+  /**
+   * Send a get scroll request.
+   */
   IndexMessageResponse getScroll(String scrollId) throws IOException;
 
+  /**
+   * Send a clearScrollIds request.
+   */
   IndexMessageResponse clearScrollIds(Set<String> scrollIds) throws IOException;
 
+  /**
+   * Send an indexExists request.
+   */
   boolean indexExists(String indexName) throws IOException;
 
+  /**
+   * Send a delete index request.
+   */
   boolean indexDelete(String indexName) throws IOException;
 
+  /**
+   * Send a create index request.
+   */
   void indexCreate(String indexName, String settingsJson) throws IOException;
 
+  /**
+   * Send a create index alias request.
+   */
   void indexAlias(String aliasJson) throws IOException;
 }

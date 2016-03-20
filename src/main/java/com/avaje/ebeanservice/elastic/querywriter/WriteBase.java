@@ -82,7 +82,6 @@ abstract class WriteBase {
     }
   }
 
-
   protected void writeLenient(JsonGenerator json, boolean lenient) throws IOException {
     if (lenient) {
       json.writeBooleanField("lenient", true);
