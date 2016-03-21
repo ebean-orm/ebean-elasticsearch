@@ -114,6 +114,7 @@
             <tile>org.avaje.tile:ebean-enhancement:1.1</tile>
             <tile>org.avaje.tile:test-ebean-enhancement:1.1</tile>
             <tile>org.avaje.tile:dependency-tree:1.1</tile>
+            <tile>org.avaje.tile:pygments-doclet:1.1</tile>
           </tiles>
         </configuration>
       </plugin>
