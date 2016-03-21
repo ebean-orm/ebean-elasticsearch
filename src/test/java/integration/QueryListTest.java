@@ -9,7 +9,7 @@ import org.testng.annotations.Test;
 import java.sql.Timestamp;
 import java.util.List;
 
-import static org.assertj.core.api.StrictAssertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertTrue;
 

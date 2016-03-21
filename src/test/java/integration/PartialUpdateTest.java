@@ -1,10 +1,6 @@
 package integration;
 
 import com.avaje.ebean.Ebean;
-import com.avaje.ebean.EbeanServer;
-import integration.BaseTest;
-import integration.support.SeedDbData;
-import org.assertj.core.api.StrictAssertions;
 import org.example.domain.Customer;
 import org.example.domain.Product;
 import org.testng.annotations.Test;
