@@ -4,6 +4,7 @@ import com.avaje.ebean.Ebean;
 import com.avaje.ebean.Query;
 import com.avaje.ebeaninternal.api.SpiQuery;
 import com.avaje.ebeaninternal.server.expression.BaseElasticTest;
+import org.example.domain.Customer;
 import org.example.domain.Order;
 import org.testng.annotations.Test;
 
@@ -66,5 +67,20 @@ public class DefaultOrmQueryElasticTest extends BaseElasticTest {
     String asJson = asJson((SpiQuery<Order>)query);
 
     assertThat(asJson).isEqualTo("{\"from\":3,\"size\":100,\"fields\":[\"status\"],\"query\":{\"filtered\":{\"filter\":{\"term\":{\"customer.name.raw\":\"Rob\"}}}}}");
+  }
+
+  @Test
+  public void simpleExpression_on_assocId() throws IOException {
+
+    Customer custOne = Ebean.getReference(Customer.class, 1);
+
+    Query<Order> query = Ebean.find(Order.class)
+        .where().eq("customer", custOne)
+        .query();
+
+    SpiQuery<Order> spiQuery = (SpiQuery<Order>)query;
+    String asJson = asJson(spiQuery);
+
+    assertThat(asJson).isEqualTo("{\"query\":{\"filtered\":{\"filter\":{\"term\":{\"customer.id\":1}}}}}");
   }
 }

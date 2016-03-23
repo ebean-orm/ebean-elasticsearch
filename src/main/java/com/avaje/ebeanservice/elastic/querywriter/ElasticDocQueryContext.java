@@ -82,6 +82,11 @@ public class ElasticDocQueryContext implements DocQueryContext {
     desc.addInheritanceWhere(query);
   }
 
+  @Override
+  public ExpressionPath getExpressionPath(String propName) {
+    return desc.getExpressionPath(propName);
+  }
+
   private String asElasticQuery() {
     try {
       writeElastic(query);
