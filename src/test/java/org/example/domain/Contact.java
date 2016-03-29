@@ -1,8 +1,8 @@
 package org.example.domain;
 
 import com.avaje.ebean.annotation.CacheStrategy;
+import com.avaje.ebean.annotation.DocEmbedded;
 import com.avaje.ebean.annotation.DocStore;
-import com.avaje.ebean.annotation.DocStoreEmbedded;
 
 import javax.persistence.Entity;
 import javax.persistence.ManyToOne;
@@ -21,7 +21,7 @@ public class Contact extends BasicDomain {
   String mobile;
   String email;
 
-  @DocStoreEmbedded(doc = "id,name")
+  @DocEmbedded(doc = "id,name")
   @ManyToOne(optional = false)
   Customer customer;
 

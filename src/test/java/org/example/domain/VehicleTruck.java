@@ -1,6 +1,6 @@
 package org.example.domain;
 
-import com.avaje.ebean.annotation.DocStoreEmbedded;
+import com.avaje.ebean.annotation.DocEmbedded;
 
 import javax.persistence.CascadeType;
 import javax.persistence.DiscriminatorValue;
@@ -15,7 +15,7 @@ public class VehicleTruck extends Vehicle {
 
   Double capacity;
 
-  @DocStoreEmbedded(doc = "*")
+  @DocEmbedded(doc = "*")
   @ManyToOne(cascade = {CascadeType.PERSIST})
   TruckRef truckRef;
 

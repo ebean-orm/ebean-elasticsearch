@@ -1,10 +1,10 @@
 package org.example.domain;
 
 import com.avaje.ebean.annotation.DocCode;
+import com.avaje.ebean.annotation.DocEmbedded;
 import com.avaje.ebean.annotation.DocMapping;
 import com.avaje.ebean.annotation.DocProperty;
 import com.avaje.ebean.annotation.DocStore;
-import com.avaje.ebean.annotation.DocStoreEmbedded;
 import com.avaje.ebean.annotation.EnumValue;
 
 import javax.persistence.CascadeType;
@@ -53,11 +53,11 @@ public class Order extends BasicDomain {
 
   @NotNull
   @ManyToOne
-  @DocStoreEmbedded(doc = "id,status,name,billingAddress(*,country(*)")
+  @DocEmbedded(doc = "id,status,name,billingAddress(*,country(*)")
   Customer customer;
 
   @OneToMany(cascade = CascadeType.ALL, mappedBy = "order")
-  @DocStoreEmbedded(doc = "*,product(id,sku)")
+  @DocEmbedded(doc = "*,product(id,sku)")
   List<OrderDetail> details;
 
   //@DocStoreEmbedded(doc = "*")
