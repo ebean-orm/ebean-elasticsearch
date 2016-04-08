@@ -602,7 +602,9 @@ public class ElasticDocQueryContext implements DocQueryContext {
     // prepareNestedPath prior to BoolMustNotStart
     prepareNestedPath(propertyName);
     if (!notNull) {
-      startBoolMustNot();
+      // start MUST_NOT inside the nested path
+      startBoolGroup();
+      startBoolGroupList(Junction.Type.MUST_NOT);
     }
     writeExists(propertyName);
     if (!notNull) {

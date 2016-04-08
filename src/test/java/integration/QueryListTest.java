@@ -16,6 +16,34 @@ import static org.testng.Assert.assertTrue;
 public class QueryListTest extends BaseTest {
 
   @Test
+  public void nested_isEmpty() {
+
+    Query<Order> query = server.find(Order.class)
+        .setUseDocStore(true)
+        .where().isEmpty("details")
+        .query();
+
+    List<Order> orders = query.findList();
+
+    assertEquals(query.getGeneratedSql(), "{\"query\":{\"filtered\":{\"filter\":{\"nested\":{\"path\":\"details\",\"filter\":{\"bool\":{\"must_not\":[{\"exists\":{\"field\":\"details\"}}]}}}}}}}");
+    assertTrue(orders.isEmpty());
+  }
+
+  @Test
+  public void nested_isNotEmpty() {
+
+    Query<Order> query = server.find(Order.class)
+        .setUseDocStore(true)
+        .where().isNotEmpty("details")
+        .query();
+
+    List<Order> orders = query.findList();
+
+    assertEquals(query.getGeneratedSql(), "{\"query\":{\"filtered\":{\"filter\":{\"nested\":{\"path\":\"details\",\"filter\":{\"exists\":{\"field\":\"details\"}}}}}}}");
+    assertTrue(!orders.isEmpty());
+  }
+
+  @Test
   public void findAll() {
 
     Query<Product> query = server.find(Product.class).setUseDocStore(true);
