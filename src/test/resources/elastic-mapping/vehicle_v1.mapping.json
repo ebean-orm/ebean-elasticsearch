@@ -8,15 +8,15 @@
         "whenCreated": { "type": "date" },
         "whenModified": { "type": "date" },
         "version": { "type": "long" },
+        "driver": { "type": "string", "fields": { "raw": { "type": "string", "index": "not_analyzed" } } },
+        "notes": { "type": "string" },
         "capacity": { "type": "double" },
         "truckRef" : {
           "properties" : {
             "id": { "type": "integer" },
             "something": { "type": "string" }
           }
-        },
-        "driver": { "type": "string", "fields": { "raw": { "type": "string", "index": "not_analyzed" } } },
-        "notes": { "type": "string" }
+        }
       }
     }
   }
