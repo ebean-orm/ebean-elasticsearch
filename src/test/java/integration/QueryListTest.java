@@ -434,4 +434,20 @@ public class QueryListTest extends BaseTest {
     assertEquals(customers.size(), 0);
     assertTrue(query.getGeneratedSql().contains("{\"query\":{\"filtered\":{\"filter\":{\"range\":{\"anniversary\":{\"gte\":"));
   }
+
+  @Test
+  public void nested_predicate() {
+
+    Query<Order> query = server.find(Order.class)
+        .setUseDocStore(true)
+        .where()
+        .eq("customer.id", 12323)
+        .eq("details.product.sku","A100")
+        .query();
+
+    List<Order> customers = query.findList();
+
+    assertTrue(query.getGeneratedSql().contains("{\"query\":{\"filtered\":{\"filter\":{\"bool\":{\"must\":[{\"term\":{\"customer.id\":12323}},{\"nested\":{\"path\":\"details\",\"filter\":{\"term\":{\"details.product.sku\":\"A100\"}}}}]}}}}}"));
+    assertEquals(customers.size(), 0);
+  }
 }
