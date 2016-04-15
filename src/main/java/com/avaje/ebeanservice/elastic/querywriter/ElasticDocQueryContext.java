@@ -340,6 +340,8 @@ public class ElasticDocQueryContext implements DocQueryContext {
    */
   @Override
   public void endBool() throws IOException {
+    // end any currently active nested path
+    endNested();
     endBoolGroupList();
     endBoolGroup();
   }
@@ -608,7 +610,9 @@ public class ElasticDocQueryContext implements DocQueryContext {
     }
     writeExists(propertyName);
     if (!notNull) {
-      endBool();
+      // end MUST_NOT inside the nested path
+      endBoolGroupList();
+      endBoolGroup();
     }
   }
 
