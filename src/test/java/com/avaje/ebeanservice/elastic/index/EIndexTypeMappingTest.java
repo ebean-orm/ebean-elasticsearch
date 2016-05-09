@@ -12,6 +12,7 @@ public class EIndexTypeMappingTest {
   @Test
   public void get_with_various() throws Exception {
 
+    assertEquals(mapping.get(DocPropertyType.UUID), "string");
     assertEquals(mapping.get(DocPropertyType.ENUM), "string");
     assertEquals(mapping.get(DocPropertyType.BINARY), "binary");
 

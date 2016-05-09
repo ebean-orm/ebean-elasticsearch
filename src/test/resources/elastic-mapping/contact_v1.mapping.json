@@ -2,6 +2,9 @@
   "mappings" : {
     "contact" : {
       "properties" : {
+        "uids": { "type": "string", "index": "not_analyzed" },
+        "someLongs": { "type": "long" },
+        "someTags": { "type": "string" },
         "firstName": { "type": "string" },
         "lastName": { "type": "string" },
         "phone": { "type": "string" },

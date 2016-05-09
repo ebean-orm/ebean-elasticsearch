@@ -1,18 +1,30 @@
 package org.example.domain;
 
-import com.avaje.ebean.annotation.CacheStrategy;
+import com.avaje.ebean.annotation.Cache;
+import com.avaje.ebean.annotation.DbArray;
 import com.avaje.ebean.annotation.DocEmbedded;
 import com.avaje.ebean.annotation.DocStore;
 
 import javax.persistence.Entity;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 @DocStore
 @Entity
-@CacheStrategy(naturalKey = "email")
+@Cache(naturalKey = "email")
 public class Contact extends BasicDomain {
+
+  @DbArray
+  List<UUID> uids = new ArrayList<UUID>();
+
+  @DbArray
+  List<Long> someLongs = new ArrayList<Long>();
+
+  @DbArray
+  List<String> someTags = new ArrayList<String>();
 
   String firstName;
   String lastName;
@@ -105,5 +117,29 @@ public class Contact extends BasicDomain {
 
   public void setNotes(List<ContactNote> notes) {
     this.notes = notes;
+  }
+
+  public List<UUID> getUids() {
+    return uids;
+  }
+
+  public void setUids(List<UUID> uids) {
+    this.uids = uids;
+  }
+
+  public List<Long> getSomeLongs() {
+    return someLongs;
+  }
+
+  public void setSomeLongs(List<Long> someLongs) {
+    this.someLongs = someLongs;
+  }
+
+  public List<String> getSomeTags() {
+    return someTags;
+  }
+
+  public void setSomeTags(List<String> someTags) {
+    this.someTags = someTags;
   }
 }

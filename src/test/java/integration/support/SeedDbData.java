@@ -19,6 +19,7 @@ import org.example.domain.VehicleTruck;
 import java.sql.Date;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 public class SeedDbData {
 
@@ -156,6 +157,15 @@ public class SeedDbData {
     cust1.addContact(new Contact("Jim", "Cricket"));
     cust1.addContact(new Contact("Barny", "Rubble"));
     cust1.addContact(new Contact("Bugs", "Bunny"));
+    Contact contact = cust1.getContacts().get(0);
+    contact.getUids().add(UUID.randomUUID());
+    contact.getUids().add(UUID.randomUUID());
+    contact.getSomeTags().add("red");
+    contact.getSomeTags().add("green");
+    contact.getSomeTags().add("blue");
+    contact.getSomeLongs().add(42L);
+
+
     Ebean.save(cust1);
 
     Customer cust2 = insertCustomerNoAddress("Cust NoAddress");
