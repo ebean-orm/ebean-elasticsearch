@@ -4,6 +4,7 @@ import com.avaje.ebean.PersistenceIOException;
 import com.avaje.ebean.config.DocStoreConfig;
 import com.avaje.ebean.plugin.BeanType;
 import com.avaje.ebean.plugin.SpiServer;
+import com.avaje.ebean.text.json.EJson;
 import com.avaje.ebeanservice.elastic.support.IndexMessageSender;
 import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonGenerator;
@@ -17,6 +18,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.LineNumberReader;
 import java.io.StringWriter;
+import java.util.Map;
 
 /**
  * Index exists, drop, create functions.
@@ -64,6 +66,18 @@ public class EIndexService {
    */
   public void dropIndex(String indexName) throws IOException {
     sender.indexDelete(indexName);
+  }
+
+  /**
+   * Set the settings on the index.
+   */
+  public void indexSettings(String indexName, Map<String, Object> settings) throws IOException {
+
+    StringWriter writer = new StringWriter();
+    EJson.write(settings, writer);
+
+    String settingsJson = "{\"index\":" + writer.toString() + "}";
+    sender.indexSettings(indexName, settingsJson);
   }
 
   /**

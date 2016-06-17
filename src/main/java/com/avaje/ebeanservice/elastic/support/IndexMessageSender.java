@@ -52,4 +52,9 @@ public interface IndexMessageSender {
    * Send a create index alias request.
    */
   void indexAlias(String aliasJson) throws IOException;
+
+  /**
+   * Set the settings on the index.
+   */
+  void indexSettings(String indexName, String settingsJson) throws IOException;
 }

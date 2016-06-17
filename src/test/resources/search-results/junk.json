@@ -1,64 +1,8 @@
-[{
-    "id": 4,
-    "status": "ACTIVE",
-    "name": "NoContactsCust",
-    "anniversary": 1270814400000,
-    "billingAddress": {
-      "id": 5,
-      "line1": "Bos town",
-      "line2": "St Lukes",
-      "city": "Auckland",
-      "country": {
-        "code": "NZ",
-        "name": "New Zealand"
-      },
-      "whenCreated": 1457929181142,
-      "whenModified": 1457929181142,
-      "version": 1
-    },
-    "shippingAddress": {
-      "id": 6,
-      "line1": "15 Kumera Way",
-      "line2": "Sandringham",
-      "city": "Auckland",
-      "country": {
-        "code": "NZ",
-        "name": "New Zealand"
-      },
-      "whenCreated": 1457929181142,
-      "whenModified": 1457929181142,
-      "version": 1
-    },
-    "contacts": [],
-    "whenCreated": 1457929181143,
-    "whenModified": 1457929181143,
-    "version": 1
-  },
-  {
-    "id": 2,
-    "status": "NEW",
-    "name": "Cust NonAddress",
-    "contacts": [
-      {
-        "id": 4,
-        "firstName": "Jack",
-        "lastName": "Black",
-        "email": "black1@test.com",
-        "whenCreated": 1457929181140,
-        "whenModified": 1457929181140,
-        "version": 1
-      }
-    ],
-    "whenCreated": 1457929181140,
-    "whenModified": 1457929197725,
-    "version": 2
-  },
-  {
+{
+  "customer": {
     "id": 1,
     "status": "NEW",
     "name": "Rob",
-    "smallNote": "Modify small note",
-    "anniversary": 1271160000000,
     "billingAddress": {
       "id": 1,
       "line1": "P.O.Box 1234",
@@ -68,106 +12,50 @@
         "code": "NZ",
         "name": "New Zealand"
       },
-      "whenCreated": 1457929181133,
-      "whenModified": 1457929181133,
+      "whenCreated": 1466064452540,
+      "whenModified": 1466064452540,
       "version": 1
-    },
-    "shippingAddress": {
-      "id": 2,
-      "line1": "1 Banana St",
-      "line2": "Sandringham",
-      "city": "Auckland",
-      "country": {
-        "code": "NZ",
-        "name": "New Zealand"
-      },
-      "whenCreated": 1457929181134,
-      "whenModified": 1457929181134,
-      "version": 1
-    },
-    "contacts": [
-      {
-        "id": 2,
-        "firstName": "Barny",
-        "lastName": "Rubble",
-        "whenCreated": 1457929181139,
-        "whenModified": 1457929181139,
-        "version": 1
-      },
-      {
-        "id": 1,
-        "firstName": "Jim",
-        "lastName": "Cricket",
-        "whenCreated": 1457929181138,
-        "whenModified": 1457929181138,
-        "version": 1
-      },
-      {
-        "id": 3,
-        "firstName": "Bugs",
-        "lastName": "Bunny",
-        "whenCreated": 1457929181139,
-        "whenModified": 1457929181139,
-        "version": 1
-      }
-    ],
-    "whenCreated": 1457929181136,
-    "whenModified": 1457929196365,
-    "version": 1
+    }
   },
-  {
-    "id": 3,
-    "status": "ACTIVE",
-    "name": "Fiona",
-    "anniversary": 1251633600000,
-    "billingAddress": {
+  "details": [
+    {
+      "id": 1,
+      "orderQty": 5,
+      "unitPrice": 10.5,
+      "product": {
+        "id": 1,
+        "sku": "C001"
+      },
+      "whenCreated": 1466064452561,
+      "whenModified": 1466064452561,
+      "version": 1
+    },
+    {
+      "id": 2,
+      "orderQty": 3,
+      "unitPrice": 1.1,
+      "product": {
+        "id": 2,
+        "sku": "DSK1"
+      },
+      "whenCreated": 1466064452562,
+      "whenModified": 1466064452562,
+      "version": 1
+    },
+    {
       "id": 3,
-      "line1": "West Coast Rd",
-      "line2": "St Lukes",
-      "city": "Auckland",
-      "country": {
-        "code": "NZ",
-        "name": "New Zealand"
+      "orderQty": 1,
+      "unitPrice": 2.0,
+      "product": {
+        "id": 3,
+        "sku": "C002"
       },
-      "whenCreated": 1457929181140,
-      "whenModified": 1457929181140,
+      "whenCreated": 1466064452563,
+      "whenModified": 1466064452563,
       "version": 1
-    },
-    "shippingAddress": {
-      "id": 4,
-      "line1": "12 Apple St",
-      "line2": "Sandringham",
-      "city": "Auckland",
-      "country": {
-        "code": "NZ",
-        "name": "New Zealand"
-      },
-      "whenCreated": 1457929181141,
-      "whenModified": 1457929181141,
-      "version": 1
-    },
-    "contacts": [
-      {
-        "id": 5,
-        "firstName": "Fiona",
-        "lastName": "Black",
-        "email": "black2@test.com",
-        "whenCreated": 1457929181141,
-        "whenModified": 1457929181141,
-        "version": 1
-      },
-      {
-        "id": 6,
-        "firstName": "Tracy",
-        "lastName": "Red",
-        "email": "red3@test.com",
-        "whenCreated": 1457929181142,
-        "whenModified": 1457929181142,
-        "version": 1
-      }
-    ],
-    "whenCreated": 1457929181141,
-    "whenModified": 1457929181141,
-    "version": 1
-  }
-]
+    }
+  ],
+  "whenCreated": 1466064452558,
+  "whenModified": 1466064452558,
+  "version": 1
+}

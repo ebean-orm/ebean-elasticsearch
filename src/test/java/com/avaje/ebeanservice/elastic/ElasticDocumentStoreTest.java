@@ -12,6 +12,7 @@ import org.example.domain.Order;
 import org.example.domain.Product;
 import org.testng.annotations.Test;
 
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -21,6 +22,18 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.testng.Assert.assertNotNull;
 
 public class ElasticDocumentStoreTest extends BaseTest {
+
+
+  @Test
+  public void indexSettings() throws IOException {
+
+    Map<String,Object> settings = new HashMap<String, Object>();
+    settings.put("refresh_interval", "-1");
+    docStore.indexSettings("product", settings);
+
+    settings.put("refresh_interval", "1s");
+    docStore.indexSettings("product", settings);
+  }
 
   @Test
   public void indexCopyTo() {

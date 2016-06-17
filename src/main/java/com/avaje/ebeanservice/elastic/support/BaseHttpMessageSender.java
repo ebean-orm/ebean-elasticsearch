@@ -20,6 +20,7 @@ public class BaseHttpMessageSender implements IndexMessageSender {
   public static final Logger logger = LoggerFactory.getLogger("org.avaje.ebean.ELQ");
 
   public static final MediaType JSON = MediaType.parse("application/json; charset=utf-8");
+
   public static final MediaType TEXT = MediaType.parse("text/plain; charset=utf-8");
 
   private final OkHttpClient client = new OkHttpClient();
@@ -57,6 +58,19 @@ public class BaseHttpMessageSender implements IndexMessageSender {
     int code = response.code();
     if (code != 200) {
       throw new IOException("Unexpected http code:" + code + " for indexAlias " + aliasJson + " response:" + responseBody);
+    }
+  }
+
+  @Override
+  public void indexSettings(String indexName, String settingsJson) throws IOException {
+
+    String url = baseUrl + indexName + "/_settings";
+    Response response = putJson(true, url, settingsJson);
+    String responseBody = responseDebug("POST", url, response);
+
+    int code = response.code();
+    if (code != 200) {
+      throw new IOException("Unexpected http code:" + code + " for _settings " + settingsJson + " response:" + responseBody);
     }
   }
 
@@ -187,7 +201,7 @@ public class BaseHttpMessageSender implements IndexMessageSender {
   @Override
   public String postBulk(String json) throws IOException {
 
-    Response response = putJson(false, bulkUrl, json);
+    Response response = postJson(false, bulkUrl, json);
     return response.body().string();
   }
 
@@ -199,15 +213,19 @@ public class BaseHttpMessageSender implements IndexMessageSender {
 
     RequestBody body = RequestBody.create(JSON, json);
     Request request = new Request.Builder().url(url)
-        .post(body)
+        .put(body)
         .build();
 
     return client.newCall(request).execute();
   }
 
   private Response postJson(String url, String json) throws IOException {
+    return postJson(true, url, json);
+  }
 
-    if (logger.isDebugEnabled()) {
+  private Response postJson(boolean debug, String url, String json) throws IOException {
+
+    if (debug && logger.isDebugEnabled()) {
       logger.debug("POST url:{} json:{}", url, json);
     }
 

@@ -43,6 +43,11 @@ public class TDIndexMessageSender implements IndexMessageSender {
   }
 
   @Override
+  public void indexSettings(String indexName, String settingsJson) throws IOException {
+
+  }
+
+  @Override
   public boolean indexExists(String indexName) throws IOException {
     return false;
   }

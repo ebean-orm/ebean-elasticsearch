@@ -23,6 +23,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 
 /**
  * ElasticSearch based document store.
@@ -57,6 +58,15 @@ public class ElasticDocumentStore implements DocumentStore {
       bulk.flush();
       return count;
 
+    } catch (IOException e) {
+      throw new PersistenceIOException(e);
+    }
+  }
+
+  @Override
+  public void indexSettings(String indexName, Map<String, Object> settings) {
+    try {
+      indexService.indexSettings(indexName, settings);
     } catch (IOException e) {
       throw new PersistenceIOException(e);
     }
