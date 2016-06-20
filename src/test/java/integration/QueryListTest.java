@@ -74,7 +74,7 @@ public class QueryListTest extends BaseTest {
 
     List<Order> orders = query.findList();
 
-    assertEquals(query.getGeneratedSql(), "{\"query\":{\"filtered\":{\"filter\":{\"nested\":{\"path\":\"details\",\"filter\":{\"bool\":{\"must_not\":[{\"exists\":{\"field\":\"details\"}}]}}}}}}}");
+    assertEquals(query.getGeneratedSql(), "{\"query\":{\"filtered\":{\"filter\":{\"not\":{\"nested\":{\"path\":\"details\",\"filter\":{\"exists\":{\"field\":\"details\"}}}}}}}}");
     assertFalse(orders.isEmpty());
   }
 

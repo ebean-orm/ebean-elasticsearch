@@ -680,4 +680,14 @@ public class ElasticDocQueryContext implements DocQueryContext {
     json.writeEndObject();
   }
 
+  @Override
+  public void startNot() throws IOException {
+    json.writeStartObject();
+    json.writeFieldName("not");
+  }
+
+  @Override
+  public void endNot() throws IOException {
+    json.writeEndObject();
+  }
 }
