@@ -53,7 +53,7 @@ public class Order extends BasicDomain {
 
   @NotNull
   @ManyToOne
-  @DocEmbedded(doc = "id,status,name,billingAddress(*,country(*)")
+  @DocEmbedded(doc = "id,name,status,billingAddress(*,country(*))")
   Customer customer;
 
   @OneToMany(cascade = CascadeType.ALL, mappedBy = "order")
