@@ -37,6 +37,7 @@ public class EmbeddedServer {
           .put("path.home", "target/elastic-data")
           .put("number_of_shards", "1")
           .put("number_of_replicas", "1")
+          .put("http.port", "9290")
           .put("cluster.name", "EmbeddedTest")
           .put("node.name", "foo")
           .build();

@@ -17,7 +17,6 @@ import com.avaje.ebeaninternal.api.SpiExpressionList;
 import com.avaje.ebeaninternal.api.SpiQuery;
 import com.avaje.ebeaninternal.server.expression.DocQueryContext;
 import com.avaje.ebeaninternal.server.expression.Op;
-import com.avaje.ebeaninternal.server.query.SplitName;
 import com.avaje.ebeaninternal.server.querydefn.OrmQueryDetail;
 import com.avaje.ebeaninternal.server.querydefn.OrmQueryProperties;
 import com.fasterxml.jackson.core.JsonGenerator;
@@ -60,8 +59,6 @@ public class ElasticDocQueryContext implements DocQueryContext {
 
   private final BeanType<?> desc;
 
-  private String currentNestedPath;
-
   /**
    * Return the query in ElasticSearch JSON form.
    */
@@ -80,6 +77,8 @@ public class ElasticDocQueryContext implements DocQueryContext {
     this.json = context.createGenerator(writer);
 
     desc.addInheritanceWhere(query);
+
+    query.prepareDocNested();
   }
 
   @Override
@@ -237,7 +236,6 @@ public class ElasticDocQueryContext implements DocQueryContext {
    * Flush the JsonGenerator buffer.
    */
   public String flush() throws IOException {
-    endNested();
     json.flush();
     return writer.toString();
   }
@@ -316,7 +314,6 @@ public class ElasticDocQueryContext implements DocQueryContext {
    * Start a Bool expression list with the given type (MUST, MUST_NOT, SHOULD).
    */
   private void writeBoolStart(Junction.Type type) throws IOException {
-    endNested();
     startBoolGroup();
     startBoolGroupList(type);
   }
@@ -340,8 +337,6 @@ public class ElasticDocQueryContext implements DocQueryContext {
    */
   @Override
   public void endBool() throws IOException {
-    // end any currently active nested path
-    endNested();
     endBoolGroupList();
     endBoolGroup();
   }
@@ -398,9 +393,6 @@ public class ElasticDocQueryContext implements DocQueryContext {
    */
   @Override
   public void writeEqualTo(String propertyName, Object value) throws IOException {
-
-    // prepareNested on propertyName and expression uses raw
-    prepareNestedPath(propertyName);
     writeRawExpression(TERM, rawProperty(propertyName), value);
   }
 
@@ -409,8 +401,6 @@ public class ElasticDocQueryContext implements DocQueryContext {
    */
   @Override
   public void writeRange(String propertyName, String rangeType, Object value) throws IOException {
-
-    prepareNestedPath(propertyName);
     json.writeStartObject();
     json.writeObjectFieldStart(RANGE);
     json.writeObjectFieldStart(rawProperty(propertyName));
@@ -426,8 +416,6 @@ public class ElasticDocQueryContext implements DocQueryContext {
    */
   @Override
   public void writeRange(String propertyName, Op lowOp, Object valueLow, Op highOp, Object valueHigh) throws IOException {
-
-    prepareNestedPath(propertyName);
     json.writeStartObject();
     json.writeObjectFieldStart(RANGE);
     json.writeObjectFieldStart(rawProperty(propertyName));
@@ -445,8 +433,6 @@ public class ElasticDocQueryContext implements DocQueryContext {
    */
   @Override
   public void writeIn(String propertyName, Object[] values, boolean not) throws IOException {
-
-    prepareNestedPath(propertyName);
     if (not) {
       startBoolMustNot();
     }
@@ -470,7 +456,6 @@ public class ElasticDocQueryContext implements DocQueryContext {
   @Override
   public void writeIds(List<?> idList) throws IOException {
 
-    endNested();
     json.writeStartObject();
     json.writeObjectFieldStart(IDS);
     json.writeArrayFieldStart(VALUES);
@@ -552,15 +537,11 @@ public class ElasticDocQueryContext implements DocQueryContext {
    * Write a prefix expression.
    */
   public void writeMatch(String propertyName, String value, Match options) throws IOException {
-
-    // use analysed field
-    prepareNestedPath(propertyName);
     context.writeMatch(json, propertyName, value, options);
   }
 
   @Override
   public void writeMultiMatch(String search, MultiMatch options) throws IOException {
-
     // assuming fields are not in nested path
     context.writeMultiMatch(json, search, options);
   }
@@ -600,17 +581,12 @@ public class ElasticDocQueryContext implements DocQueryContext {
    */
   @Override
   public void writeExists(boolean notNull, String propertyName) throws IOException {
-
-    // prepareNestedPath prior to BoolMustNotStart
-    prepareNestedPath(propertyName);
     if (!notNull) {
-      // start MUST_NOT inside the nested path
       startBoolGroup();
       startBoolGroupList(Junction.Type.MUST_NOT);
     }
     writeExists(propertyName);
     if (!notNull) {
-      // end MUST_NOT inside the nested path
       endBoolGroupList();
       endBoolGroup();
     }
@@ -624,8 +600,6 @@ public class ElasticDocQueryContext implements DocQueryContext {
    * Write with prepareNestedPath() on the propertyName
    */
   private void writeRawWithPrepareNested(String type, String propertyName, Object value) throws IOException {
-
-    prepareNestedPath(propertyName);
     writeRawExpression(type, propertyName, value);
   }
 
@@ -648,8 +622,6 @@ public class ElasticDocQueryContext implements DocQueryContext {
   @Override
   public void writeSimple(Op type, String propertyName, Object value) throws IOException {
 
-    // prepareNested prior to boolMustNotStart
-    prepareNestedPath(propertyName);
     switch (type) {
       case EQ:
         writeEqualTo(propertyName, value);
@@ -692,49 +664,20 @@ public class ElasticDocQueryContext implements DocQueryContext {
   }
 
   /**
-   * Check if we need to start a nested path filter and do so if required.
-   */
-  private void prepareNestedPath(String propName) throws IOException {
-    ExpressionPath exprPath = desc.getExpressionPath(propName);
-    if (exprPath != null && exprPath.containsMany()) {
-      String[] manyPath = SplitName.splitBegin(propName);
-      startNested(manyPath[0]);
-    } else {
-      endNested();
-    }
-  }
-
-  /**
    * Start a nested path filter.
    */
-  private void startNested(String nestedPath) throws IOException {
-
-    if (currentNestedPath != null) {
-      if (currentNestedPath.equals(nestedPath)) {
-        // just add to currentNestedPath
-        return;
-      } else {
-        // end the prior one as this is different
-        endNested();
-      }
-    }
-    currentNestedPath = nestedPath;
-
+  @Override
+  public void startNested(String nestedPath) throws IOException {
     json.writeStartObject();
     json.writeObjectFieldStart("nested");
     json.writeStringField("path", nestedPath);
     json.writeFieldName("filter");
   }
 
-  /**
-   * End a nested path filter if one is still open.
-   */
-  private void endNested() throws IOException {
-    if (currentNestedPath != null) {
-      currentNestedPath = null;
-      json.writeEndObject();
-      json.writeEndObject();
-    }
+  @Override
+  public void endNested() throws IOException {
+    json.writeEndObject();
+    json.writeEndObject();
   }
 
 }

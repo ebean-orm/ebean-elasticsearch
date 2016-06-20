@@ -11,9 +11,58 @@ import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertFalse;
 import static org.testng.Assert.assertTrue;
 
 public class QueryListTest extends BaseTest {
+
+  @Test
+  public void nested_single() {
+
+    Query<Order> query = server.find(Order.class)
+        .setUseDocStore(true)
+        .where()
+        .gt("details.unitPrice", 9)
+        .query();
+
+    List<Order> orders = query.findList();
+
+    assertEquals(query.getGeneratedSql(), "{\"query\":{\"filtered\":{\"filter\":{\"nested\":{\"path\":\"details\",\"filter\":{\"range\":{\"details.unitPrice\":{\"gt\":9}}}}}}}}");
+    assertFalse(orders.isEmpty());
+  }
+
+  @Test
+  public void nested_multiple() {
+
+    Query<Order> query = server.find(Order.class)
+        .setUseDocStore(true)
+        .where()
+        .gt("details.orderQty", 1)
+        .gt("details.unitPrice", 1)
+        .query();
+
+    List<Order> orders = query.findList();
+
+    assertEquals(query.getGeneratedSql(), "{\"query\":{\"filtered\":{\"filter\":{\"nested\":{\"path\":\"details\",\"filter\":{\"bool\":{\"must\":[{\"range\":{\"details.orderQty\":{\"gt\":1}}},{\"range\":{\"details.unitPrice\":{\"gt\":1}}}]}}}}}}}");
+    assertFalse(orders.isEmpty());
+  }
+
+  @Test
+  public void nested_multiple_mixed() {
+
+    Query<Order> query = server.find(Order.class)
+        .setUseDocStore(true)
+        .where()
+          .ge("customer.id", 2)
+          .gt("details.orderQty", 1)
+          .gt("details.unitPrice", 1)
+        .query();
+
+    List<Order> orders = query.findList();
+
+    assertEquals(query.getGeneratedSql(), "{\"query\":{\"filtered\":{\"filter\":{\"bool\":{\"must\":[{\"range\":{\"customer.id\":{\"gte\":2}}},{\"nested\":{\"path\":\"details\",\"filter\":{\"bool\":{\"must\":[{\"range\":{\"details.orderQty\":{\"gt\":1}}},{\"range\":{\"details.unitPrice\":{\"gt\":1}}}]}}}}]}}}}}");
+    assertFalse(orders.isEmpty());
+  }
 
   @Test
   public void nested_isEmpty() {
@@ -26,11 +75,13 @@ public class QueryListTest extends BaseTest {
     List<Order> orders = query.findList();
 
     assertEquals(query.getGeneratedSql(), "{\"query\":{\"filtered\":{\"filter\":{\"nested\":{\"path\":\"details\",\"filter\":{\"bool\":{\"must_not\":[{\"exists\":{\"field\":\"details\"}}]}}}}}}}");
-    assertTrue(orders.isEmpty());
+    assertFalse(orders.isEmpty());
   }
 
   @Test
   public void nested_isNotEmpty() {
+
+    int totalRows = server.find(Order.class).findRowCount();
 
     Query<Order> query = server.find(Order.class)
         .setUseDocStore(true)
@@ -41,6 +92,7 @@ public class QueryListTest extends BaseTest {
 
     assertEquals(query.getGeneratedSql(), "{\"query\":{\"filtered\":{\"filter\":{\"nested\":{\"path\":\"details\",\"filter\":{\"exists\":{\"field\":\"details\"}}}}}}}");
     assertTrue(!orders.isEmpty());
+    assertThat(orders.size()).isLessThan(totalRows);
   }
 
   @Test
