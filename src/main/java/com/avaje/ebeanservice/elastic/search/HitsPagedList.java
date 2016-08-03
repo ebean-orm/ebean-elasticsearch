@@ -38,15 +38,27 @@ public class HitsPagedList<T> implements PagedList<T> {
     return list;
   }
 
-  public int getTotalRowCount() {
+  @Override
+  public int getTotalCount() {
     return totalRowCount;
+  }
+
+  public int getTotalRowCount() {
+    return getTotalCount();
+  }
+
+  public void loadCount() {
   }
 
   public void loadRowCount() {
   }
 
-  public Future<Integer> getFutureRowCount() {
+  public Future<Integer> getFutureCount() {
     return new FutInt<Integer>(this.totalRowCount);
+  }
+
+  public Future<Integer> getFutureRowCount() {
+    return getFutureCount();
   }
 
   public int getTotalPageCount() {
