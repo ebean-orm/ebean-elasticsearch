@@ -13,9 +13,7 @@
   </parent>
 
   <scm>
-    <connection>scm:git:https://github.com/ebean-orm/avaje-ebeanorm-elastic.git</connection>
-    <developerConnection>scm:git:https://github.com/ebean-orm/avaje-ebeanorm-elastic.git</developerConnection>
-    <url>https://github.com/ebean-orm/avaje-ebeanorm-elastic.git</url>
+    <developerConnection>scm:git:https://github.com/ebean-orm/ebean-elastic.git</developerConnection>
     <tag>HEAD</tag>
   </scm>
   
