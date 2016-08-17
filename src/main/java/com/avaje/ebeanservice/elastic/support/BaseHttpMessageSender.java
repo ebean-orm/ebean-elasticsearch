@@ -133,7 +133,7 @@ public class BaseHttpMessageSender implements IndexMessageSender {
   public IndexMessageResponse postQuery(boolean scroll, String indexType, String indexName, String jsonQuery) throws IOException {
 
     String scrollSuffix = (scroll) ? "?scroll=1m" : "";
-    String url = baseUrl + indexType + "/" + indexName + "/_search" + scrollSuffix;
+    String url = baseUrl + indexName+ "/" + indexType + "/_search" + scrollSuffix;
 
     Response response = postJson(url, jsonQuery);
     String responseBody = responseDebug("POST", url, response);
@@ -185,7 +185,7 @@ public class BaseHttpMessageSender implements IndexMessageSender {
   @Override
   public IndexMessageResponse getDocSource(String indexType, String indexName, String docId) throws IOException {
 
-    String url = baseUrl + indexType + "/" + indexName + "/" + docId + "/_source";
+    String url = baseUrl + indexName + "/" + indexType + "/" + docId + "/_source";
 
     Request request = new Request.Builder().url(url).get().build();
 
