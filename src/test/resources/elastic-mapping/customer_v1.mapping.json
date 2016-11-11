@@ -2,20 +2,20 @@
   "mappings" : {
     "customer" : {
       "properties" : {
-        "status": { "type": "string", "index": "not_analyzed" },
-        "name": { "type": "string", "fields": { "raw": { "type": "string", "index": "not_analyzed" } } },
-        "smallNote": { "type": "string" },
+        "status": { "type": "keyword", "index": "not_analyzed" },
+        "name": { "type": "text", "fields": { "raw": { "type": "string", "index": "not_analyzed" } } },
+        "smallNote": { "type": "text" },
         "anniversary": { "type": "date" },
         "billingAddress" : {
           "properties" : {
             "id": { "type": "long" },
-            "line1": { "type": "string" },
-            "line2": { "type": "string" },
-            "city": { "type": "string" },
+            "line1": { "type": "text" },
+            "line2": { "type": "text" },
+            "city": { "type": "text" },
             "country" : {
               "properties" : {
-                "code": { "type": "string", "index": "not_analyzed" },
-                "name": { "type": "string" }
+                "code": { "type": "text", "index": "not_analyzed" },
+                "name": { "type": "text" }
               }
             },
             "whenCreated": { "type": "date" },
@@ -26,13 +26,13 @@
         "shippingAddress" : {
           "properties" : {
             "id": { "type": "long" },
-            "line1": { "type": "string" },
-            "line2": { "type": "string" },
-            "city": { "type": "string" },
+            "line1": { "type": "text" },
+            "line2": { "type": "text" },
+            "city": { "type": "text" },
             "country" : {
               "properties" : {
-                "code": { "type": "string", "index": "not_analyzed" },
-                "name": { "type": "string" }
+                "code": { "type": "text", "index": "not_analyzed" },
+                "name": { "type": "text" }
               }
             },
             "whenCreated": { "type": "date" },

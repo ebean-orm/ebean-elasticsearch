@@ -2,7 +2,7 @@
   "mappings" : {
     "country" : {
       "properties" : {
-        "name": { "type": "string" }
+        "name": { "type": "text" }
       }
     }
   }

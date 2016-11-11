@@ -2,11 +2,11 @@
   "mappings" : {
     "content" : {
       "properties" : {
-        "status": { "type": "string", "index": "not_analyzed" },
-        "title": { "type": "string" },
-        "author": { "type": "string", "store": true, "boost": 2.0, "fields": { "raw": { "type": "string", "index": "not_analyzed" } } },
-        "content": { "type": "string" },
-        "shortNotes": { "type": "string", "index_options": "positions", "include_in_all": false, "norms": { "enabled": false }, "docValues": false, "store": true, "boost": 1.5, "null_value": "NA", "copy_to": "other", "analyzer": "english", "search_analyzer": "english" },
+        "status": { "type": "keyword", "index": "not_analyzed" },
+        "title": { "type": "text" },
+        "author": { "type": "text", "store": true, "boost": 2.0, "fields": { "raw": { "type": "string", "index": "not_analyzed" } } },
+        "content": { "type": "text" },
+        "shortNotes": { "type": "text", "index_options": "positions", "include_in_all": false, "norms": { "enabled": false }, "store": true, "boost": 1.5, "copy_to": "other", "analyzer": "english", "search_analyzer": "english" },
         "other": { "enabled": false },
         "whenCreated": { "type": "date" },
         "whenModified": { "type": "date" },
