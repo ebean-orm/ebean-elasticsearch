@@ -36,7 +36,7 @@ public class IndexCopyTest extends BaseTest {
 
     long docCount = documentStore.copyIndex(Product.class, "product_copy");
 
-    int dbRowCount = server.find(Product.class).findRowCount();
+    int dbRowCount = server.find(Product.class).findCount();
 
     assertEquals(docCount, dbRowCount);
   }
@@ -55,7 +55,7 @@ public class IndexCopyTest extends BaseTest {
 
     int dbRowCount = server.find(Product.class)
         .where().ge("whenModified", new Timestamp(since))
-        .findRowCount();
+        .findCount();
 
     assertEquals(docCount, dbRowCount);
   }
@@ -93,7 +93,7 @@ public class IndexCopyTest extends BaseTest {
 
     long docCount = documentStore.copyIndex(query, "product_copy", 0);
 
-    assertEquals(docCount, query.findRowCount());
+    assertEquals(docCount, query.findCount());
   }
 
   @Test
@@ -113,6 +113,6 @@ public class IndexCopyTest extends BaseTest {
 
     long docCount = documentStore.copyIndex(query, "product_copy", 2);
 
-    assertEquals(docCount, query.findRowCount());
+    assertEquals(docCount, query.findCount());
   }
 }

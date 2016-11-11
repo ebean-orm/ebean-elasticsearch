@@ -26,7 +26,6 @@ class WriteQueryStringExpression extends WriteBase {
     writeAnalyzer(json, options.getAnalyzer());
     writeAllowLeadingWildcard(json, options.isAllowLeadingWildcard());
     writeLowerCaseExpandedTerms(json, options.isLowercaseExpandedTerms());
-    writeEnablePositionIncrements(json, options.isEnablePositionIncrements());
     writeFuzzyMatchExpansions(json, options.getFuzzyMaxExpansions());
     writeFuzziness(json, options.getFuzziness());
     writeFuzzyPrefixLength(json, options.getFuzzyPrefixLength());
@@ -34,7 +33,6 @@ class WriteQueryStringExpression extends WriteBase {
     writeBoost(json, options.getBoost());
     writeAnalyzeWildcard(json, options.isAnalyzeWildcard());
     writeAutoGeneratePhraseQueries(json, options.isAutoGeneratePhraseQueries());
-    writeMaxDeterminizedStates(json, options.getMaxDeterminizedStates());
     writeMinShouldMatch(json, options.getMinShouldMatch());
     writeLenient(json, options.isLenient());
     writeLocale(json, options.getLocale());

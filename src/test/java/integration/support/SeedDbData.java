@@ -35,7 +35,7 @@ public class SeedDbData {
 
     final SeedDbData me = new SeedDbData();
 
-    if (server.find(Product.class).findRowCount() > 0) {
+    if (server.find(Product.class).findCount() > 0) {
       // we can't really delete this base data as
       // the test rely on the products being in there
       return;
@@ -61,7 +61,7 @@ public class SeedDbData {
 
   private void insertCountries() {
 
-    if (server.find(Country.class).findRowCount() > 0) {
+    if (server.find(Country.class).findCount() > 0) {
       return;
     }
 
@@ -120,7 +120,7 @@ public class SeedDbData {
 
   private void insertProducts() {
 
-    if (server.find(Product.class).findRowCount() > 0) {
+    if (server.find(Product.class).findCount() > 0) {
       return;
     }
 

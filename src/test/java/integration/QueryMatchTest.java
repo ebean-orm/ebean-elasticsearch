@@ -101,7 +101,7 @@ public class QueryMatchTest extends BaseTest {
           .query();
 
     List<Order> list = query.findList();
-    assertEquals(query.getGeneratedSql(), "{\"query\":{\"bool\":{\"must\":[{\"match\":{\"customer.name\":\"Rob\"}}]}},\"filter\":{\"term\":{\"status\":\"COMPLETE\"}}}");
+    assertEquals(query.getGeneratedSql(), "{\"query\":{\"bool\":{\"must\":[{\"match\":{\"customer.name\":\"Rob\"}}],\"filter\":[{\"term\":{\"status\":\"COMPLETE\"}}]}}}");
     assertThat(list).hasSize(1);
   }
 

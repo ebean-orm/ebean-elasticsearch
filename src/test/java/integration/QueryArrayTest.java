@@ -17,7 +17,7 @@ public class QueryArrayTest extends BaseTest {
         .setUseDocStore(true);
 
     query.findList();
-    assertThat(query.getGeneratedSql()).contains("{\"query\":{\"filtered\":{\"filter\":{\"exists\":{\"field\":\"uids\"}}}}}");
+    assertThat(query.getGeneratedSql()).contains("{\"query\":{\"bool\":{\"filter\":{\"exists\":{\"field\":\"uids\"}}}}}");
   }
 
   @Test
@@ -29,7 +29,7 @@ public class QueryArrayTest extends BaseTest {
         .setUseDocStore(true);
 
     query.findList();
-    assertThat(query.getGeneratedSql()).contains("{\"query\":{\"filtered\":{\"filter\":{\"bool\":{\"must_not\":[{\"exists\":{\"field\":\"uids\"}}]}}}}}");
+    assertThat(query.getGeneratedSql()).contains("{\"query\":{\"bool\":{\"filter\":{\"bool\":{\"must_not\":[{\"exists\":{\"field\":\"uids\"}}]}}}}}");
   }
 
   @Test
@@ -41,7 +41,7 @@ public class QueryArrayTest extends BaseTest {
         .setUseDocStore(true);
 
     query.findList();
-    assertThat(query.getGeneratedSql()).contains("{\"query\":{\"filtered\":{\"filter\":{\"term\":{\"someTags\":\"red\"}}}}}");
+    assertThat(query.getGeneratedSql()).contains("{\"query\":{\"bool\":{\"filter\":{\"term\":{\"someTags\":\"red\"}}}}}");
   }
 
   @Test
@@ -53,7 +53,7 @@ public class QueryArrayTest extends BaseTest {
         .setUseDocStore(true);
 
     query.findList();
-    assertThat(query.getGeneratedSql()).contains("{\"query\":{\"filtered\":{\"filter\":{\"bool\":{\"must\":[{\"term\":{\"someTags\":\"red\"}},{\"term\":{\"someTags\":\"green\"}}]}}}}}");
+    assertThat(query.getGeneratedSql()).contains("{\"query\":{\"bool\":{\"filter\":{\"bool\":{\"must\":[{\"term\":{\"someTags\":\"red\"}},{\"term\":{\"someTags\":\"green\"}}]}}}}}");
   }
 
   @Test
@@ -65,7 +65,7 @@ public class QueryArrayTest extends BaseTest {
         .setUseDocStore(true);
 
     query.findList();
-    assertThat(query.getGeneratedSql()).contains("{\"query\":{\"filtered\":{\"filter\":{\"bool\":{\"must_not\":[{\"term\":{\"tags\":\"red\"}},{\"term\":{\"tags\":\"green\"}}]}}}}}");
+    assertThat(query.getGeneratedSql()).contains("{\"query\":{\"bool\":{\"filter\":{\"bool\":{\"must_not\":[{\"term\":{\"tags\":\"red\"}},{\"term\":{\"tags\":\"green\"}}]}}}}}");
   }
 
   @Test
@@ -77,6 +77,6 @@ public class QueryArrayTest extends BaseTest {
         .setUseDocStore(true);
 
     query.findList();
-    assertThat(query.getGeneratedSql()).contains("{\"query\":{\"filtered\":{\"filter\":{\"bool\":{\"must_not\":[{\"term\":{\"tags\":\"red\"}},{\"term\":{\"tags\":\"green\"}},{\"term\":{\"tags\":\"zippy\"}}]}}}}}");
+    assertThat(query.getGeneratedSql()).contains("{\"query\":{\"bool\":{\"filter\":{\"bool\":{\"must_not\":[{\"term\":{\"tags\":\"red\"}},{\"term\":{\"tags\":\"green\"}},{\"term\":{\"tags\":\"zippy\"}}]}}}}}");
   }
 }

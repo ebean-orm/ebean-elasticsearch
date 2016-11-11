@@ -3,9 +3,7 @@ package integration.support;
 import com.avaje.ebean.DocumentStore;
 import com.avaje.ebean.Ebean;
 import com.avaje.ebean.EbeanServer;
-import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.node.Node;
-import org.elasticsearch.node.NodeBuilder;
 import org.example.domain.Contact;
 import org.example.domain.Country;
 import org.example.domain.Customer;
@@ -17,7 +15,7 @@ import org.example.domain.Vehicle;
  */
 public class EmbeddedServer {
 
-  final boolean useExternalElastic = false;
+  final boolean useExternalElastic = true;
 
   final boolean indexOnStart = true;
 
@@ -33,19 +31,23 @@ public class EmbeddedServer {
       this.node = null;
 
     } else {
-      Settings settings1 = Settings.settingsBuilder()
-          .put("path.home", "target/elastic-data")
-          .put("number_of_shards", "1")
-          .put("number_of_replicas", "1")
-          .put("http.port", "9290")
-          .put("cluster.name", "EmbeddedTest")
-          .put("node.name", "foo")
-          .build();
 
-      this.node = NodeBuilder
-          .nodeBuilder()
-          .settings(settings1)
-          .node();
+//      Boot boot = new Boot();
+//      boot.start();
+//      Settings settings1 = Settings.builder()
+//          .put("path.home", "target/elastic-data")
+////          .put("number_of_shards", "1")
+////          .put("number_of_replicas", "1")
+////          .put("http.port", "9290")
+//
+//          .put("cluster.name", "EmbeddedTest")
+//          .put("http.type", "http.type.default")
+//          .put("transport.type", "local")
+//          .put("node.name", "foo")
+//          .build();
+//
+//      this.node = new Node(settings1);
+      this.node = null;
     }
     server = Ebean.getDefaultServer();
     documentStore = server.docStore();

@@ -26,7 +26,8 @@
     <dependency>
       <groupId>org.slf4j</groupId>
       <artifactId>slf4j-api</artifactId>
-      <version>1.7.12</version>
+      <version>1.7.21</version>
+      <scope>provided</scope>
     </dependency>
 
     <!-- Http to ElasticSearch -->
@@ -39,7 +40,7 @@
     <dependency>
       <groupId>org.avaje.ebean</groupId>
       <artifactId>ebean</artifactId>
-      <version>8.1.1</version>
+      <version>9.1.2-SNAPSHOT</version>
     </dependency>
 
     <!-- Test Dependencies -->
@@ -47,16 +48,35 @@
     <dependency>
       <groupId>org.elasticsearch</groupId>
       <artifactId>elasticsearch</artifactId>
-      <version>2.3.3</version>
+      <version>5.0.0</version>
       <scope>test</scope>
     </dependency>
 
-    <dependency>
-      <groupId>net.java.dev.jna</groupId>
-      <artifactId>jna</artifactId>
-      <version>4.2.1</version>
-      <scope>test</scope>
-    </dependency>
+    <!--<dependency>-->
+      <!--<groupId>net.java.dev.jna</groupId>-->
+      <!--<artifactId>jna</artifactId>-->
+      <!--<version>4.2.1</version>-->
+      <!--<scope>test</scope>-->
+    <!--</dependency>-->
+
+
+    <!--<dependency>-->
+      <!--<groupId>org.apache.logging.log4j</groupId>-->
+      <!--<artifactId>log4j-api</artifactId>-->
+      <!--<version>2.7</version>-->
+    <!--</dependency>-->
+
+    <!--<dependency>-->
+      <!--<groupId>org.apache.logging.log4j</groupId>-->
+      <!--<artifactId>log4j-core</artifactId>-->
+      <!--<version>2.7</version>-->
+    <!--</dependency>-->
+
+    <!--<dependency>-->
+      <!--<groupId>org.apache.logging.log4j</groupId>-->
+      <!--<artifactId>log4j-slf4j-impl</artifactId>-->
+      <!--<version>2.7</version>-->
+    <!--</dependency>-->
 
     <dependency>
       <groupId>javax.validation</groupId>
@@ -68,8 +88,7 @@
     <dependency>
       <groupId>org.avaje.composite</groupId>
       <artifactId>composite-testing</artifactId>
-      <version>2.1</version>
-      <type>pom</type>
+      <version>3.1</version>
       <scope>test</scope>
     </dependency>
 

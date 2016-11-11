@@ -27,7 +27,7 @@ public class QueryListTest extends BaseTest {
 
     List<Order> orders = query.findList();
 
-    assertEquals(query.getGeneratedSql(), "{\"query\":{\"filtered\":{\"filter\":{\"nested\":{\"path\":\"details\",\"filter\":{\"range\":{\"details.unitPrice\":{\"gt\":9}}}}}}}}");
+    assertEquals(query.getGeneratedSql(), "{\"query\":{\"bool\":{\"filter\":{\"nested\":{\"path\":\"details\",\"query\":{\"range\":{\"details.unitPrice\":{\"gt\":9}}}}}}}}");
     assertFalse(orders.isEmpty());
   }
 
@@ -43,7 +43,7 @@ public class QueryListTest extends BaseTest {
 
     List<Order> orders = query.findList();
 
-    assertEquals(query.getGeneratedSql(), "{\"query\":{\"filtered\":{\"filter\":{\"nested\":{\"path\":\"details\",\"filter\":{\"bool\":{\"must\":[{\"range\":{\"details.orderQty\":{\"gt\":1}}},{\"range\":{\"details.unitPrice\":{\"gt\":1}}}]}}}}}}}");
+    assertEquals(query.getGeneratedSql(), "{\"query\":{\"bool\":{\"filter\":{\"nested\":{\"path\":\"details\",\"query\":{\"bool\":{\"must\":[{\"range\":{\"details.orderQty\":{\"gt\":1}}},{\"range\":{\"details.unitPrice\":{\"gt\":1}}}]}}}}}}}");
     assertFalse(orders.isEmpty());
   }
 
@@ -60,7 +60,7 @@ public class QueryListTest extends BaseTest {
 
     List<Order> orders = query.findList();
 
-    assertEquals(query.getGeneratedSql(), "{\"query\":{\"filtered\":{\"filter\":{\"bool\":{\"must\":[{\"range\":{\"customer.id\":{\"gte\":2}}},{\"nested\":{\"path\":\"details\",\"filter\":{\"bool\":{\"must\":[{\"range\":{\"details.orderQty\":{\"gt\":1}}},{\"range\":{\"details.unitPrice\":{\"gt\":1}}}]}}}}]}}}}}");
+    assertEquals(query.getGeneratedSql(), "{\"query\":{\"bool\":{\"filter\":{\"bool\":{\"must\":[{\"range\":{\"customer.id\":{\"gte\":2}}},{\"nested\":{\"path\":\"details\",\"query\":{\"bool\":{\"must\":[{\"range\":{\"details.orderQty\":{\"gt\":1}}},{\"range\":{\"details.unitPrice\":{\"gt\":1}}}]}}}}]}}}}}");
     assertFalse(orders.isEmpty());
   }
 
@@ -74,14 +74,14 @@ public class QueryListTest extends BaseTest {
 
     List<Order> orders = query.findList();
 
-    assertEquals(query.getGeneratedSql(), "{\"query\":{\"filtered\":{\"filter\":{\"not\":{\"nested\":{\"path\":\"details\",\"filter\":{\"exists\":{\"field\":\"details\"}}}}}}}}");
+    assertEquals(query.getGeneratedSql(), "{\"query\":{\"bool\":{\"filter\":{\"bool\":{\"must_not\":[{\"nested\":{\"path\":\"details\",\"query\":{\"exists\":{\"field\":\"details\"}}}}]}}}}}");
     assertFalse(orders.isEmpty());
   }
 
   @Test
   public void nested_isNotEmpty() {
 
-    int totalRows = server.find(Order.class).findRowCount();
+    int totalRows = server.find(Order.class).findCount();
 
     Query<Order> query = server.find(Order.class)
         .setUseDocStore(true)
@@ -90,7 +90,7 @@ public class QueryListTest extends BaseTest {
 
     List<Order> orders = query.findList();
 
-    assertEquals(query.getGeneratedSql(), "{\"query\":{\"filtered\":{\"filter\":{\"nested\":{\"path\":\"details\",\"filter\":{\"exists\":{\"field\":\"details\"}}}}}}}");
+    assertEquals(query.getGeneratedSql(), "{\"query\":{\"bool\":{\"filter\":{\"nested\":{\"path\":\"details\",\"query\":{\"exists\":{\"field\":\"details\"}}}}}}}");
     assertTrue(!orders.isEmpty());
     assertThat(orders.size()).isLessThan(totalRows);
   }
@@ -127,7 +127,7 @@ public class QueryListTest extends BaseTest {
         .query();
 
     query.findList();
-    assertEquals(query.getGeneratedSql(), "{\"query\":{\"filtered\":{\"filter\":{\"term\":{\"customer.name.raw\":\"Rob\"}}}}}");
+    assertEquals(query.getGeneratedSql(), "{\"query\":{\"bool\":{\"filter\":{\"term\":{\"customer.name.raw\":\"Rob\"}}}}}");
   }
 
   @Test
@@ -250,7 +250,7 @@ public class QueryListTest extends BaseTest {
           .query();
 
     query.findList();
-    assertEquals(query.getGeneratedSql(), "{\"query\":{\"filtered\":{\"filter\":{\"bool\":{\"must\":[{\"range\":{\"customer.id\":{\"gt\":1}}},{\"term\":{\"customer.name.raw\":\"Rob\"}}]}}}}}");
+    assertEquals(query.getGeneratedSql(), "{\"query\":{\"bool\":{\"filter\":{\"bool\":{\"must\":[{\"range\":{\"customer.id\":{\"gt\":1}}},{\"term\":{\"customer.name.raw\":\"Rob\"}}]}}}}}");
   }
 
   @Test
@@ -262,7 +262,7 @@ public class QueryListTest extends BaseTest {
         .query();
 
     query.findList();
-    assertEquals(query.getGeneratedSql(), "{\"query\":{\"filtered\":{\"filter\":{\"match\":{\"customer.name\":\"Rob\"}}}}}");
+    assertEquals(query.getGeneratedSql(), "{\"query\":{\"bool\":{\"filter\":{\"match\":{\"customer.name\":\"Rob\"}}}}}");
   }
 
   @Test
@@ -275,7 +275,7 @@ public class QueryListTest extends BaseTest {
           .query();
 
     query.findList();
-    assertEquals(query.getGeneratedSql(), "{\"query\":{\"filtered\":{\"filter\":{\"bool\":{\"must\":[{\"match\":{\"customer.name\":\"Rob\"}},{\"term\":{\"customer.status\":\"NEW\"}}]}}}}}");
+    assertEquals(query.getGeneratedSql(), "{\"query\":{\"bool\":{\"filter\":{\"bool\":{\"must\":[{\"match\":{\"customer.name\":\"Rob\"}},{\"term\":{\"customer.status\":\"NEW\"}}]}}}}}");
   }
 
   @Test
@@ -287,7 +287,7 @@ public class QueryListTest extends BaseTest {
         .fetch("customer", "id,name");
 
     query.findList();
-    assertEquals(query.getGeneratedSql(), "{\"fields\":[\"customer.id\",\"customer.name\",\"id\"],\"query\":{\"match_all\":{}}}");
+    assertEquals(query.getGeneratedSql(), "{\"stored_fields\":[\"customer.id\",\"customer.name\",\"id\"],\"query\":{\"match_all\":{}}}");
   }
 
   @Test
@@ -300,7 +300,7 @@ public class QueryListTest extends BaseTest {
         .fetch("details");
 
     query.findList();
-    assertEquals(query.getGeneratedSql(), "{\"_source\":{\"include\":[\"details.*\"]},\"fields\":[\"customer.id\",\"customer.name\",\"id\"],\"query\":{\"match_all\":{}}}");
+    assertEquals(query.getGeneratedSql(), "{\"_source\":{\"includes\":[\"details.*\"]},\"stored_fields\":[\"customer.id\",\"customer.name\",\"id\"],\"query\":{\"match_all\":{}}}");
   }
 
   @Test
@@ -326,7 +326,7 @@ public class QueryListTest extends BaseTest {
 
     List<Product> products = query.findList();
 
-    assertEquals(query.getGeneratedSql(), "{\"query\":{\"filtered\":{\"filter\":{\"term\":{\"name.raw\":\"Chair\"}}}}}");
+    assertEquals(query.getGeneratedSql(), "{\"query\":{\"bool\":{\"filter\":{\"term\":{\"name.raw\":\"Chair\"}}}}}");
     assertEquals(products.size(), 1);
   }
 
@@ -341,7 +341,7 @@ public class QueryListTest extends BaseTest {
     List<Product> products = query.findList();
 
     assertEquals(products.size(), 3);
-    assertEquals(query.getGeneratedSql(), "{\"query\":{\"filtered\":{\"filter\":{\"prefix\":{\"sku\":\"c00\"}}}}}");
+    assertEquals(query.getGeneratedSql(), "{\"query\":{\"bool\":{\"filter\":{\"prefix\":{\"sku\":\"c00\"}}}}}");
   }
 
   @Test
@@ -355,7 +355,7 @@ public class QueryListTest extends BaseTest {
     List<Product> products = query.findList();
 
     assertEquals(products.size(), 3);
-    assertEquals(query.getGeneratedSql(), "{\"query\":{\"filtered\":{\"filter\":{\"wildcard\":{\"sku\":\"*c00*\"}}}}}");
+    assertEquals(query.getGeneratedSql(), "{\"query\":{\"bool\":{\"filter\":{\"wildcard\":{\"sku\":\"*c00*\"}}}}}");
   }
 
   @Test
@@ -368,7 +368,7 @@ public class QueryListTest extends BaseTest {
 
     List<Product> products = query.findList();
 
-    assertEquals(query.getGeneratedSql(), "{\"query\":{\"filtered\":{\"filter\":{\"wildcard\":{\"sku\":\"*1\"}}}}}");
+    assertEquals(query.getGeneratedSql(), "{\"query\":{\"bool\":{\"filter\":{\"wildcard\":{\"sku\":\"*1\"}}}}}");
     assertEquals(products.size(), 2);
   }
 
@@ -382,7 +382,7 @@ public class QueryListTest extends BaseTest {
 
     List<Product> products = query.findList();
 
-    assertEquals(query.getGeneratedSql(), "{\"query\":{\"filtered\":{\"filter\":{\"wildcard\":{\"sku\":\"c?0*\"}}}}}");
+    assertEquals(query.getGeneratedSql(), "{\"query\":{\"bool\":{\"filter\":{\"wildcard\":{\"sku\":\"c?0*\"}}}}}");
     assertEquals(products.size(), 3);
   }
 
@@ -397,7 +397,7 @@ public class QueryListTest extends BaseTest {
     List<Product> products = query.findList();
 
     assertEquals(products.size(), 1);
-    assertEquals(query.getGeneratedSql(), "{\"query\":{\"filtered\":{\"filter\":{\"match\":{\"name\":\"chair\"}}}}}");
+    assertEquals(query.getGeneratedSql(), "{\"query\":{\"bool\":{\"filter\":{\"match\":{\"name\":\"chair\"}}}}}");
   }
 
   @Test
@@ -411,7 +411,7 @@ public class QueryListTest extends BaseTest {
     List<Customer> customers = query.findList();
 
     assertEquals(customers.size(), 1);
-    assertEquals(query.getGeneratedSql(), "{\"query\":{\"filtered\":{\"filter\":{\"bool\":{\"must\":[{\"match\":{\"name\":\"cust\"}},{\"match\":{\"name\":\"noaddress\"}}]}}}}}");
+    assertEquals(query.getGeneratedSql(), "{\"query\":{\"bool\":{\"filter\":{\"bool\":{\"must\":[{\"match\":{\"name\":\"cust\"}},{\"match\":{\"name\":\"noaddress\"}}]}}}}}");
   }
 
   @Test
@@ -425,7 +425,7 @@ public class QueryListTest extends BaseTest {
     List<Customer> customers = query.findList();
 
     assertEquals(customers.size(), 1);
-    assertEquals(query.getGeneratedSql(), "{\"query\":{\"filtered\":{\"filter\":{\"term\":{\"name.raw\":\"Rob\"}}}}}");
+    assertEquals(query.getGeneratedSql(), "{\"query\":{\"bool\":{\"filter\":{\"term\":{\"name.raw\":\"Rob\"}}}}}");
   }
 
   @Test
@@ -439,7 +439,7 @@ public class QueryListTest extends BaseTest {
     List<Customer> customers = query.findList();
 
     assertEquals(customers.size(), 1);
-    assertEquals(query.getGeneratedSql(), "{\"query\":{\"filtered\":{\"filter\":{\"terms\":{\"name.raw\":[\"Rob\",\"Junk\"]}}}}}");
+    assertEquals(query.getGeneratedSql(), "{\"query\":{\"bool\":{\"filter\":{\"terms\":{\"name.raw\":[\"Rob\",\"Junk\"]}}}}}");
   }
 
   @Test
@@ -452,7 +452,7 @@ public class QueryListTest extends BaseTest {
 
     List<Customer> customers = query.findList();
 
-    assertEquals(query.getGeneratedSql(), "{\"query\":{\"filtered\":{\"filter\":{\"bool\":{\"must_not\":[{\"terms\":{\"name.raw\":[\"Rob\",\"Junk\",\"Fiona\"]}}]}}}}}");
+    assertEquals(query.getGeneratedSql(), "{\"query\":{\"bool\":{\"filter\":{\"bool\":{\"must_not\":[{\"terms\":{\"name.raw\":[\"Rob\",\"Junk\",\"Fiona\"]}}]}}}}}");
     assertEquals(customers.size(), 2);
   }
 
@@ -467,7 +467,7 @@ public class QueryListTest extends BaseTest {
     List<Customer> customers = query.findList();
 
     assertEquals(customers.size(), 1);
-    assertEquals(query.getGeneratedSql(), "{\"query\":{\"filtered\":{\"filter\":{\"range\":{\"name.raw\":{\"gte\":\"R\",\"lte\":\"S\"}}}}}}");
+    assertEquals(query.getGeneratedSql(), "{\"query\":{\"bool\":{\"filter\":{\"range\":{\"name.raw\":{\"gte\":\"R\",\"lte\":\"S\"}}}}}}");
   }
 
   @Test
@@ -484,7 +484,7 @@ public class QueryListTest extends BaseTest {
     List<Customer> customers = query.findList();
 
     assertEquals(customers.size(), 0);
-    assertTrue(query.getGeneratedSql().contains("{\"query\":{\"filtered\":{\"filter\":{\"range\":{\"anniversary\":{\"gte\":"));
+    assertThat(query.getGeneratedSql()).contains("{\"query\":{\"bool\":{\"filter\":{\"range\":{\"anniversary\":{\"gte\":");
   }
 
   @Test
@@ -499,7 +499,7 @@ public class QueryListTest extends BaseTest {
 
     List<Order> customers = query.findList();
 
-    assertTrue(query.getGeneratedSql().contains("{\"query\":{\"filtered\":{\"filter\":{\"bool\":{\"must\":[{\"term\":{\"customer.id\":12323}},{\"nested\":{\"path\":\"details\",\"filter\":{\"term\":{\"details.product.sku\":\"A100\"}}}}]}}}}}"));
+    assertThat(query.getGeneratedSql()).contains("{\"query\":{\"bool\":{\"filter\":{\"bool\":{\"must\":[{\"term\":{\"customer.id\":12323}},{\"nested\":{\"path\":\"details\",\"query\":{\"term\":{\"details.product.sku\":\"A100\"}}}}]}}}}}");
     assertEquals(customers.size(), 0);
   }
 }

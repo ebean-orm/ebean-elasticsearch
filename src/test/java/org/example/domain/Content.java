@@ -11,8 +11,8 @@ import javax.validation.constraints.Size;
 @DocStore(mapping = {
     @DocMapping(name = "other", options = @DocProperty(enabled = false)),
     @DocMapping(name = "shortNotes",
-        options = @DocProperty(boost = 1.5f, docValues = false, includeInAll = false,
-            nullValue = "NA", options = DocProperty.Option.POSITIONS, store = true,
+        options = @DocProperty(boost = 1.5f, includeInAll = false,
+            options = DocProperty.Option.POSITIONS, store = true,
             analyzer = "english", searchAnalyzer = "english", copyTo = "other", norms = false))
 })
 @Entity

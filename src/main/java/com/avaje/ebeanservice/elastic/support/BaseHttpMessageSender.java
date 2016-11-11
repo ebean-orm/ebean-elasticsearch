@@ -145,7 +145,7 @@ public class BaseHttpMessageSender implements IndexMessageSender {
   @Override
   public IndexMessageResponse getScroll(String scrollId) throws IOException {
 
-    String url = baseUrl + "/_search/scroll";
+    String url = baseUrl + "_search/scroll";
 
     String jsonQuery = "{\"scroll\":\"1m\",\"scroll_id\":\"" + scrollId + "\"}";
 

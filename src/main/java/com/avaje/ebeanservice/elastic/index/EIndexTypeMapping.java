@@ -13,10 +13,10 @@ public class EIndexTypeMapping {
   final Map<DocPropertyType,String> map = new HashMap<DocPropertyType,String>();
 
   public EIndexTypeMapping() {
-    map.put(DocPropertyType.ENUM,"string");
-    map.put(DocPropertyType.UUID,"string");
+    map.put(DocPropertyType.ENUM,"keyword");
+    map.put(DocPropertyType.UUID,"keyword");
 
-    map.put(DocPropertyType.STRING,"string");
+    map.put(DocPropertyType.STRING,"text");
     map.put(DocPropertyType.BOOLEAN,"boolean");
 
     map.put(DocPropertyType.SHORT,"short");

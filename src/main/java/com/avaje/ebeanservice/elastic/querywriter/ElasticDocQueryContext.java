@@ -109,8 +109,9 @@ public class ElasticDocQueryContext implements DocQueryContext {
     json.writeFieldName("query");
 
     boolean hasFullText = writeFullText(query);
-    writeFilter(query, hasFullText);
-
+    if (!hasFullText) {
+      writeFilter(query, hasFullText);
+    }
     json.writeEndObject();
   }
 
@@ -126,7 +127,7 @@ public class ElasticDocQueryContext implements DocQueryContext {
     if (idEquals != null || hasWhere) {
       if (!hasFullText) {
         json.writeStartObject();
-        json.writeFieldName("filtered");
+        json.writeFieldName("bool");
         json.writeStartObject();
       }
       json.writeFieldName("filter");
@@ -148,6 +149,11 @@ public class ElasticDocQueryContext implements DocQueryContext {
 
     SpiExpressionList<?> text = query.getTextExpression();
     if (text != null && !text.isEmpty()) {
+      text.simplify();
+      SpiExpressionList<?> where = query.getWhereExpressions();
+      if (where != null && !where.isEmpty()) {
+        text.add(where.toJunction());
+      }
       text.writeDocQuery(this);
       return true;
     }
@@ -213,7 +219,7 @@ public class ElasticDocQueryContext implements DocQueryContext {
     if (!includes.isEmpty()) {
       json.writeFieldName("_source");
       json.writeStartObject();
-      json.writeFieldName("include");
+      json.writeFieldName("includes");
       json.writeStartArray();
       for (String propName : includes) {
         json.writeString(propName);
@@ -223,7 +229,7 @@ public class ElasticDocQueryContext implements DocQueryContext {
     }
 
     if (!fields.isEmpty()) {
-      json.writeFieldName("fields");
+      json.writeFieldName("stored_fields");
       json.writeStartArray();
       for (String propName : fields) {
         json.writeString(propName);
@@ -671,7 +677,7 @@ public class ElasticDocQueryContext implements DocQueryContext {
     json.writeStartObject();
     json.writeObjectFieldStart("nested");
     json.writeStringField("path", nestedPath);
-    json.writeFieldName("filter");
+    json.writeFieldName("query");
   }
 
   @Override

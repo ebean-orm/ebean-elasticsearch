@@ -39,7 +39,7 @@ public class QueryEachTest extends BaseTest {
 
     assertEquals(count.get(), 3);
     assertEquals(skuSet.size(), 3);
-    assertEquals(query.getGeneratedSql(), "{\"query\":{\"filtered\":{\"filter\":{\"prefix\":{\"sku\":\"c00\"}}}}}");
+    assertEquals(query.getGeneratedSql(), "{\"query\":{\"bool\":{\"filter\":{\"prefix\":{\"sku\":\"c00\"}}}}}");
   }
 
   @Test
@@ -63,7 +63,7 @@ public class QueryEachTest extends BaseTest {
 
     assertEquals(count.get(), 2);
     assertEquals(skuSet.size(), 2);
-    assertEquals(query.getGeneratedSql(), "{\"query\":{\"filtered\":{\"filter\":{\"prefix\":{\"sku\":\"c00\"}}}}}");
+    assertEquals(query.getGeneratedSql(), "{\"query\":{\"bool\":{\"filter\":{\"prefix\":{\"sku\":\"c00\"}}}}}");
   }
 
   @Test
@@ -73,8 +73,8 @@ public class QueryEachTest extends BaseTest {
         .setUseDocStore(true)
         .setMaxRows(2)
         .select("id, customer.id")
-        .fetch("customer", new FetchConfig().query())
-        .fetch("shipments", new FetchConfig().query())
+        //.fetch("customer", new FetchConfig().query())
+        //.fetch("shipments", new FetchConfig().query())
         .orderBy().asc("whenCreated");
 
     final List<Order> collect = new ArrayList<Order>();
