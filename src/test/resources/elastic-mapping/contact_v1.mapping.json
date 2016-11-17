@@ -2,18 +2,18 @@
   "mappings" : {
     "contact" : {
       "properties" : {
-        "uids": { "type": "keyword", "index": "not_analyzed" },
+        "uids": { "type": "keyword" },
         "someLongs": { "type": "long" },
         "someTags": { "type": "text" },
         "firstName": { "type": "text" },
-        "lastName": { "type": "text" },
+        "lastName": { "type": "text", "fields": { "raw": { "type": "keyword" } } },
         "phone": { "type": "text" },
         "mobile": { "type": "text" },
         "email": { "type": "text" },
         "customer" : {
           "properties" : {
             "id": { "type": "long" },
-            "name": { "type": "text", "fields": { "raw": { "type": "string", "index": "not_analyzed" } } }
+            "name": { "type": "text", "fields": { "raw": { "type": "keyword" } } }
           }
         },
         "whenCreated": { "type": "date" },

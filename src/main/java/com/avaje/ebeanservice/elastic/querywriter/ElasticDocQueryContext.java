@@ -187,31 +187,25 @@ public class ElasticDocQueryContext implements DocQueryContext {
   private void writeFetchPartial(OrmQueryDetail detail) throws IOException {
 
     Set<String> includes = new LinkedHashSet<String>();
-    Set<String> fields = new LinkedHashSet<String>();
-
-    for (Map.Entry<String, OrmQueryProperties> entry : detail.entries()) {
-
-      String path = entry.getKey();
-      OrmQueryProperties value = entry.getValue();
-      if (value.allProperties()) {
-        includes.add(path + ".*");
-      } else if (containsMany(path)) {
-        for (String propName : value.getIncluded()) {
-          includes.add(path + "." + propName);
-        }
-      } else {
-        for (String propName : value.getIncluded()) {
-          fields.add(path + "." + propName);
-        }
-      }
-    }
 
     OrmQueryProperties rootProps = detail.getChunk(null, false);
     if (rootProps.hasSelectClause()) {
       Set<String> included = rootProps.getIncluded();
       if (included != null) {
         for (String propName : included) {
-          fields.add(propName);
+          includes.add(propName);
+        }
+      }
+    }
+
+    for (Map.Entry<String, OrmQueryProperties> entry : detail.entries()) {
+      String path = entry.getKey();
+      OrmQueryProperties value = entry.getValue();
+      if (value.allProperties()) {
+        includes.add(path + ".*");
+      } else {
+        for (String propName : value.getIncluded()) {
+          includes.add(path + "." + propName);
         }
       }
     }
@@ -226,15 +220,6 @@ public class ElasticDocQueryContext implements DocQueryContext {
       }
       json.writeEndArray();
       json.writeEndObject();
-    }
-
-    if (!fields.isEmpty()) {
-      json.writeFieldName("stored_fields");
-      json.writeStartArray();
-      for (String propName : fields) {
-        json.writeString(propName);
-      }
-      json.writeEndArray();
     }
   }
 

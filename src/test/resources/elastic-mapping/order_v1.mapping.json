@@ -2,14 +2,14 @@
   "mappings" : {
     "order" : {
       "properties" : {
-        "status": { "type": "keyword", "index": "not_analyzed" },
+        "status": { "type": "keyword" },
         "orderDate": { "type": "date" },
         "shipDate": { "type": "date" },
         "customer" : {
           "properties" : {
             "id": { "type": "long" },
-            "status": { "type": "keyword", "index": "not_analyzed" },
-            "name": { "type": "text", "fields": { "raw": { "type": "string", "index": "not_analyzed" } } },
+            "status": { "type": "keyword" },
+            "name": { "type": "text", "fields": { "raw": { "type": "keyword" } } },
             "billingAddress" : {
               "properties" : {
                 "id": { "type": "long" },
@@ -18,7 +18,7 @@
                 "city": { "type": "text" },
                 "country" : {
                   "properties" : {
-                    "code": { "type": "text", "index": "not_analyzed" },
+                    "code": { "type": "keyword" },
                     "name": { "type": "text" }
                   }
                 },
@@ -39,7 +39,7 @@
             "product" : {
               "properties" : {
                 "id": { "type": "long" },
-                "sku": { "type": "text", "fields": { "raw": { "type": "string", "index": "not_analyzed" } } }
+                "sku": { "type": "text", "fields": { "raw": { "type": "keyword" } } }
               }
             },
             "whenCreated": { "type": "date" },

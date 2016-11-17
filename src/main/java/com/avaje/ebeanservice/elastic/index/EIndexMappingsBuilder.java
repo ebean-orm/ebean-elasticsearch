@@ -110,11 +110,7 @@ public class EIndexMappingsBuilder {
           DocPropertyType logicalType = property.getType();
           gen.writeStringField("type", typeMapping.get(logicalType));
 
-          if (options == null) {
-            if (notAnalysed(logicalType)) {
-              gen.writeStringField("index", "not_analyzed");
-            }
-          } else {
+          if (options != null) {
             if (options.isOptionsSet()) {
               gen.writeStringField("index_options", options.getOptions().name().toLowerCase());
             }
@@ -147,15 +143,11 @@ public class EIndexMappingsBuilder {
             if (options.getSearchAnalyzer() != null) {
               gen.writeStringField("search_analyzer", options.getSearchAnalyzer());
             }
-            if (isTrue(options.getCode()) || notAnalysed(logicalType)) {
-              gen.writeStringField("index", "not_analyzed");
-
-            } else if (isTrue(options.getSortable())) {
+            if (isTrue(options.getSortable())) {
               // add raw field option
               gen.writeObjectFieldStart("fields");
               gen.writeObjectFieldStart("raw");
-              gen.writeStringField("type", "string");
-              gen.writeStringField("index", "not_analyzed");
+              gen.writeStringField("type", "keyword");
               gen.writeEndObject();
               gen.writeEndObject();
             }

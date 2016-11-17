@@ -2,13 +2,13 @@
   "mappings" : {
     "vehicle" : {
       "properties" : {
-        "dtype": { "type": "keyword", "index": "not_analyzed" },
-        "licenseNumber": { "type": "text", "index": "not_analyzed" },
+        "dtype": { "type": "keyword" },
+        "licenseNumber": { "type": "keyword" },
         "registrationDate": { "type": "date" },
         "whenCreated": { "type": "date" },
         "whenModified": { "type": "date" },
         "version": { "type": "long" },
-        "driver": { "type": "text", "fields": { "raw": { "type": "string", "index": "not_analyzed" } } },
+        "driver": { "type": "text", "fields": { "raw": { "type": "keyword" } } },
         "notes": { "type": "text" },
         "capacity": { "type": "double" },
         "truckRef" : {

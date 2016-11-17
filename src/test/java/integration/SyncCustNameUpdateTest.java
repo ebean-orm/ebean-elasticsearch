@@ -12,7 +12,7 @@ import static org.testng.Assert.assertEquals;
 public class SyncCustNameUpdateTest extends BaseTest {
 
   @Test
-  public void update() {
+  public void update() {//throws InterruptedException {
 
     Customer cust = server.find(Customer.class)
         .where().idEq(2)
@@ -24,10 +24,14 @@ public class SyncCustNameUpdateTest extends BaseTest {
 
     sleepToPropagate();
 
+    //Thread.sleep(4000);
+
     List<Order> orders = server.find(Order.class)
         .where().eq("customer.id", cust.getId())
         .setUseDocStore(true)
         .findList();
+
+    //Thread.sleep(4000);
 
     for (Order order : orders) {
       assertEquals(order.getCustomer().getName(), cust.getName());

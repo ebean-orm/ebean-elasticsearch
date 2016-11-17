@@ -70,4 +70,7 @@ public class BulkUpdate {
 
   }
 
+  public void sendUpdateQuery(String indexName, String indexType, String script) throws IOException {
+    bulkSender.setUpdateQuery(indexName, indexType, script);
+  }
 }

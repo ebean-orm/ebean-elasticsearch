@@ -28,7 +28,7 @@ public class EIndexMappingsBuilderTest {
         "  \"mappings\" : {\n" +
         "    \"country\" : {\n" +
         "      \"properties\" : {\n" +
-        "        \"name\": { \"type\": \"string\" }\n" +
+        "        \"name\": { \"type\": \"text\" }\n" +
         "      }\n" +
         "    }\n" +
         "  }\n" +

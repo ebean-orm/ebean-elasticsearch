@@ -82,4 +82,7 @@ public class BulkSender {
     return EJson.parseObject(response);
   }
 
+  public void setUpdateQuery(String indexName, String indexType, String script) throws IOException {
+    messageSender.postUpdateQuery(indexName, indexType, script);
+  }
 }

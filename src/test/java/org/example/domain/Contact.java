@@ -3,6 +3,7 @@ package org.example.domain;
 import com.avaje.ebean.annotation.Cache;
 import com.avaje.ebean.annotation.DbArray;
 import com.avaje.ebean.annotation.DocEmbedded;
+import com.avaje.ebean.annotation.DocSortable;
 import com.avaje.ebean.annotation.DocStore;
 
 import javax.persistence.Entity;
@@ -27,6 +28,7 @@ public class Contact extends BasicDomain {
   List<String> someTags = new ArrayList<String>();
 
   String firstName;
+  @DocSortable
   String lastName;
 
   String phone;

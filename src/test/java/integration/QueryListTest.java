@@ -287,7 +287,7 @@ public class QueryListTest extends BaseTest {
         .fetch("customer", "id,name");
 
     query.findList();
-    assertEquals(query.getGeneratedSql(), "{\"stored_fields\":[\"customer.id\",\"customer.name\",\"id\"],\"query\":{\"match_all\":{}}}");
+    assertEquals(query.getGeneratedSql(), "{\"_source\":{\"includes\":[\"id\",\"customer.id\",\"customer.name\"]},\"query\":{\"match_all\":{}}}");
   }
 
   @Test
@@ -300,7 +300,7 @@ public class QueryListTest extends BaseTest {
         .fetch("details");
 
     query.findList();
-    assertEquals(query.getGeneratedSql(), "{\"_source\":{\"includes\":[\"details.*\"]},\"stored_fields\":[\"customer.id\",\"customer.name\",\"id\"],\"query\":{\"match_all\":{}}}");
+    assertEquals(query.getGeneratedSql(), "{\"_source\":{\"includes\":[\"id\",\"customer.id\",\"customer.name\",\"details.*\"]},\"query\":{\"match_all\":{}}}");
   }
 
   @Test

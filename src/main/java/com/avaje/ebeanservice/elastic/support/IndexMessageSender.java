@@ -24,6 +24,11 @@ public interface IndexMessageSender {
   IndexMessageResponse postQuery(boolean scroll, String indexType, String indexName, String jsonQuery) throws IOException;
 
   /**
+   * Send an update query request.
+   */
+  IndexMessageResponse postUpdateQuery(String indexType, String indexName, String jsonQuery) throws IOException;
+
+  /**
    * Send a get scroll request.
    */
   IndexMessageResponse getScroll(String scrollId) throws IOException;

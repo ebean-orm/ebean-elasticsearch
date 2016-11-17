@@ -141,6 +141,15 @@ public class BaseHttpMessageSender implements IndexMessageSender {
     return new IndexMessageResponse(response.code(), responseBody);
   }
 
+  @Override
+  public IndexMessageResponse postUpdateQuery(String indexType, String indexName, String jsonQuery) throws IOException {
+
+    String url = baseUrl + indexName+ "/" + indexType + "/_update_by_query";
+    Response response = postJson(url, jsonQuery);
+    String responseBody = responseDebug("POST", url, response);
+
+    return new IndexMessageResponse(response.code(), responseBody);
+  }
 
   @Override
   public IndexMessageResponse getScroll(String scrollId) throws IOException {
@@ -158,7 +167,7 @@ public class BaseHttpMessageSender implements IndexMessageSender {
   @Override
   public IndexMessageResponse clearScrollIds(Set<String> scrollIds) throws IOException {
 
-    String url = baseUrl + "/_search/scroll";
+    String url = baseUrl + "_search/scroll";
 
     StringBuilder sb = new StringBuilder(200);
     for (String scrollId : scrollIds) {

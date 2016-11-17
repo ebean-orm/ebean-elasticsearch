@@ -15,8 +15,8 @@ public class EIndexTypeMapping {
   public EIndexTypeMapping() {
     map.put(DocPropertyType.ENUM,"keyword");
     map.put(DocPropertyType.UUID,"keyword");
-
-    map.put(DocPropertyType.STRING,"text");
+    map.put(DocPropertyType.KEYWORD,"keyword");
+    map.put(DocPropertyType.TEXT,"text");
     map.put(DocPropertyType.BOOLEAN,"boolean");
 
     map.put(DocPropertyType.SHORT,"short");

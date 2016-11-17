@@ -9,6 +9,8 @@ import com.avaje.ebean.plugin.BeanType;
 import com.avaje.ebean.plugin.Property;
 import com.avaje.ebeaninternal.server.query.SplitName;
 import com.avaje.ebeanservice.elastic.bulk.BulkUpdate;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -19,6 +21,8 @@ import java.util.Map;
  * Process an embedded document update.
  */
 public class ProcessNested<T> {
+
+  private static final Logger log = LoggerFactory.getLogger(ProcessNested.class);
 
   private final EbeanServer server;
   private final BeanType<T> desc;
@@ -86,29 +90,20 @@ public class ProcessNested<T> {
   public long process() throws IOException {
 
     List<Object> nestedIds = nested.getIds();
-
-    fetchEmbedded(nestedIds);
-    processTop(nestedIds);
+    if (nestedMany) {
+      fetchEmbeddedAssocMany(nestedIds);
+      processTop(nestedIds);
+    } else {
+      updateByQueryAssocOne(nestedIds);
+    }
 
     return count;
   }
 
   /**
-   * Populate a map of all the embedded JSON documents that we then want to send as updates to the parent.
-   */
-  protected void fetchEmbedded(List<Object> nestedIds) throws IOException {
-
-    if (nestedMany) {
-      fetchEmbeddedAssocMany(nestedIds);
-    } else {
-      fetchEmbeddedAssocOne(nestedIds);
-    }
-  }
-
-  /**
    * Load the json map given the embedded document has cardinality one (ElasticSearch object).
    */
-  private void fetchEmbeddedAssocOne(List<Object> nestedIds) {
+  private void updateByQueryAssocOne(List<Object> nestedIds) {
 
     Query<?> pathQuery = server.createQuery(nestedDesc.getBeanType());
     pathQuery.apply(nestedDoc);
@@ -120,6 +115,21 @@ public class ProcessNested<T> {
       String embedJson = server.json().toJson(bean, nestedDoc);
       Object beanId = nestedDesc.beanId(bean);
       jsonMap.put(beanId, embedJson);
+
+      String script =
+      "{ \"query\":{\"bool\":{\"filter\":{\"term\":{\""+fullNestedPath+"\":\""+beanId+"\"}}}}" +
+      " ,\"script\": { \"lang\": \"painless\", "+
+      "  \"inline\": \"ctx._source."+nestedPath+" = params."+nestedPath+"\",  "+
+      "  \"params\" : { "+
+      "  \""+nestedPath+"\":" + embedJson +
+      "}}}";
+
+      BeanDocType<T> docType = desc.docStore();
+      try {
+        txn.sendUpdateQuery(docType.getIndexName(), docType.getIndexType(), script);
+      } catch (IOException e) {
+        log.error("Error performing updateByQuery", e);
+      }
     }
   }
 

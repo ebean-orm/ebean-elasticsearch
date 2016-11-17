@@ -33,6 +33,11 @@ public class TDIndexMessageSender implements IndexMessageSender {
   }
 
   @Override
+  public IndexMessageResponse postUpdateQuery(String indexType, String indexName, String jsonQuery) throws IOException {
+    return null;
+  }
+
+  @Override
   public IndexMessageResponse getScroll(String scrollId) throws IOException {
     return null;
   }

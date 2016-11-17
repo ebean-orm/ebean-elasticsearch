@@ -2,8 +2,8 @@
   "mappings" : {
     "product" : {
       "properties" : {
-        "sku": { "type": "text", "fields": { "raw": { "type": "string", "index": "not_analyzed" } } },
-        "name": { "type": "text", "fields": { "raw": { "type": "string", "index": "not_analyzed" } } },
+        "sku": { "type": "text", "fields": { "raw": { "type": "keyword" } } },
+        "name": { "type": "text", "fields": { "raw": { "type": "keyword" } } },
         "whenCreated": { "type": "date" },
         "whenModified": { "type": "date" },
         "version": { "type": "long" }
