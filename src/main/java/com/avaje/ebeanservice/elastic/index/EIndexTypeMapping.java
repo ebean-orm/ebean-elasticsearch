@@ -10,29 +10,30 @@ import java.util.Map;
  */
 public class EIndexTypeMapping {
 
-  final Map<DocPropertyType,String> map = new HashMap<DocPropertyType,String>();
+  final Map<DocPropertyType, String> map = new HashMap<DocPropertyType, String>();
 
   public EIndexTypeMapping() {
-    map.put(DocPropertyType.ENUM,"string");
-    map.put(DocPropertyType.UUID,"string");
+    map.put(DocPropertyType.ENUM, "string");
+    map.put(DocPropertyType.UUID, "string");
+    map.put(DocPropertyType.KEYWORD, "string");
+    map.put(DocPropertyType.TEXT, "string");
 
-    map.put(DocPropertyType.STRING,"string");
-    map.put(DocPropertyType.BOOLEAN,"boolean");
+    map.put(DocPropertyType.BOOLEAN, "boolean");
 
-    map.put(DocPropertyType.SHORT,"short");
-    map.put(DocPropertyType.INTEGER,"integer");
-    map.put(DocPropertyType.LONG,"long");
-    map.put(DocPropertyType.DOUBLE,"double");
-    map.put(DocPropertyType.FLOAT,"float");
+    map.put(DocPropertyType.SHORT, "short");
+    map.put(DocPropertyType.INTEGER, "integer");
+    map.put(DocPropertyType.LONG, "long");
+    map.put(DocPropertyType.DOUBLE, "double");
+    map.put(DocPropertyType.FLOAT, "float");
 
-    map.put(DocPropertyType.DATE,"date");
-    map.put(DocPropertyType.DATETIME,"date");
+    map.put(DocPropertyType.DATE, "date");
+    map.put(DocPropertyType.DATETIME, "date");
 
-    map.put(DocPropertyType.BINARY,"binary");
+    map.put(DocPropertyType.BINARY, "binary");
 
-    map.put(DocPropertyType.LIST,"nested");
-    map.put(DocPropertyType.OBJECT,"object");
-    map.put(DocPropertyType.ROOT,"root");
+    map.put(DocPropertyType.LIST, "nested");
+    map.put(DocPropertyType.OBJECT, "object");
+    map.put(DocPropertyType.ROOT, "root");
 
   }
 

@@ -224,8 +224,11 @@ public class EIndexMappingsBuilder {
    */
   private boolean notAnalysed(DocPropertyType logicalType) {
     switch (logicalType) {
+      case UUID: return true;
       case ENUM: return true;
+      case KEYWORD: return true;
+      default:
+        return false;
     }
-    return false;
   }
 }
