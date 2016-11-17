@@ -74,14 +74,14 @@ public class QueryListTest extends BaseTest {
 
     List<Order> orders = query.findList();
 
-    assertEquals(query.getGeneratedSql(), "{\"query\":{\"filtered\":{\"filter\":{\"not\":{\"nested\":{\"path\":\"details\",\"filter\":{\"exists\":{\"field\":\"details\"}}}}}}}}");
+    assertEquals(query.getGeneratedSql(), "{\"query\":{\"filtered\":{\"filter\":{\"bool\":{\"must_not\":[{\"nested\":{\"path\":\"details\",\"filter\":{\"exists\":{\"field\":\"details\"}}}}]}}}}}");
     assertFalse(orders.isEmpty());
   }
 
   @Test
   public void nested_isNotEmpty() {
 
-    int totalRows = server.find(Order.class).findRowCount();
+    int totalRows = server.find(Order.class).findCount();
 
     Query<Order> query = server.find(Order.class)
         .setUseDocStore(true)

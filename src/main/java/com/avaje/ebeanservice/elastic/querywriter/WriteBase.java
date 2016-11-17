@@ -124,12 +124,6 @@ abstract class WriteBase {
     }
   }
 
-  protected void writeMaxDeterminizedStates(JsonGenerator json, int maxDeterminizedStates) throws IOException {
-    if (maxDeterminizedStates != TextQueryString.DEFAULT_MAX_DETERMINIZED_STATES) {
-      json.writeNumberField("max_determinized_states", maxDeterminizedStates);
-    }
-  }
-
   protected void writeAutoGeneratePhraseQueries(JsonGenerator json, boolean autoGeneratePhraseQueries) throws IOException {
     if (autoGeneratePhraseQueries) {
       json.writeBooleanField("auto_generate_phrase_queries", autoGeneratePhraseQueries);

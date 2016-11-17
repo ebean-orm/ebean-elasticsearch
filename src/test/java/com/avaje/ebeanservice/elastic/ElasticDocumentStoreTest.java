@@ -88,7 +88,7 @@ public class ElasticDocumentStoreTest extends BaseTest {
 
     PagedList<Order> list = query.findPagedList();
 
-    assertThat(list.getTotalRowCount()).isEqualTo(5);
+    assertThat(list.getTotalCount()).isEqualTo(5);
     assertThat(list.getList()).hasSize(2);
   }
 

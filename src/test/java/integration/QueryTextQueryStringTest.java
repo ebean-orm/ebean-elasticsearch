@@ -84,14 +84,12 @@ public class QueryTextQueryStringTest extends BaseTest {
         .phraseSlop(0.5)
         .boost(2)
         .defaultField("name")
-        .enablePositionIncrements(false)
         .fuzziness("1")
         .fuzzyMaxExpansions(10)
         .fuzzyPrefixLength(3)
         .lenient(true)
         .locale("EN")
         .lowercaseExpandedTerms(false)
-        .maxDeterminizedStates(500)
         .minShouldMatch("1")
         .timeZone("UTC")
         .opAnd();
@@ -103,7 +101,7 @@ public class QueryTextQueryStringTest extends BaseTest {
 
 
     List<Customer> list = query.findList();
-    assertEquals(query.getGeneratedSql(), "{\"query\":{\"query_string\":{\"query\":\"brown\",\"default_field\":\"name\",\"default_operator\":\"and\",\"analyzer\":\"whitespace\",\"allow_leading_wildcard\":false,\"lowercase_expanded_terms\":false,\"enable_position_increments\":false,\"fuzzy_max_expansions\":10,\"fuzziness\":\"1\",\"fuzzy_prefix_length\":3,\"phrase_slop\":0.5,\"boost\":2.0,\"analyze_wildcard\":true,\"auto_generate_phrase_queries\":true,\"max_determinized_states\":500,\"minimum_should_match\":\"1\",\"lenient\":true,\"locale\":\"EN\",\"time_zone\":\"UTC\"}}}");
+    assertEquals(query.getGeneratedSql(), "{\"query\":{\"query_string\":{\"query\":\"brown\",\"default_field\":\"name\",\"default_operator\":\"and\",\"analyzer\":\"whitespace\",\"allow_leading_wildcard\":false,\"lowercase_expanded_terms\":false,\"fuzzy_max_expansions\":10,\"fuzziness\":\"1\",\"fuzzy_prefix_length\":3,\"phrase_slop\":0.5,\"boost\":2.0,\"analyze_wildcard\":true,\"auto_generate_phrase_queries\":true,\"minimum_should_match\":\"1\",\"lenient\":true,\"locale\":\"EN\",\"time_zone\":\"UTC\"}}}");
     assertThat(list).hasSize(0);
   }
 
