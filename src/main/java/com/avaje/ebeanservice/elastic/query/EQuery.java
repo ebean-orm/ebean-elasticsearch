@@ -15,20 +15,20 @@ public class EQuery<T> {
 
   protected final SpiQuery<T> query;
 
-  protected final BeanType<T> beanType;
+  final BeanType<T> beanType;
 
-  protected final JsonContext jsonContext;
+  private final JsonContext jsonContext;
 
-  protected final JsonReadOptions jsonOptions;
+  private final JsonReadOptions jsonOptions;
 
-  public EQuery(SpiQuery<T> query, JsonContext jsonContext, JsonReadOptions jsonOptions) {
+  EQuery(SpiQuery<T> query, JsonContext jsonContext, JsonReadOptions jsonOptions) {
     this.query = query;
     this.beanType = query.getBeanDescriptor();
     this.jsonContext = jsonContext;
     this.jsonOptions = jsonOptions;
   }
 
-  public EQuery(BeanType<T> beanType, JsonContext jsonContext, JsonReadOptions options) {
+  EQuery(BeanType<T> beanType, JsonContext jsonContext, JsonReadOptions options) {
     this.query = null;
     this.beanType = beanType;
     this.jsonContext = jsonContext;
@@ -38,20 +38,20 @@ public class EQuery<T> {
   /**
    * Create a bean parser for the given json.
    */
-  protected BeanSearchParser<T> createParser(JsonParser json) {
-    JsonBeanReader reader = createReader(json);
+  BeanSearchParser<T> createParser(JsonParser json) {
+    JsonBeanReader<T> reader = createReader(json);
     return createParser(json, reader);
   }
 
   /**
    * Create a bean reader for the given json.
    */
-  public JsonBeanReader<T> createReader(JsonParser json) {
+  JsonBeanReader<T> createReader(JsonParser json) {
     return jsonContext.createBeanReader(beanType, json, jsonOptions);
   }
 
   private BeanSearchParser<T> createParser(JsonParser json, JsonBeanReader<T> reader) {
-    return new BeanSearchParser<T>(json, beanType, reader, query.getLazyLoadMany());
+    return new BeanSearchParser<>(json, beanType, reader, query.getLazyLoadMany());
   }
 
 }

@@ -1,7 +1,5 @@
 package com.avaje.ebeanservice.elastic.query;
 
-import com.avaje.ebean.QueryEachConsumer;
-import com.avaje.ebean.QueryEachWhileConsumer;
 import com.avaje.ebean.text.json.JsonContext;
 import com.avaje.ebeanservice.docstore.api.DocQueryRequest;
 import com.avaje.ebeanservice.elastic.search.bean.BeanSearchParser;
@@ -11,6 +9,8 @@ import java.io.IOException;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.function.Consumer;
+import java.util.function.Predicate;
 
 /**
  * Processes Query findEach/findEachWhile requests.
@@ -21,13 +21,13 @@ public class EQueryEach<T> extends EQuery<T> {
 
   private final EQuerySend send;
 
-  private final Set<String> allScrollIds = new LinkedHashSet<String>();
+  private final Set<String> allScrollIds = new LinkedHashSet<>();
 
   private BeanSearchParser<T> beanParser;
 
   private String currentScrollId;
 
-  public EQueryEach(DocQueryRequest<T> request, EQuerySend send, JsonContext jsonContext) {
+  EQueryEach(DocQueryRequest<T> request, EQuerySend send, JsonContext jsonContext) {
     super(request.getQuery(), jsonContext, request.createJsonReadOptions());
     this.send = send;
     this.request = request;
@@ -86,7 +86,7 @@ public class EQueryEach<T> extends EQuery<T> {
   /**
    * Consume the initial scroll returning true if there are more.
    */
-  public boolean consumeInitial(QueryEachConsumer<T> consumer) throws IOException {
+  boolean consumeInitial(Consumer<T> consumer) throws IOException {
     List<T> list = fetchInitial();
     request.executeSecondaryQueries(true);
     consumeEach(list, consumer);
@@ -96,14 +96,14 @@ public class EQueryEach<T> extends EQuery<T> {
   /**
    * Consume subsequent scroll returning true if there are more.
    */
-  public boolean consumeMore(QueryEachConsumer<T> consumer) throws IOException {
+  boolean consumeMore(Consumer<T> consumer) throws IOException {
     List<T> list = fetchNextScroll();
     request.executeSecondaryQueries(true);
     consumeEach(list, consumer);
     return !zeroHits();
   }
 
-  private void consumeEach(List<T> moreList, QueryEachConsumer<T> consumer) {
+  private void consumeEach(List<T> moreList, Consumer<T> consumer) {
     for (T bean : moreList) {
       consumer.accept(bean);
     }
@@ -112,20 +112,20 @@ public class EQueryEach<T> extends EQuery<T> {
   /**
    * Consume the initial scroll returning true if we should continue.
    */
-  public boolean consumeInitialWhile(QueryEachWhileConsumer<T> consumer) throws IOException {
+  boolean consumeInitialWhile(Predicate<T> consumer) throws IOException {
     return consumeWhile(fetchInitial(), consumer) && !allHitsRead();
   }
 
   /**
    * Consume a subsequent scroll returning true if we should continue.
    */
-  public boolean consumeMoreWhile(QueryEachWhileConsumer<T> consumer) throws IOException {
+  boolean consumeMoreWhile(Predicate<T> consumer) throws IOException {
     return consumeWhile(fetchNextScroll(), consumer) && !zeroHits();
   }
 
-  private boolean consumeWhile(List<T> moreList, QueryEachWhileConsumer<T> consumer) {
+  private boolean consumeWhile(List<T> moreList, Predicate<T> consumer) {
     for (T bean : moreList) {
-      if (!consumer.accept(bean)) {
+      if (!consumer.test(bean)) {
         return false;
       }
     }

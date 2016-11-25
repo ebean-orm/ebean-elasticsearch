@@ -5,10 +5,12 @@ import com.avaje.ebean.config.JsonConfig;
 import com.avaje.ebean.plugin.BeanType;
 import com.avaje.ebean.plugin.SpiServer;
 import com.avaje.ebeanservice.docstore.api.DocStoreQueryUpdate;
+import com.avaje.ebeanservice.docstore.api.DocStoreTransaction;
 import com.avaje.ebeanservice.docstore.api.DocStoreUpdate;
 import com.avaje.ebeanservice.docstore.api.DocStoreUpdateProcessor;
 import com.avaje.ebeanservice.docstore.api.DocStoreUpdates;
 import com.avaje.ebeanservice.elastic.bulk.BulkSender;
+import com.avaje.ebeanservice.elastic.bulk.BulkTransaction;
 import com.avaje.ebeanservice.elastic.bulk.BulkUpdate;
 import com.avaje.ebeanservice.elastic.support.IndexMessageSender;
 import com.avaje.ebeanservice.elastic.support.IndexQueueWriter;
@@ -19,6 +21,7 @@ import com.fasterxml.jackson.core.JsonFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.persistence.PersistenceException;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.List;
@@ -45,6 +48,38 @@ public class ElasticUpdateProcessor implements DocStoreUpdateProcessor {
     this.queueWriter = queueWriter;
     this.defaultBatchSize = defaultBatchSize;
     this.bulkSender = new BulkSender(jsonFactory, JsonConfig.Include.NON_EMPTY, defaultObjectMapper, messageSender);
+  }
+
+  @Override
+  public DocStoreTransaction createTransaction(int batchSize) {
+    try {
+      return new BulkTransaction(createBulkUpdate(batchSize));
+    } catch (IOException e) {
+      throw new PersistenceException("Error creating bulk transaction", e);
+    }
+  }
+
+  @Override
+  public void commit(DocStoreTransaction docStoreTxn) {
+    docStoreTxn.flush();
+    queue(docStoreTxn.queue());
+  }
+
+  private void queue(final DocStoreUpdates changesToQueue) {
+    if (changesToQueue != null) {
+      server.getBackgroundExecutor().execute(new Runnable() {
+        @Override
+        public void run() {
+          try {
+            logger.debug("queue wait for changes...");
+            Thread.sleep(1000);
+            process(changesToQueue, 0);
+          } catch (Exception e) {
+            logger.error("Error processing queued changes ", e);
+          }
+        }
+      });
+    }
   }
 
   /**

@@ -23,12 +23,12 @@ public class TDIndexMessageSender implements IndexMessageSender {
   }
 
   @Override
-  public IndexMessageResponse getDocSource(String indexType, String indexName, String docId) throws IOException {
+  public IndexMessageResponse getDocSource(String indexNameType, String docId) throws IOException {
     return null;
   }
 
   @Override
-  public IndexMessageResponse postQuery(boolean scroll, String indexType, String indexName, String jsonQuery) throws IOException {
+  public IndexMessageResponse postQuery(boolean scroll, String indexNameType, String jsonQuery) throws IOException {
     return null;
   }
 

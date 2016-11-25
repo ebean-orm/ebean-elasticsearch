@@ -78,7 +78,6 @@ public class BulkSender {
    * Parse the returned JSON response into a Map.
    */
   private Map<String, Object> parseBulkResponse(String response) throws IOException {
-
     return EJson.parseObject(response);
   }
 

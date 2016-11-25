@@ -2,6 +2,7 @@ package com.avaje.ebeanservice.elastic.bulk;
 
 import com.avaje.ebeanservice.docstore.api.DocStoreUpdate;
 
+import javax.persistence.PersistenceException;
 import java.io.IOException;
 import java.util.Map;
 
@@ -36,24 +37,32 @@ public class BulkUpdate {
    * This automatically manages the bulk buffer batch size and flushing.
    * </p>
    */
-  public BulkBuffer obtain() throws IOException {
-    if (currentBuffer == null) {
-      return newBuffer();
+  public BulkBuffer obtain() {
+    try {
+      if (currentBuffer == null) {
+        return newBuffer();
+      }
+      if (++count > batchSize) {
+        flush();
+        return newBuffer();
+      }
+      return currentBuffer;
+    } catch (IOException e) {
+      throw new PersistenceException("Error obtaining a buffer for Bulk updates", e);
     }
-    if (++count > batchSize) {
-      flush();
-      return newBuffer();
-    }
-    return currentBuffer;
   }
 
   /**
    * Flush the current buffer sending the Bulk API request to ElasticSearch.
    */
-  public void flush() throws IOException {
+  public void flush() {
 
-    if (currentBuffer != null) {
-      collectErrors(bulkSender.sendBulk(currentBuffer));
+    try {
+      if (currentBuffer != null) {
+        collectErrors(bulkSender.sendBulk(currentBuffer));
+      }
+    } catch (IOException e) {
+      throw new PersistenceException("Error send Bulk updates", e);
     }
   }
 

@@ -16,12 +16,12 @@ public interface IndexMessageSender {
   /**
    * Get the document source for a specific document.
    */
-  IndexMessageResponse getDocSource(String indexType, String indexName, String docId) throws IOException;
+  IndexMessageResponse getDocSource(String indexNameType, String docId) throws IOException;
 
   /**
    * Send a query request.
    */
-  IndexMessageResponse postQuery(boolean scroll, String indexType, String indexName, String jsonQuery) throws IOException;
+  IndexMessageResponse postQuery(boolean scroll, String indexNameType, String jsonQuery) throws IOException;
 
   /**
    * Send a get scroll request.

@@ -1,11 +1,10 @@
 package com.avaje.ebeanservice.elastic.support;
 
-
-import com.squareup.okhttp.MediaType;
-import com.squareup.okhttp.OkHttpClient;
-import com.squareup.okhttp.Request;
-import com.squareup.okhttp.RequestBody;
-import com.squareup.okhttp.Response;
+import okhttp3.MediaType;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.RequestBody;
+import okhttp3.Response;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -130,10 +129,10 @@ public class BaseHttpMessageSender implements IndexMessageSender {
   }
 
   @Override
-  public IndexMessageResponse postQuery(boolean scroll, String indexType, String indexName, String jsonQuery) throws IOException {
+  public IndexMessageResponse postQuery(boolean scroll, String indexNameType, String jsonQuery) throws IOException {
 
     String scrollSuffix = (scroll) ? "?scroll=1m" : "";
-    String url = baseUrl + indexName+ "/" + indexType + "/_search" + scrollSuffix;
+    String url = baseUrl + indexNameType + "/_search" + scrollSuffix;
 
     Response response = postJson(url, jsonQuery);
     String responseBody = responseDebug("POST", url, response);
@@ -145,7 +144,7 @@ public class BaseHttpMessageSender implements IndexMessageSender {
   @Override
   public IndexMessageResponse getScroll(String scrollId) throws IOException {
 
-    String url = baseUrl + "/_search/scroll";
+    String url = baseUrl + "_search/scroll";
 
     String jsonQuery = "{\"scroll\":\"1m\",\"scroll_id\":\"" + scrollId + "\"}";
 
@@ -183,12 +182,11 @@ public class BaseHttpMessageSender implements IndexMessageSender {
   }
 
   @Override
-  public IndexMessageResponse getDocSource(String indexType, String indexName, String docId) throws IOException {
+  public IndexMessageResponse getDocSource(String indexNameType, String docId) throws IOException {
 
-    String url = baseUrl + indexName + "/" + indexType + "/" + docId + "/_source";
+    String url = baseUrl + indexNameType + "/" + docId + "/_source";
 
     Request request = new Request.Builder().url(url).get().build();
-
     if (logger.isDebugEnabled()) {
       logger.debug("getDocSource: {}", url);
     }

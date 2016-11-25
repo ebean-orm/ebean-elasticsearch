@@ -1,17 +1,17 @@
 package com.avaje.ebeanservice.elastic.search.rawsource;
 
 import com.avaje.ebean.PersistenceIOException;
-import com.avaje.ebean.QueryEachConsumer;
 import com.avaje.ebean.text.json.EJson;
 import com.avaje.ebeanservice.elastic.bulk.BulkUpdate;
 import com.fasterxml.jackson.core.JsonGenerator;
 
 import java.io.IOException;
+import java.util.function.Consumer;
 
 /**
  * Used to scroll a source index and copy to another index.
  */
-public class RawSourceCopier implements QueryEachConsumer<RawSource> {
+public class RawSourceCopier implements Consumer<RawSource> {
 
   private final BulkUpdate txn;
 

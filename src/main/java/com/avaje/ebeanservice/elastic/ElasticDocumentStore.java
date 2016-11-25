@@ -5,8 +5,6 @@ import com.avaje.ebean.DocumentStore;
 import com.avaje.ebean.PagedList;
 import com.avaje.ebean.PersistenceIOException;
 import com.avaje.ebean.Query;
-import com.avaje.ebean.QueryEachConsumer;
-import com.avaje.ebean.QueryEachWhileConsumer;
 import com.avaje.ebean.config.DocStoreConfig;
 import com.avaje.ebean.plugin.BeanType;
 import com.avaje.ebean.plugin.SpiServer;
@@ -24,6 +22,8 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Consumer;
+import java.util.function.Predicate;
 
 /**
  * ElasticSearch based document store.
@@ -42,7 +42,7 @@ public class ElasticDocumentStore implements DocumentStore {
 
   private final EIndexService indexService;
 
-  public ElasticDocumentStore(SpiServer server, ElasticUpdateProcessor updateProcessor, IndexMessageSender sender, JsonFactory jsonFactory) {
+  ElasticDocumentStore(SpiServer server, ElasticUpdateProcessor updateProcessor, IndexMessageSender sender, JsonFactory jsonFactory) {
     this.server = server;
     this.updateProcessor = updateProcessor;
     this.queryService = new EQueryService(server, jsonFactory, sender);
@@ -155,26 +155,23 @@ public class ElasticDocumentStore implements DocumentStore {
 
     desc.docStore().applyPath(query);
     query.setLazyLoadBatchSize(100);
-    query.findEach(new QueryEachConsumer<T>() {
-      @Override
-      public void accept(T bean) {
-        Object idValue = desc.getBeanId(bean);
-        try {
-          queryUpdate.store(idValue, bean);
-        } catch (Exception e) {
-          throw new PersistenceIOException("Error performing query update to doc store", e);
-        }
+    query.findEach(bean -> {
+      Object idValue = desc.getBeanId(bean);
+      try {
+        queryUpdate.store(idValue, bean);
+      } catch (Exception e) {
+        throw new PersistenceIOException("Error performing query update to doc store", e);
       }
     });
   }
 
   @Override
-  public <T> void findEach(DocQueryRequest<T> request, QueryEachConsumer<T> consumer) {
+  public <T> void findEach(DocQueryRequest<T> request, Consumer<T> consumer) {
     queryService.findEach(request, consumer);
   }
 
   @Override
-  public <T> void findEachWhile(DocQueryRequest<T> request, QueryEachWhileConsumer<T> consumer) {
+  public <T> void findEachWhile(DocQueryRequest<T> request, Predicate<T> consumer) {
     queryService.findEachWhile(request, consumer);
   }
 
@@ -193,7 +190,7 @@ public class ElasticDocumentStore implements DocumentStore {
     return queryService.findById(request);
   }
 
-  public void onStartup() {
+  void onStartup() {
 
     try {
       DocStoreConfig docStoreConfig = server.getServerConfig().getDocStoreConfig();

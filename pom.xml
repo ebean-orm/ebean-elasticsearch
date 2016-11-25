@@ -4,12 +4,12 @@
 
   <groupId>org.avaje.ebean</groupId>
   <artifactId>ebean-elastic</artifactId>
-  <version>1.4.2-SNAPSHOT</version>
+  <version>1.5.1-SNAPSHOT</version>
 
   <parent>
     <groupId>org.avaje</groupId>
-    <artifactId>oss-parent</artifactId>
-    <version>1.1</version>
+    <artifactId>java8-parent</artifactId>
+    <version>1.2</version>
   </parent>
 
   <scm>
@@ -17,10 +17,6 @@
     <tag>HEAD</tag>
   </scm>
   
-  <properties>
-    <java.version>1.6</java.version>
-  </properties>
-
   <dependencies>
 
     <dependency>
@@ -32,15 +28,15 @@
 
     <!-- Http to ElasticSearch -->
     <dependency>
-      <groupId>com.squareup.okhttp</groupId>
+      <groupId>com.squareup.okhttp3</groupId>
       <artifactId>okhttp</artifactId>
-      <version>2.4.0</version>
+      <version>3.4.2</version>
     </dependency>
 
     <dependency>
       <groupId>org.avaje.ebean</groupId>
       <artifactId>ebean</artifactId>
-      <version>9.2.1</version>
+      <version>9.3.1-SNAPSHOT</version>
     </dependency>
 
     <!-- Test Dependencies -->
@@ -85,10 +81,7 @@
         <extensions>true</extensions>
         <configuration>
           <tiles>
-            <tile>org.avaje.tile:java-compile:1.1</tile>
-            <tile>org.avaje.tile:dependency-tree:1.1</tile>
-            <tile>org.avaje.tile:pygments-doclet:1.1</tile>
-            <tile>org.avaje.ebean.tile:enhancement:1.1</tile>
+            <tile>org.avaje.ebean.tile:enhancement:1.2</tile>
           </tiles>
         </configuration>
       </plugin>

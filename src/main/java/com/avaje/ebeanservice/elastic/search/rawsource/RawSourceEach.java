@@ -1,6 +1,5 @@
 package com.avaje.ebeanservice.elastic.search.rawsource;
 
-import com.avaje.ebean.QueryEachConsumer;
 import com.avaje.ebean.plugin.BeanDocType;
 import com.avaje.ebeaninternal.api.SpiQuery;
 import com.avaje.ebeanservice.elastic.query.EQuerySend;
@@ -10,6 +9,7 @@ import java.io.IOException;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.function.Consumer;
 
 /**
  * Process scroll query with RawSource.
@@ -33,7 +33,7 @@ public class RawSourceEach {
   /**
    * Consume initial scroll results returning true if we should continue.
    */
-  public boolean consumeInitial(QueryEachConsumer<RawSource> consumer, BeanDocType beanDocType, SpiQuery<?> query) throws IOException {
+  public boolean consumeInitial(Consumer<RawSource> consumer, BeanDocType beanDocType, SpiQuery<?> query) throws IOException {
 
     JsonParser json = send.findScroll(beanDocType, query);
     consume(consumer, read(json));
@@ -43,14 +43,14 @@ public class RawSourceEach {
   /**
    * Consume next scroll and return true if we should continue.
    */
-  public boolean consumeNext(QueryEachConsumer<RawSource> consumer) throws IOException {
+  public boolean consumeNext(Consumer<RawSource> consumer) throws IOException {
 
     JsonParser moreJson = send.findNextScroll(currentScrollId);
     consume(consumer, read(moreJson));
     return !currentReader.zeroHits();
   }
 
-  private void consume(QueryEachConsumer<RawSource> consumer, List<RawSource> list) {
+  private void consume(Consumer<RawSource> consumer, List<RawSource> list) {
     for (RawSource bean : list) {
       totalCount++;
       consumer.accept(bean);

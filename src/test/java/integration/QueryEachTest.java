@@ -3,8 +3,6 @@ package integration;
 import com.avaje.ebean.Ebean;
 import com.avaje.ebean.FetchConfig;
 import com.avaje.ebean.Query;
-import com.avaje.ebean.QueryEachConsumer;
-import com.avaje.ebean.QueryEachWhileConsumer;
 import org.example.domain.Order;
 import org.example.domain.Product;
 import org.testng.annotations.Test;
@@ -29,12 +27,9 @@ public class QueryEachTest extends BaseTest {
     final LinkedHashSet<String> skuSet = new LinkedHashSet<String>();
     final AtomicInteger count = new AtomicInteger();
 
-    query.findEach(new QueryEachConsumer<Product>() {
-      @Override
-      public void accept(Product bean) {
-        count.incrementAndGet();
-        skuSet.add(bean.getSku());
-      }
+    query.findEach(bean -> {
+      count.incrementAndGet();
+      skuSet.add(bean.getSku());
     });
 
     assertEquals(count.get(), 3);
@@ -53,12 +48,9 @@ public class QueryEachTest extends BaseTest {
     final LinkedHashSet<String> skuSet = new LinkedHashSet<String>();
     final AtomicInteger count = new AtomicInteger();
 
-    query.findEachWhile(new QueryEachWhileConsumer<Product>() {
-      @Override
-      public boolean accept(Product bean) {
-        skuSet.add(bean.getSku());
-        return count.incrementAndGet() < 2;
-      }
+    query.findEachWhile(bean -> {
+      skuSet.add(bean.getSku());
+      return count.incrementAndGet() < 2;
     });
 
     assertEquals(count.get(), 2);
@@ -79,12 +71,7 @@ public class QueryEachTest extends BaseTest {
 
     final List<Order> collect = new ArrayList<Order>();
 
-    query.findEach(new QueryEachConsumer<Order>() {
-      @Override
-      public void accept(Order bean) {
-        collect.add(bean);
-      }
-    });
+    query.findEach(bean -> collect.add(bean));
 
     String json = Ebean.json().toJson(collect);
     System.out.println(json);

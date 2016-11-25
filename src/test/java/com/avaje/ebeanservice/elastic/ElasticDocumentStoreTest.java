@@ -4,7 +4,6 @@ import com.avaje.ebean.Ebean;
 import com.avaje.ebean.Expr;
 import com.avaje.ebean.PagedList;
 import com.avaje.ebean.Query;
-import com.avaje.ebean.QueryEachConsumer;
 import integration.BaseTest;
 import org.example.domain.Contact;
 import org.example.domain.Customer;
@@ -425,11 +424,6 @@ public class ElasticDocumentStoreTest extends BaseTest {
         .where().eq("customer.id", 1)
         .query();
 
-    query.findEach(new QueryEachConsumer<Order>() {
-      @Override
-      public void accept(Order bean) {
-        System.out.print("bean" + bean);
-      }
-    });
+    query.findEach(bean -> System.out.print("bean" + bean));
   }
 }

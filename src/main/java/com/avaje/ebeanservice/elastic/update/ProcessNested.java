@@ -2,13 +2,15 @@ package com.avaje.ebeanservice.elastic.update;
 
 import com.avaje.ebean.EbeanServer;
 import com.avaje.ebean.FetchPath;
+import com.avaje.ebean.PersistenceIOException;
 import com.avaje.ebean.Query;
-import com.avaje.ebean.QueryEachConsumer;
 import com.avaje.ebean.plugin.BeanDocType;
 import com.avaje.ebean.plugin.BeanType;
 import com.avaje.ebean.plugin.Property;
 import com.avaje.ebeaninternal.server.query.SplitName;
 import com.avaje.ebeanservice.elastic.bulk.BulkUpdate;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -20,12 +22,14 @@ import java.util.Map;
  */
 public class ProcessNested<T> {
 
+  private static final Logger log = LoggerFactory.getLogger(ProcessNested.class);
+
   private final EbeanServer server;
   private final BeanType<T> desc;
   private final BulkUpdate txn;
   private final UpdateNested nested;
 
-  private final Map<Object, String> jsonMap = new HashMap<Object,String>();
+  private final Map<Object, String> jsonMap = new HashMap<>();
 
   private final String nestedPath;
   private final String nestedIdProperty;
@@ -69,9 +73,9 @@ public class ProcessNested<T> {
   }
 
   private String createSelectId(BeanType<T> desc) {
-    String id =desc.getIdProperty().getName();
+    String id = desc.getIdProperty().getName();
     if (desc.hasInheritance()) {
-      id += ","+desc.getDiscColumn();
+      id += "," + desc.getDiscColumn();
     }
     return id;
   }
@@ -96,7 +100,7 @@ public class ProcessNested<T> {
   /**
    * Populate a map of all the embedded JSON documents that we then want to send as updates to the parent.
    */
-  protected void fetchEmbedded(List<Object> nestedIds) throws IOException {
+  private void fetchEmbedded(List<Object> nestedIds) throws IOException {
 
     if (nestedMany) {
       fetchEmbeddedAssocMany(nestedIds);
@@ -112,7 +116,12 @@ public class ProcessNested<T> {
 
     Query<?> pathQuery = server.createQuery(nestedDesc.getBeanType());
     pathQuery.apply(nestedDoc);
-    pathQuery.where().in(nestedIdProperty, nestedIds);
+    if (nestedDesc.isDocStoreOnly()) {
+      // elastic as source so use special _id field
+      pathQuery.where().in("_id", nestedIds);
+    } else {
+      pathQuery.where().in(nestedIdProperty, nestedIds);
+    }
 
     // hit the database and build the embedded JSON documents
     List<?> list = pathQuery.findList();
@@ -142,7 +151,7 @@ public class ProcessNested<T> {
     }
   }
 
-  protected void processTop(List<Object> nestedIds) {
+  private void processTop(List<Object> nestedIds) {
 
     Query<T> topQuery = server.createQuery(desc.getBeanType());
     topQuery.setUseDocStore(true);
@@ -152,13 +161,9 @@ public class ProcessNested<T> {
     }
     topQuery.where().in(fullNestedPath, nestedIds);
 
-    // elasticSearch scroll query
-    topQuery.findEach(new QueryEachConsumer<T>() {
-      @Override
-      public void accept(T bean)  {
-        updateEmbedded(bean);
-        count++;
-      }
+    topQuery.findEach(bean -> {
+      updateEmbedded(bean);
+      count++;
     });
   }
 
@@ -174,12 +179,15 @@ public class ProcessNested<T> {
       }
 
       String json = jsonMap.get(targetId);
-      beanDocType.updateEmbedded(beanId, nestedPath, json, txn.obtain());
+      if (json == null) {
+        log.error("No content for updateEmbedded path:{} id:{}", nestedPath, beanId);
+      } else {
+        beanDocType.updateEmbedded(beanId, nestedPath, json, txn.obtain());
+      }
 
     } catch (IOException e) {
-      throw new RuntimeException(e);
+      throw new PersistenceIOException(e);
     }
   }
-
 
 }

@@ -93,7 +93,10 @@ public class ElasticDocStoreBeanAdapter<T> extends DocStoreBeanBaseAdapter<T> {
     gen.writeStartObject();
     gen.writeFieldName(event);
     gen.writeStartObject();
-    gen.writeStringField("_id", idValue.toString());
+    if (idValue != null) {
+      // use elasticsearch generated id value
+      gen.writeStringField("_id", idValue.toString());
+    }
     gen.writeStringField("_type", indexType);
     gen.writeStringField("_index", indexName);
     gen.writeEndObject();

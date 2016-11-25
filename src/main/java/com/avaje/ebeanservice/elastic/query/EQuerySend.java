@@ -22,6 +22,8 @@ import java.util.Set;
 public class EQuerySend {
 
   private static final Logger logger = LoggerFactory.getLogger(EQuerySend.class);
+  private static final String TODAY = "$today";
+  private static final String LAST_DAYS = "$last-";
 
   private final JsonFactory jsonFactory;
 
@@ -29,7 +31,7 @@ public class EQuerySend {
 
   private final ElasticJsonContext elasticJsonContext;
 
-  public EQuerySend(JsonContext jsonContext, JsonFactory jsonFactory, IndexMessageSender messageSender) {
+  EQuerySend(JsonContext jsonContext, JsonFactory jsonFactory, IndexMessageSender messageSender) {
     this.jsonFactory = jsonFactory;
     this.messageSender = messageSender;
     this.elasticJsonContext = new ElasticJsonContext(jsonContext);
@@ -38,28 +40,57 @@ public class EQuerySend {
   /**
    * Execute as find hits returning the resulting JSON response.
    */
-  public JsonParser findHits(BeanDocType type, SpiQuery<?> query) throws IOException, DocumentNotFoundException {
+  JsonParser findHits(BeanDocType type, SpiQuery<?> query) throws IOException {
     return findInternal(false, type, query);
   }
 
   /**
    * Execute as find scroll returning the resulting JSON response.
    */
-  public JsonParser findScroll(BeanDocType type, SpiQuery<?> query) throws IOException, DocumentNotFoundException {
+  public JsonParser findScroll(BeanDocType type, SpiQuery<?> query) throws IOException {
     return findInternal(true, type, query);
   }
 
-  private JsonParser findInternal(boolean scroll, BeanDocType type, SpiQuery<?> query) throws IOException, DocumentNotFoundException {
+  private JsonParser findInternal(boolean scroll, BeanDocType type, SpiQuery<?> query) throws IOException {
 
-    IndexMessageResponse response = messageSender.postQuery(scroll, type.getIndexType(), type.getIndexName(), asJson(query));
+    String docIndexName = query.getDocIndexName();
+    String nameType;
+    if (docIndexName != null) {
+      nameType = nameType(docIndexName, type);
+    } else {
+      nameType = indexNameType(type);
+    }
+
+    IndexMessageResponse response = messageSender.postQuery(scroll, nameType, asJson(query));
     switch (response.getCode()) {
       case 404:
         throw new DocumentNotFoundException("404 for query?");
       case 200:
         return jsonFactory.createParser(response.getBody());
       default:
-        throw new IOException("Unhandled response code " + response.getCode() + " body:" + response.getBody());
+        throw new IOException(unhandled(response));
     }
+  }
+
+  private String unhandled(IndexMessageResponse response) {
+    return "Unhandled response code " + response.getCode() + " body:" + response.getBody();
+  }
+
+  private String indexNameType(BeanDocType type) {
+    return type.getIndexName() + "/" + type.getIndexType();
+  }
+
+  /**
+   * Return the index name and type taking into account $today and $last-3 etc.
+   */
+  private String nameType(String docIndexName, BeanDocType type) {
+    if (TODAY.equals(docIndexName)) {
+      return type.getIndexName()+"2016.11.20" + "/" + type.getIndexType();
+
+    } else if (docIndexName.startsWith(LAST_DAYS)) {
+      return type.getIndexName()+"2016.11.21" + "/" + type.getIndexType();
+    }
+    return docIndexName;
   }
 
   /**
@@ -72,23 +103,23 @@ public class EQuerySend {
   /**
    * Execute Get by Id returning the JSON response.
    */
-  public JsonParser findById(String indexType, String indexName, Object docId) throws IOException, DocumentNotFoundException {
+  JsonParser findById(BeanDocType beanDocType, Object docId) throws IOException {
 
-    IndexMessageResponse response = messageSender.getDocSource(indexType, indexName, docId.toString());
+    IndexMessageResponse response = messageSender.getDocSource(indexNameType(beanDocType), docId.toString());
     switch (response.getCode()) {
       case 404:
         throw new DocumentNotFoundException("404 for docId:" + docId);
       case 200:
         return jsonFactory.createParser(response.getBody());
       default:
-        throw new IOException("Unhandled response code " + response.getCode() + " body:" + response.getBody());
+        throw new IOException(unhandled(response));
     }
   }
 
   /**
    * Execute find next scroll returning the JSON response.
    */
-  public JsonParser findNextScroll(String scrollId) throws IOException, DocumentNotFoundException {
+  public JsonParser findNextScroll(String scrollId) throws IOException {
 
     IndexMessageResponse response = messageSender.getScroll(scrollId);
     switch (response.getCode()) {
@@ -97,7 +128,7 @@ public class EQuerySend {
       case 200:
         return jsonFactory.createParser(response.getBody());
       default:
-        throw new IOException("Unhandled response code " + response.getCode() + " body:" + response.getBody());
+        throw new IOException(unhandled(response));
     }
   }
 

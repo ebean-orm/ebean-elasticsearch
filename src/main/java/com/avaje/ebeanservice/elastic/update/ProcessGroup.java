@@ -2,7 +2,6 @@ package com.avaje.ebeanservice.elastic.update;
 
 import com.avaje.ebean.PersistenceIOException;
 import com.avaje.ebean.Query;
-import com.avaje.ebean.QueryEachConsumer;
 import com.avaje.ebean.plugin.BeanType;
 import com.avaje.ebean.plugin.SpiServer;
 import com.avaje.ebeanservice.docstore.api.support.DocStoreDeleteEvent;
@@ -28,7 +27,7 @@ public class ProcessGroup<T> {
   private long count;
 
   public static <T> long process(SpiServer server, BeanType<T> desc, UpdateGroup group, BulkUpdate txn) throws IOException {
-    return new ProcessGroup<T>(server, desc, group, txn).processGroup();
+    return new ProcessGroup<>(server, desc, group, txn).processGroup();
   }
 
   private ProcessGroup(SpiServer server, BeanType<T> desc, UpdateGroup group, BulkUpdate txn) {
@@ -56,7 +55,7 @@ public class ProcessGroup<T> {
 
     Collection<UpdateNested> values = group.getNestedPathIds().values();
     for (UpdateNested nested : values) {
-      ProcessNested<T> nestedDocUpdate = new ProcessNested<T>(server, desc, txn, nested);
+      ProcessNested<T> nestedDocUpdate = new ProcessNested<>(server, desc, txn, nested);
       count += nestedDocUpdate.process();
     }
 
@@ -68,16 +67,13 @@ public class ProcessGroup<T> {
 
     desc.docStore().applyPath(query);
     query.setLazyLoadBatchSize(100);
-    query.findEach(new QueryEachConsumer<T>() {
-      @Override
-      public void accept(T bean) {
-        Object idValue = desc.getBeanId(bean);
-        try {
-          count++;
-          txn.send(new DocStoreIndexEvent<T>(desc, idValue, bean));
-        } catch (Exception e) {
-          throw new PersistenceIOException("Error performing query update to doc store", e);
-        }
+    query.findEach(bean -> {
+      Object idValue = desc.getBeanId(bean);
+      try {
+        count++;
+        txn.send(new DocStoreIndexEvent<>(desc, idValue, bean));
+      } catch (Exception e) {
+        throw new PersistenceIOException("Error performing query update to doc store", e);
       }
     });
   }

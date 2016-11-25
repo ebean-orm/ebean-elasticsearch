@@ -3,8 +3,6 @@ package com.avaje.ebeanservice.elastic.query;
 import com.avaje.ebean.PagedList;
 import com.avaje.ebean.PersistenceIOException;
 import com.avaje.ebean.Query;
-import com.avaje.ebean.QueryEachConsumer;
-import com.avaje.ebean.QueryEachWhileConsumer;
 import com.avaje.ebean.plugin.BeanDocType;
 import com.avaje.ebean.plugin.BeanType;
 import com.avaje.ebean.plugin.Property;
@@ -29,6 +27,8 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.function.Consumer;
+import java.util.function.Predicate;
 
 /**
  * Internal query service.
@@ -63,7 +63,7 @@ public class EQueryService {
       List<T> list = parser.read();
       request.executeSecondaryQueries(false);
 
-      return new HitsPagedList<T>(firstRow, maxRows, list, parser.getTotal());
+      return new HitsPagedList<>(firstRow, maxRows, list, parser.getTotal());
 
     } catch (IOException e) {
       throw new PersistenceIOException(e);
@@ -101,9 +101,9 @@ public class EQueryService {
   /**
    * Execute the findEachWhile query request.
    */
-  public <T> void findEachWhile(DocQueryRequest<T> request, QueryEachWhileConsumer<T> consumer) {
+  public <T> void findEachWhile(DocQueryRequest<T> request, Predicate<T> consumer) {
 
-    EQueryEach<T> each = new EQueryEach<T>(request, send, jsonContext);
+    EQueryEach<T> each = new EQueryEach<>(request, send, jsonContext);
     try {
       if (!each.consumeInitialWhile(consumer)) {
         return;
@@ -124,9 +124,9 @@ public class EQueryService {
   /**
    * Execute the findEach query request.
    */
-  public <T> void findEach(DocQueryRequest<T> request, QueryEachConsumer<T> consumer) {
+  public <T> void findEach(DocQueryRequest<T> request, Consumer<T> consumer) {
 
-    EQueryEach<T> each = new EQueryEach<T>(request, send, jsonContext);
+    EQueryEach<T> each = new EQueryEach<>(request, send, jsonContext);
     try {
       if (each.consumeInitial(consumer)) {
         while (true) {
@@ -162,9 +162,9 @@ public class EQueryService {
 
     BeanDocType beanDocType = desc.docStore();
     try {
-      JsonParser parser = send.findById(beanDocType.getIndexType(), beanDocType.getIndexName(), id);
+      JsonParser parser = send.findById(beanDocType, id);
 
-      JsonBeanReader<T> reader = new EQuery<T>(desc, jsonContext, options).createReader(parser);
+      JsonBeanReader<T> reader = new EQuery<>(desc, jsonContext, options).createReader(parser);
       T bean = reader.read();
       desc.setBeanId(bean, id);
       // register with persistence context and load context
@@ -201,6 +201,12 @@ public class EQueryService {
    */
   public long copyIndexSince(SpiQuery<?> query, String newIndex, BulkUpdate txn) throws IOException {
 
+    int maxRows = query.getMaxRows();
+    if (maxRows == 0) {
+      // default to fetch 100 at a time
+      query.setMaxRows(100);
+    }
+
     BeanType<?> desc = query.getBeanDescriptor();
     long count = findEachRawSource(query, new RawSourceCopier(txn, desc.docStore().getIndexType(), newIndex));
     logger.debug("total [{}] entries copied to index:{}", count, newIndex);
@@ -211,7 +217,7 @@ public class EQueryService {
   /**
    * Execute a scroll query using RawSource.
    */
-  public <T> long findEachRawSource(Query<T> query, QueryEachConsumer<RawSource> consumer) {
+  private <T> long findEachRawSource(Query<T> query, Consumer<RawSource> consumer) {
 
     SpiQuery<T> spiQuery = (SpiQuery<T>) query;
     BeanType<T> desc = spiQuery.getBeanDescriptor();
@@ -221,7 +227,7 @@ public class EQueryService {
     try {
 
       if (each.consumeInitial(consumer, beanDocType, spiQuery)) {
-        while (!each.consumeNext(consumer)) {
+        while (each.consumeNext(consumer)) {
           // continue
         }
       }
@@ -238,7 +244,7 @@ public class EQueryService {
    * Return the bean type specific parser used to read the search results.
    */
   private <T> BeanSearchParser<T> createBeanParser(SpiQuery<T> query, JsonParser json, JsonReadOptions options) {
-    return new EQuery<T>(query, jsonContext, options).createParser(json);
+    return new EQuery<>(query, jsonContext, options).createParser(json);
   }
 
 }
