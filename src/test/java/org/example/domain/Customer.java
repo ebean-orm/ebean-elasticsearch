@@ -1,9 +1,9 @@
 package org.example.domain;
 
-import com.avaje.ebean.annotation.DbEnumValue;
-import com.avaje.ebean.annotation.DocEmbedded;
-import com.avaje.ebean.annotation.DocSortable;
-import com.avaje.ebean.annotation.DocStore;
+import io.ebean.annotation.DbEnumValue;
+import io.ebean.annotation.DocEmbedded;
+import io.ebean.annotation.DocSortable;
+import io.ebean.annotation.DocStore;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;

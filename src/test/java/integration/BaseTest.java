@@ -1,7 +1,7 @@
 package integration;
 
-import com.avaje.ebean.DocumentStore;
-import com.avaje.ebean.EbeanServer;
+import io.ebean.DocumentStore;
+import io.ebean.EbeanServer;
 import integration.support.EmbeddedServer;
 
 public abstract class BaseTest {

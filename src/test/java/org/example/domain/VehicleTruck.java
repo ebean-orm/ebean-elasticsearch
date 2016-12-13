@@ -1,6 +1,6 @@
 package org.example.domain;
 
-import com.avaje.ebean.annotation.DocEmbedded;
+import io.ebean.annotation.DocEmbedded;
 
 import javax.persistence.CascadeType;
 import javax.persistence.DiscriminatorValue;

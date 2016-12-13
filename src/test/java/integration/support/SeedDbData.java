@@ -1,9 +1,9 @@
 package integration.support;
 
-import com.avaje.ebean.Ebean;
-import com.avaje.ebean.EbeanServer;
-import com.avaje.ebean.Transaction;
-import com.avaje.ebean.annotation.DocStoreMode;
+import io.ebean.Ebean;
+import io.ebean.EbeanServer;
+import io.ebean.Transaction;
+import io.ebean.annotation.DocStoreMode;
 import org.example.domain.Address;
 import org.example.domain.Contact;
 import org.example.domain.Country;

@@ -1,7 +1,7 @@
 package org.example.domain;
 
-import com.avaje.ebean.annotation.DocSortable;
-import com.avaje.ebean.annotation.DocStore;
+import io.ebean.annotation.DocSortable;
+import io.ebean.annotation.DocStore;
 
 import javax.persistence.Entity;
 import javax.persistence.Table;

@@ -1,9 +1,9 @@
 package org.example.domain;
 
-import com.avaje.ebean.annotation.Cache;
-import com.avaje.ebean.annotation.DbArray;
-import com.avaje.ebean.annotation.DocEmbedded;
-import com.avaje.ebean.annotation.DocStore;
+import io.ebean.annotation.Cache;
+import io.ebean.annotation.DbArray;
+import io.ebean.annotation.DocEmbedded;
+import io.ebean.annotation.DocStore;
 
 import javax.persistence.Entity;
 import javax.persistence.ManyToOne;

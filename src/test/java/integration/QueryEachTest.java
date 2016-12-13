@@ -1,8 +1,8 @@
 package integration;
 
-import com.avaje.ebean.Ebean;
-import com.avaje.ebean.FetchConfig;
-import com.avaje.ebean.Query;
+import io.ebean.Ebean;
+import io.ebean.FetchConfig;
+import io.ebean.Query;
 import org.example.domain.Order;
 import org.example.domain.Product;
 import org.testng.annotations.Test;

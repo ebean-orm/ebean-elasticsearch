@@ -1,8 +1,8 @@
 package integration.support;
 
-import com.avaje.ebean.DocumentStore;
-import com.avaje.ebean.Ebean;
-import com.avaje.ebean.EbeanServer;
+import io.ebean.DocumentStore;
+import io.ebean.Ebean;
+import io.ebean.EbeanServer;
 import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.node.Node;
 import org.elasticsearch.node.NodeBuilder;

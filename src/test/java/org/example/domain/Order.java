@@ -1,11 +1,11 @@
 package org.example.domain;
 
-import com.avaje.ebean.annotation.DocCode;
-import com.avaje.ebean.annotation.DocEmbedded;
-import com.avaje.ebean.annotation.DocMapping;
-import com.avaje.ebean.annotation.DocProperty;
-import com.avaje.ebean.annotation.DocStore;
-import com.avaje.ebean.annotation.EnumValue;
+import io.ebean.annotation.DocCode;
+import io.ebean.annotation.DocEmbedded;
+import io.ebean.annotation.DocMapping;
+import io.ebean.annotation.DocProperty;
+import io.ebean.annotation.DocStore;
+import io.ebean.annotation.EnumValue;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;

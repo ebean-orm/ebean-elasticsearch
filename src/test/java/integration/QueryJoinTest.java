@@ -1,7 +1,7 @@
 package integration;
 
-import com.avaje.ebean.Ebean;
-import com.avaje.ebean.FetchConfig;
+import io.ebean.Ebean;
+import io.ebean.FetchConfig;
 import org.example.domain.Contact;
 import org.example.domain.Customer;
 import org.example.domain.Order;

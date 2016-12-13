@@ -1,7 +1,7 @@
 package integration;
 
-import com.avaje.ebean.Query;
-import com.avaje.ebean.search.MultiMatch;
+import io.ebean.Query;
+import io.ebean.search.MultiMatch;
 import org.example.domain.Customer;
 import org.testng.annotations.Test;
 
