@@ -16,7 +16,7 @@ import java.util.Set;
  */
 public class BaseHttpMessageSender implements IndexMessageSender {
 
-  public static final Logger logger = LoggerFactory.getLogger("org.avaje.ebean.ELQ");
+  public static final Logger logger = LoggerFactory.getLogger("io.ebean.ELQ");
 
   public static final MediaType JSON = MediaType.parse("application/json; charset=utf-8");
 

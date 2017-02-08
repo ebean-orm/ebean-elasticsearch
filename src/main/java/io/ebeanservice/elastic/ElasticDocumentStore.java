@@ -32,7 +32,7 @@ public class ElasticDocumentStore implements DocumentStore {
   /**
    * Logger that can be used to log Bulk API messages.
    */
-  public static final Logger BULK = LoggerFactory.getLogger("org.avaje.ebeanservice.elastic.BULK");
+  public static final Logger BULK = LoggerFactory.getLogger("io.ebean.BULK");
 
   private final SpiServer server;
 
