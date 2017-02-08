@@ -22,15 +22,16 @@ public class BaseHttpMessageSender implements IndexMessageSender {
 
   public static final MediaType TEXT = MediaType.parse("text/plain; charset=utf-8");
 
-  private final OkHttpClient client = new OkHttpClient();
+  private final OkHttpClient client;
 
   private final String baseUrl;
 
   private final String bulkUrl;
 
-  public BaseHttpMessageSender(String baseUrl) {
+  public BaseHttpMessageSender(String baseUrl, boolean allowAllCertificates) {
     this.baseUrl = normaliseBaseUrl(baseUrl);
     this.bulkUrl = deriveBulkUrl(this.baseUrl);
+    this.client = OkClientBuilder.build(allowAllCertificates);
   }
 
   protected String normaliseBaseUrl(String baseUrl) {

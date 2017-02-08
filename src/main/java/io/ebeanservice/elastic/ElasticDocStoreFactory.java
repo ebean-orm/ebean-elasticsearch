@@ -24,7 +24,7 @@ public class ElasticDocStoreFactory implements DocStoreFactory {
 
   @Override
   public <T> DocStoreBeanAdapter<T> createAdapter(BeanDescriptor<T> desc, DeployBeanDescriptor<T> deploy) {
-    return new ElasticDocStoreBeanAdapter<T>(desc, deploy);
+    return new ElasticDocStoreBeanAdapter<>(desc, deploy);
   }
 
   @Override
@@ -38,7 +38,7 @@ public class ElasticDocStoreFactory implements DocStoreFactory {
 
     JsonFactory jsonFactory = new JsonFactory();
     IndexQueueWriter indexQueueWriter = new BaseIndexQueueWriter(server, "eb_elastic_queue");
-    IndexMessageSender messageSender = new BaseHttpMessageSender(docStoreConfig.getUrl());
+    IndexMessageSender messageSender = new BaseHttpMessageSender(docStoreConfig.getUrl(), true);//docStoreConfig.isAllowAllCertificates());
 
     ElasticUpdateProcessor updateProcessor = new ElasticUpdateProcessor(server, indexQueueWriter, jsonFactory, objectMapper, messageSender, docStoreConfig.getBulkBatchSize());
 
