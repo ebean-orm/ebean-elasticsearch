@@ -36,7 +36,7 @@
     <dependency>
       <groupId>io.ebean</groupId>
       <artifactId>ebean</artifactId>
-      <version>10.1.2</version>
+      <version>10.1.7-SNAPSHOT</version>
     </dependency>
 
     <!-- Test Dependencies -->

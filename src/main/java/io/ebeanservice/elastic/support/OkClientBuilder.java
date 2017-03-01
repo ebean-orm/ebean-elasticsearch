@@ -1,6 +1,8 @@
 package io.ebeanservice.elastic.support;
 
+import okhttp3.Credentials;
 import okhttp3.OkHttpClient;
+import okhttp3.Request;
 
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLSocketFactory;
@@ -14,9 +16,19 @@ class OkClientBuilder {
   /**
    * Build a OkHttpClient potentially allowing all SSL certificates.
    */
-  static OkHttpClient build(boolean allowAllCertificates) {
+  static OkHttpClient build(boolean allowAllCertificates, String username, String pwd) {
 
     OkHttpClient.Builder builder = new OkHttpClient.Builder();
+
+    if (username != null) {
+      builder.authenticator((route, response) -> {
+        String basicAuth = Credentials.basic(username, pwd);
+        Request request = response.request();
+        request.newBuilder().addHeader("Authorization", basicAuth).build();
+        return request;
+      });
+    }
+
     if (!allowAllCertificates) {
       return builder.build();
     }

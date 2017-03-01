@@ -1,5 +1,6 @@
 package io.ebeanservice.elastic.support;
 
+import io.ebean.config.DocStoreConfig;
 import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -20,7 +21,7 @@ public class BaseHttpMessageSender implements IndexMessageSender {
 
   public static final MediaType JSON = MediaType.parse("application/json; charset=utf-8");
 
-  public static final MediaType TEXT = MediaType.parse("text/plain; charset=utf-8");
+  private static final MediaType TEXT = MediaType.parse("text/plain; charset=utf-8");
 
   private final OkHttpClient client;
 
@@ -28,13 +29,13 @@ public class BaseHttpMessageSender implements IndexMessageSender {
 
   private final String bulkUrl;
 
-  public BaseHttpMessageSender(String baseUrl, boolean allowAllCertificates) {
-    this.baseUrl = normaliseBaseUrl(baseUrl);
+  public BaseHttpMessageSender(DocStoreConfig config) {
+    this.baseUrl = normaliseBaseUrl(config.getUrl());
     this.bulkUrl = deriveBulkUrl(this.baseUrl);
-    this.client = OkClientBuilder.build(allowAllCertificates);
+    this.client = OkClientBuilder.build(config.isAllowAllCertificates(), config.getUsername(), config.getPassword());
   }
 
-  protected String normaliseBaseUrl(String baseUrl) {
+  private String normaliseBaseUrl(String baseUrl) {
     if (baseUrl == null) return null;
     return baseUrl.endsWith("/") ? baseUrl : baseUrl + "/";
   }
@@ -42,7 +43,7 @@ public class BaseHttpMessageSender implements IndexMessageSender {
   /**
    * Return the Bulk API URL given the base URL.
    */
-  protected String deriveBulkUrl(String baseUrl) {
+  private String deriveBulkUrl(String baseUrl) {
 
     if (baseUrl == null) return null;
     return baseUrl + "_bulk";
@@ -65,7 +66,7 @@ public class BaseHttpMessageSender implements IndexMessageSender {
   public void indexSettings(String indexName, String settingsJson) throws IOException {
 
     String url = baseUrl + indexName + "/_settings";
-    Response response = putJson(true, url, settingsJson);
+    Response response = putJson(url, settingsJson);
     String responseBody = responseDebug("POST", url, response);
 
     int code = response.code();
@@ -120,7 +121,7 @@ public class BaseHttpMessageSender implements IndexMessageSender {
   public void indexCreate(String indexName, String settingsJson) throws IOException {
 
     String url = baseUrl + indexName;
-    Response response = putJson(true, url, settingsJson);
+    Response response = putJson(url, settingsJson);
     String responseBody = responseDebug("PUT", url, response);
 
     int code = response.code();
@@ -204,9 +205,9 @@ public class BaseHttpMessageSender implements IndexMessageSender {
     return response.body().string();
   }
 
-  private Response putJson(boolean debug, String url, String json) throws IOException {
+  private Response putJson(String url, String json) throws IOException {
 
-    if (debug && logger.isDebugEnabled()) {
+    if (logger.isDebugEnabled()) {
       logger.debug("PUT url:{} json:{}", url, json);
     }
 
