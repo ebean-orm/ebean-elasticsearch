@@ -17,6 +17,8 @@ import java.util.function.Consumer;
 public class RawSourceEach {
 
   private final EQuerySend send;
+  private final String nameType;
+  private final String jsonQuery;
 
   private final Set<String> scrollIds = new LinkedHashSet<String>();
 
@@ -26,16 +28,18 @@ public class RawSourceEach {
 
   private String currentScrollId;
 
-  public RawSourceEach(EQuerySend send) {
+  public RawSourceEach(EQuerySend send, String nameType, String jsonQuery) {
     this.send = send;
+    this.nameType = nameType;
+    this.jsonQuery = jsonQuery;
   }
 
   /**
    * Consume initial scroll results returning true if we should continue.
    */
-  public boolean consumeInitial(Consumer<RawSource> consumer, BeanDocType beanDocType, SpiQuery<?> query) throws IOException {
+  public boolean consumeInitial(Consumer<RawSource> consumer) throws IOException {
 
-    JsonParser json = send.findScroll(beanDocType, query);
+    JsonParser json = send.findScroll(nameType, jsonQuery);
     consume(consumer, read(json));
     return !currentReader.allHitsRead();
   }

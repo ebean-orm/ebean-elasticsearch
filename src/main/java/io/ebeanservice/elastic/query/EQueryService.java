@@ -1,5 +1,7 @@
 package io.ebeanservice.elastic.query;
 
+import com.fasterxml.jackson.core.JsonFactory;
+import com.fasterxml.jackson.core.JsonParser;
 import io.ebean.PagedList;
 import io.ebean.PersistenceIOException;
 import io.ebean.Query;
@@ -15,14 +17,14 @@ import io.ebeaninternal.api.SpiTransaction;
 import io.ebeanservice.docstore.api.DocQueryRequest;
 import io.ebeanservice.docstore.api.DocumentNotFoundException;
 import io.ebeanservice.elastic.bulk.BulkUpdate;
+import io.ebeanservice.elastic.querywriter.ElasticDocQueryContext;
+import io.ebeanservice.elastic.querywriter.ElasticJsonContext;
 import io.ebeanservice.elastic.search.HitsPagedList;
 import io.ebeanservice.elastic.search.bean.BeanSearchParser;
 import io.ebeanservice.elastic.search.rawsource.RawSource;
 import io.ebeanservice.elastic.search.rawsource.RawSourceCopier;
 import io.ebeanservice.elastic.search.rawsource.RawSourceEach;
 import io.ebeanservice.elastic.support.IndexMessageSender;
-import com.fasterxml.jackson.core.JsonFactory;
-import com.fasterxml.jackson.core.JsonParser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -44,10 +46,13 @@ public class EQueryService {
 
   private final JsonContext jsonContext;
 
+  private final ElasticJsonContext elasticJsonContext;
+
   public EQueryService(SpiServer server, JsonFactory jsonFactory, IndexMessageSender messageSender) {
     this.server = server;
     this.jsonContext = server.json();
-    this.send = new EQuerySend(jsonContext, jsonFactory, messageSender);
+    this.send = new EQuerySend(jsonFactory, messageSender);
+    this.elasticJsonContext = new ElasticJsonContext(jsonContext);
   }
 
   /**
@@ -89,9 +94,8 @@ public class EQueryService {
 
   private <T> BeanSearchParser<T> findHits(SpiQuery<T> query, JsonReadOptions readOptions) {
 
-    BeanType<T> desc = query.getBeanDescriptor();
     try {
-      JsonParser json = send.findHits(desc.docStore(), query);
+      JsonParser json = send.findHits(indexNameType(query), asJson(query));
       return createBeanParser(query, json, readOptions);
 
     } catch (IOException e) {
@@ -104,7 +108,7 @@ public class EQueryService {
    */
   public <T> void findEachWhile(DocQueryRequest<T> request, Predicate<T> consumer) {
 
-    EQueryEach<T> each = new EQueryEach<>(request, send, jsonContext);
+    EQueryEach<T> each = createQueryEach(request);
     try {
       if (!each.consumeInitialWhile(consumer)) {
         return;
@@ -127,7 +131,7 @@ public class EQueryService {
    */
   public <T> void findEach(DocQueryRequest<T> request, Consumer<T> consumer) {
 
-    EQueryEach<T> each = new EQueryEach<>(request, send, jsonContext);
+    EQueryEach<T> each = createQueryEach(request);
     try {
       if (each.consumeInitial(consumer)) {
         while (true) {
@@ -142,6 +146,13 @@ public class EQueryService {
     } finally {
       each.clearScrollIds();
     }
+  }
+
+  private <T> EQueryEach<T> createQueryEach(DocQueryRequest<T> request) {
+    SpiQuery<T> query = request.getQuery();
+    String nameType = indexNameType(query);
+    String jsonQuery = asJson(query);
+    return new EQueryEach<>(request, send, jsonContext, nameType, jsonQuery);
   }
 
   /**
@@ -170,7 +181,7 @@ public class EQueryService {
 
     BeanDocType beanDocType = desc.docStore();
     try {
-      JsonParser parser = send.findById(beanDocType, id);
+      JsonParser parser = send.findById(indexNameType(beanDocType), id);
 
       JsonBeanReader<T> reader = new EQuery<>(desc, jsonContext, options).createReader(parser);
       T bean = reader.read();
@@ -228,13 +239,12 @@ public class EQueryService {
   private <T> long findEachRawSource(Query<T> query, Consumer<RawSource> consumer) {
 
     SpiQuery<T> spiQuery = (SpiQuery<T>) query;
-    BeanType<T> desc = spiQuery.getBeanDescriptor();
-    BeanDocType beanDocType = desc.docStore();
+    String nameType = indexNameType(spiQuery);
+    String jsonQuery = asJson(spiQuery);
 
-    RawSourceEach each = new RawSourceEach(send);
+    RawSourceEach each = new RawSourceEach(send, nameType, jsonQuery);
     try {
-
-      if (each.consumeInitial(consumer, beanDocType, spiQuery)) {
+      if (each.consumeInitial(consumer)) {
         while (each.consumeNext(consumer)) {
           // continue
         }
@@ -255,4 +265,23 @@ public class EQueryService {
     return new EQuery<>(query, jsonContext, options).createParser(json);
   }
 
+  /**
+   * Return the query as ElasticSearch JSON format.
+   */
+  private String asJson(SpiQuery<?> query) {
+    return ElasticDocQueryContext.asJson(elasticJsonContext, query);
+  }
+
+  private String indexNameType(BeanDocType type) {
+    return type.getIndexName() + "/" + type.getIndexType();
+  }
+
+  private String indexNameType(SpiQuery<?> query) {
+    String docIndexName = query.getDocIndexName();
+    if (docIndexName != null) {
+      return docIndexName;
+    } else {
+      return indexNameType(query.getBeanDescriptor().docStore());
+    }
+  }
 }

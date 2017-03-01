@@ -18,8 +18,9 @@ import java.util.function.Predicate;
 public class EQueryEach<T> extends EQuery<T> {
 
   private final DocQueryRequest<T> request;
-
   private final EQuerySend send;
+  private final String nameType;
+  private final String jsonQuery;
 
   private final Set<String> allScrollIds = new LinkedHashSet<>();
 
@@ -27,10 +28,12 @@ public class EQueryEach<T> extends EQuery<T> {
 
   private String currentScrollId;
 
-  EQueryEach(DocQueryRequest<T> request, EQuerySend send, JsonContext jsonContext) {
+  EQueryEach(DocQueryRequest<T> request, EQuerySend send, JsonContext jsonContext, String nameType, String jsonQuery) {
     super(request.getQuery(), jsonContext, request.createJsonReadOptions());
     this.send = send;
     this.request = request;
+    this.nameType = nameType;
+    this.jsonQuery = jsonQuery;
   }
 
   /**
@@ -51,7 +54,7 @@ public class EQueryEach<T> extends EQuery<T> {
    * Perform the initial scroll query.
    */
   private List<T> fetchInitial() throws IOException {
-    JsonParser initialJson = send.findScroll(beanType.docStore(), query);
+    JsonParser initialJson = send.findScroll(nameType, jsonQuery);
     beanParser = createParser(initialJson);
     return read();
   }

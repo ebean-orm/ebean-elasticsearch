@@ -1,15 +1,10 @@
 package io.ebeanservice.elastic.query;
 
-import io.ebean.plugin.BeanDocType;
-import io.ebean.text.json.JsonContext;
-import io.ebeaninternal.api.SpiQuery;
-import io.ebeanservice.docstore.api.DocumentNotFoundException;
-import io.ebeanservice.elastic.querywriter.ElasticJsonContext;
-import io.ebeanservice.elastic.querywriter.ElasticDocQueryContext;
-import io.ebeanservice.elastic.support.IndexMessageResponse;
-import io.ebeanservice.elastic.support.IndexMessageSender;
 import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonParser;
+import io.ebeanservice.docstore.api.DocumentNotFoundException;
+import io.ebeanservice.elastic.support.IndexMessageResponse;
+import io.ebeanservice.elastic.support.IndexMessageSender;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -22,46 +17,33 @@ import java.util.Set;
 public class EQuerySend {
 
   private static final Logger logger = LoggerFactory.getLogger(EQuerySend.class);
-  private static final String TODAY = "$today";
-  private static final String LAST_DAYS = "$last-";
 
   private final JsonFactory jsonFactory;
 
   private final IndexMessageSender messageSender;
 
-  private final ElasticJsonContext elasticJsonContext;
-
-  EQuerySend(JsonContext jsonContext, JsonFactory jsonFactory, IndexMessageSender messageSender) {
+  EQuerySend(JsonFactory jsonFactory, IndexMessageSender messageSender) {
     this.jsonFactory = jsonFactory;
     this.messageSender = messageSender;
-    this.elasticJsonContext = new ElasticJsonContext(jsonContext);
   }
 
   /**
    * Execute as find hits returning the resulting JSON response.
    */
-  JsonParser findHits(BeanDocType type, SpiQuery<?> query) throws IOException {
-    return findInternal(false, type, query);
+  JsonParser findHits(String indexNameType, String jsonQuery) throws IOException {
+    return findInternal(false, indexNameType, jsonQuery);
   }
 
   /**
    * Execute as find scroll returning the resulting JSON response.
    */
-  public JsonParser findScroll(BeanDocType type, SpiQuery<?> query) throws IOException {
-    return findInternal(true, type, query);
+  public JsonParser findScroll(String indexNameType, String jsonQuery) throws IOException {
+    return findInternal(true, indexNameType, jsonQuery);
   }
 
-  private JsonParser findInternal(boolean scroll, BeanDocType type, SpiQuery<?> query) throws IOException {
+  private JsonParser findInternal(boolean scroll, String indexNameType, String jsonQuery) throws IOException {
 
-    String docIndexName = query.getDocIndexName();
-    String nameType;
-    if (docIndexName != null) {
-      nameType = nameType(docIndexName, type);
-    } else {
-      nameType = indexNameType(type);
-    }
-
-    IndexMessageResponse response = messageSender.postQuery(scroll, nameType, asJson(query));
+    IndexMessageResponse response = messageSender.postQuery(scroll, indexNameType, jsonQuery);
     switch (response.getCode()) {
       case 404:
         throw new DocumentNotFoundException("404 for query?");
@@ -76,36 +58,12 @@ public class EQuerySend {
     return "Unhandled response code " + response.getCode() + " body:" + response.getBody();
   }
 
-  private String indexNameType(BeanDocType type) {
-    return type.getIndexName() + "/" + type.getIndexType();
-  }
-
-  /**
-   * Return the index name and type taking into account $today and $last-3 etc.
-   */
-  private String nameType(String docIndexName, BeanDocType type) {
-    if (TODAY.equals(docIndexName)) {
-      return type.getIndexName()+"2016.11.20" + "/" + type.getIndexType();
-
-    } else if (docIndexName.startsWith(LAST_DAYS)) {
-      return type.getIndexName()+"2016.11.21" + "/" + type.getIndexType();
-    }
-    return docIndexName;
-  }
-
-  /**
-   * Return the query as ElasticSearch JSON format.
-   */
-  private String asJson(SpiQuery<?> query) {
-    return ElasticDocQueryContext.asJson(elasticJsonContext, query);
-  }
-
   /**
    * Execute Get by Id returning the JSON response.
    */
-  JsonParser findById(BeanDocType beanDocType, Object docId) throws IOException {
+  JsonParser findById(String nameType, Object docId) throws IOException {
 
-    IndexMessageResponse response = messageSender.getDocSource(indexNameType(beanDocType), docId.toString());
+    IndexMessageResponse response = messageSender.getDocSource(nameType, docId.toString());
     switch (response.getCode()) {
       case 404:
         throw new DocumentNotFoundException("404 for docId:" + docId);
