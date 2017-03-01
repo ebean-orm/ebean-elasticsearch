@@ -159,7 +159,7 @@ public class BaseHttpMessageSender implements IndexMessageSender {
   @Override
   public IndexMessageResponse clearScrollIds(Set<String> scrollIds) throws IOException {
 
-    String url = baseUrl + "/_search/scroll";
+    String url = baseUrl + "_search/scroll";
 
     StringBuilder sb = new StringBuilder(200);
     for (String scrollId : scrollIds) {
