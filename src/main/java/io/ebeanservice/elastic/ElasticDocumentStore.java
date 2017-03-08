@@ -11,6 +11,7 @@ import io.ebean.plugin.SpiServer;
 import io.ebeaninternal.api.SpiQuery;
 import io.ebeanservice.docstore.api.DocQueryRequest;
 import io.ebeanservice.docstore.api.DocStoreQueryUpdate;
+import io.ebeanservice.docstore.api.RawDoc;
 import io.ebeanservice.elastic.bulk.BulkUpdate;
 import io.ebeanservice.elastic.index.EIndexService;
 import io.ebeanservice.elastic.query.EQueryService;
@@ -173,6 +174,16 @@ public class ElasticDocumentStore implements DocumentStore {
   @Override
   public <T> void findEachWhile(DocQueryRequest<T> request, Predicate<T> consumer) {
     queryService.findEachWhile(request, consumer);
+  }
+
+  @Override
+  public void findEach(String indexNameType, String rawQuery, Consumer<RawDoc> consumer) {
+    queryService.findEachRaw(indexNameType, rawQuery, consumer);
+  }
+
+  @Override
+  public void findEachWhile(String indexNameType, String rawQuery, Predicate<RawDoc> consumer) {
+    queryService.findEachWhile(indexNameType, rawQuery, consumer);
   }
 
   @Override

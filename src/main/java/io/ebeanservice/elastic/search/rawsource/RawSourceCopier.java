@@ -2,6 +2,7 @@ package io.ebeanservice.elastic.search.rawsource;
 
 import io.ebean.PersistenceIOException;
 import io.ebean.text.json.EJson;
+import io.ebeanservice.docstore.api.RawDoc;
 import io.ebeanservice.elastic.bulk.BulkUpdate;
 import com.fasterxml.jackson.core.JsonGenerator;
 
@@ -11,7 +12,7 @@ import java.util.function.Consumer;
 /**
  * Used to scroll a source index and copy to another index.
  */
-public class RawSourceCopier implements Consumer<RawSource> {
+public class RawSourceCopier implements Consumer<RawDoc> {
 
   private final BulkUpdate txn;
 
@@ -29,7 +30,7 @@ public class RawSourceCopier implements Consumer<RawSource> {
   }
 
   @Override
-  public void accept(RawSource bean) {
+  public void accept(RawDoc bean) {
 
     try {
       JsonGenerator gen = txn.obtain().gen();

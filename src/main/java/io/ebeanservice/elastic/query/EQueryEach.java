@@ -15,7 +15,7 @@ import java.util.function.Predicate;
 /**
  * Processes Query findEach/findEachWhile requests.
  */
-public class EQueryEach<T> extends EQuery<T> {
+public class EQueryEach<T> extends EQuery<T> implements EConsumeWhile<T> {
 
   private final DocQueryRequest<T> request;
   private final EQuerySend send;
@@ -115,14 +115,14 @@ public class EQueryEach<T> extends EQuery<T> {
   /**
    * Consume the initial scroll returning true if we should continue.
    */
-  boolean consumeInitialWhile(Predicate<T> consumer) throws IOException {
+  public boolean consumeInitialWhile(Predicate<T> consumer) throws IOException {
     return consumeWhile(fetchInitial(), consumer) && !allHitsRead();
   }
 
   /**
    * Consume a subsequent scroll returning true if we should continue.
    */
-  boolean consumeMoreWhile(Predicate<T> consumer) throws IOException {
+  public boolean consumeMoreWhile(Predicate<T> consumer) throws IOException {
     return consumeWhile(fetchNextScroll(), consumer) && !zeroHits();
   }
 

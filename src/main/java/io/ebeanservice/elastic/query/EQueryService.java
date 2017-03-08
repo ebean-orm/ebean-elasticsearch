@@ -16,12 +16,12 @@ import io.ebeaninternal.api.SpiQuery;
 import io.ebeaninternal.api.SpiTransaction;
 import io.ebeanservice.docstore.api.DocQueryRequest;
 import io.ebeanservice.docstore.api.DocumentNotFoundException;
+import io.ebeanservice.docstore.api.RawDoc;
 import io.ebeanservice.elastic.bulk.BulkUpdate;
 import io.ebeanservice.elastic.querywriter.ElasticDocQueryContext;
 import io.ebeanservice.elastic.querywriter.ElasticJsonContext;
 import io.ebeanservice.elastic.search.HitsPagedList;
 import io.ebeanservice.elastic.search.bean.BeanSearchParser;
-import io.ebeanservice.elastic.search.rawsource.RawSource;
 import io.ebeanservice.elastic.search.rawsource.RawSourceCopier;
 import io.ebeanservice.elastic.search.rawsource.RawSourceEach;
 import io.ebeanservice.elastic.support.IndexMessageSender;
@@ -107,23 +107,7 @@ public class EQueryService {
    * Execute the findEachWhile query request.
    */
   public <T> void findEachWhile(DocQueryRequest<T> request, Predicate<T> consumer) {
-
-    EQueryEach<T> each = createQueryEach(request);
-    try {
-      if (!each.consumeInitialWhile(consumer)) {
-        return;
-      }
-      while (true) {
-        if (!each.consumeMoreWhile(consumer)) {
-          return;
-        }
-      }
-    } catch (IOException e) {
-      throw new PersistenceIOException(e);
-
-    } finally {
-      each.clearScrollIds();
-    }
+    processEachWhile(consumer, createQueryEach(request));
   }
 
   /**
@@ -229,19 +213,29 @@ public class EQueryService {
     BeanType<?> desc = query.getBeanDescriptor();
     long count = findEachRawSource(query, new RawSourceCopier(txn, desc.docStore().getIndexType(), newIndex));
     logger.debug("total [{}] entries copied to index:{}", count, newIndex);
-
     return count;
   }
 
   /**
-   * Execute a scroll query using RawSource.
+   * Execute raw find each query.
    */
-  private <T> long findEachRawSource(Query<T> query, Consumer<RawSource> consumer) {
+  public void findEachRaw(String indexNameType, String rawQuery, Consumer<RawDoc> consumer) {
+    processEach(consumer, indexNameType, rawQuery);
+  }
 
+  /**
+   * Execute raw find each query.
+   */
+  public void findEachWhile(String nameType, String jsonQuery, Predicate<RawDoc> consumer) {
+    processEachWhile(consumer, new RawSourceEach(send, nameType, jsonQuery));
+  }
+
+  private <T> long findEachRawSource(Query<T> query, Consumer<RawDoc> consumer) {
     SpiQuery<T> spiQuery = (SpiQuery<T>) query;
-    String nameType = indexNameType(spiQuery);
-    String jsonQuery = asJson(spiQuery);
+    return processEach(consumer, indexNameType(spiQuery), asJson(spiQuery));
+  }
 
+  private long processEach(Consumer<RawDoc> consumer, String nameType, String jsonQuery) {
     RawSourceEach each = new RawSourceEach(send, nameType, jsonQuery);
     try {
       if (each.consumeInitial(consumer)) {
@@ -250,6 +244,24 @@ public class EQueryService {
         }
       }
       return each.getTotalCount();
+    } catch (IOException e) {
+      throw new PersistenceIOException(e);
+
+    } finally {
+      each.clearScrollIds();
+    }
+  }
+
+  private <T> void processEachWhile(Predicate<T> consumer, EConsumeWhile<T> each) {
+    try {
+      if (!each.consumeInitialWhile(consumer)) {
+        return;
+      }
+      while (true) {
+        if (!each.consumeMoreWhile(consumer)) {
+          return;
+        }
+      }
     } catch (IOException e) {
       throw new PersistenceIOException(e);
 

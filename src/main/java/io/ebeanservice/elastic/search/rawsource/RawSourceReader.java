@@ -1,6 +1,7 @@
 package io.ebeanservice.elastic.search.rawsource;
 
 import io.ebean.text.json.EJson;
+import io.ebeanservice.docstore.api.RawDoc;
 import io.ebeanservice.elastic.search.BaseSearchResultParser;
 import com.fasterxml.jackson.core.JsonParser;
 
@@ -14,7 +15,7 @@ import java.util.Map;
  */
 public class RawSourceReader extends BaseSearchResultParser {
 
-  private final List<RawSource> list = new ArrayList<RawSource>();
+  private final List<RawDoc> list = new ArrayList<>();
 
   public RawSourceReader(JsonParser parser) {
     super(parser);
@@ -33,7 +34,7 @@ public class RawSourceReader extends BaseSearchResultParser {
   @Override
   public void readSource() throws IOException {
     Map<String, Object> source = EJson.parseObject(parser);
-    list.add(new RawSource(source, id, score, index, type));
+    list.add(new RawDoc(source, id, score, index, type));
   }
 
   @Override
@@ -43,10 +44,10 @@ public class RawSourceReader extends BaseSearchResultParser {
 
   @Override
   public void readIdOnly() {
-    list.add(new RawSource(null, id, score, index, type));
+    list.add(new RawDoc(null, id, score, index, type));
   }
 
-  public List<RawSource> read() throws IOException {
+  public List<RawDoc> read() throws IOException {
     readAll();
     return list;
   }

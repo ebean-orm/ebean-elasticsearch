@@ -19,7 +19,7 @@ public class BeanSearchParser<T> extends BaseSearchResultParser {
 
   public BeanSearchParser(JsonParser parser, BeanType<T> desc, JsonBeanReader<T> reader, BeanPropertyAssocMany<?> lazyLoadMany) {
     super(parser);
-    this.listener = new BeanSourceReader<T>(desc, reader, lazyLoadMany);
+    this.listener = new BeanSourceReader<>(desc, reader, lazyLoadMany);
   }
 
   public BeanSearchParser(JsonParser parser, BeanSearchParser<T> source) {
@@ -32,7 +32,7 @@ public class BeanSearchParser<T> extends BaseSearchResultParser {
    */
   public BeanSearchParser<T> moreJson(JsonParser moreJson, boolean resetContext) {
     this.listener.moreJson(moreJson, resetContext);
-    return new BeanSearchParser<T>(moreJson, this);
+    return new BeanSearchParser<>(moreJson, this);
   }
 
   /**
