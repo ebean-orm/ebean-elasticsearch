@@ -1,7 +1,6 @@
 package integration;
 
 import com.avaje.ebean.Ebean;
-import com.avaje.ebean.FetchConfig;
 import com.avaje.ebean.Query;
 import com.avaje.ebean.QueryEachConsumer;
 import com.avaje.ebean.QueryEachWhileConsumer;

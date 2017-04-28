@@ -44,7 +44,7 @@ public class HitsPagedList<T> implements PagedList<T> {
   }
 
   public int getTotalRowCount() {
-    return getTotalCount();
+    return totalRowCount;
   }
 
   public void loadCount() {
@@ -90,7 +90,7 @@ public class HitsPagedList<T> implements PagedList<T> {
   public String getDisplayXtoYofZ(String to, String of) {
 
     int first = firstRow + 1;
-    int last = firstRow + getList().size();
+    int last = firstRow + list.size();
     int total = getTotalRowCount();
 
     return first + to + last + of + total;

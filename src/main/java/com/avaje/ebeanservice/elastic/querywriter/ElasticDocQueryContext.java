@@ -192,9 +192,7 @@ public class ElasticDocQueryContext implements DocQueryContext {
     if (rootProps.hasSelectClause()) {
       Set<String> included = rootProps.getIncluded();
       if (included != null) {
-        for (String propName : included) {
-          includes.add(propName);
-        }
+        includes.addAll(included);
       }
     }
 

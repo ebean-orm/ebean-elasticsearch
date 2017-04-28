@@ -39,7 +39,7 @@ public class EQuery<T> {
    * Create a bean parser for the given json.
    */
   protected BeanSearchParser<T> createParser(JsonParser json) {
-    JsonBeanReader reader = createReader(json);
+    JsonBeanReader<T> reader = createReader(json);
     return createParser(json, reader);
   }
 
@@ -51,7 +51,7 @@ public class EQuery<T> {
   }
 
   private BeanSearchParser<T> createParser(JsonParser json, JsonBeanReader<T> reader) {
-    return new BeanSearchParser<T>(json, beanType, reader, query.getLazyLoadMany());
+    return new BeanSearchParser<>(json, beanType, reader, query.getLazyLoadMany());
   }
 
 }

@@ -160,11 +160,11 @@ public class EQueryService {
    */
   private <T> T findById(BeanType<T> desc, Object id, JsonReadOptions options) {
 
-    BeanDocType beanDocType = desc.docStore();
+    BeanDocType<T> beanDocType = desc.docStore();
     try {
       JsonParser parser = send.findById(beanDocType.getIndexType(), beanDocType.getIndexName(), id);
 
-      JsonBeanReader<T> reader = new EQuery<T>(desc, jsonContext, options).createReader(parser);
+      JsonBeanReader<T> reader = new EQuery<>(desc, jsonContext, options).createReader(parser);
       T bean = reader.read();
       desc.setBeanId(bean, id);
       // register with persistence context and load context
@@ -215,7 +215,7 @@ public class EQueryService {
 
     SpiQuery<T> spiQuery = (SpiQuery<T>) query;
     BeanType<T> desc = spiQuery.getBeanDescriptor();
-    BeanDocType beanDocType = desc.docStore();
+    BeanDocType<T> beanDocType = desc.docStore();
 
     RawSourceEach each = new RawSourceEach(send);
     try {

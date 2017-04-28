@@ -10,7 +10,10 @@ import com.avaje.ebeaninternal.server.deploy.BeanDescriptor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Base implementation that will periodically read the queue and process the entries.
@@ -78,17 +81,11 @@ public class BaseIndexQueueReader {
 
     Map<String, List<SqlRow>> map = new LinkedHashMap<String, List<SqlRow>>();
 
-    for (int i = 0; i < entries.size(); i++) {
+    for (SqlRow entry : entries) {
 
-      SqlRow entry = entries.get(i);
       String queueId = entry.getString("queue_id");
 
-      List<SqlRow> list = map.get(queueId);
-      if (list == null) {
-        // no map entry for this queueId so initialise it
-        list = new ArrayList<SqlRow>();
-        map.put(queueId, list);
-      }
+      List<SqlRow> list = map.computeIfAbsent(queueId, k -> new ArrayList<SqlRow>());
       list.add(entry);
     }
 
@@ -118,8 +115,7 @@ public class BaseIndexQueueReader {
 
         transaction.setBatchSize(100);
         // update the entries marking them as processing
-        for (int i = 0; i < rows.size(); i++) {
-          SqlRow row = rows.get(i);
+        for (SqlRow row : rows) {
           markEntryAsProcessing(row, sqlUpdate, transaction);
         }
 
