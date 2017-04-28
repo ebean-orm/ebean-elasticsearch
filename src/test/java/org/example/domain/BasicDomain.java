@@ -7,7 +7,6 @@ import com.avaje.ebean.annotation.WhenModified;
 import javax.persistence.Id;
 import javax.persistence.MappedSuperclass;
 import javax.persistence.Version;
-import java.io.Serializable;
 import java.sql.Timestamp;
 
 @MappedSuperclass

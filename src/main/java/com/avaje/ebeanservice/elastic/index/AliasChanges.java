@@ -53,7 +53,7 @@ public class AliasChanges {
     gen.writeEndObject();
   }
 
-  private class Entry {
+  private static class Entry {
 
     private final boolean add;
     private final String index;

@@ -52,11 +52,7 @@ public class UpdateGroup {
   }
 
   private void addNested(String path, Object beanId) {
-    UpdateNested nested = pathIds.get(path);
-    if (nested == null) {
-      nested = new UpdateNested(path);
-      pathIds.put(path, nested);
-    }
+    UpdateNested nested = pathIds.computeIfAbsent(path, UpdateNested::new);
     nested.addId(beanId);
   }
 

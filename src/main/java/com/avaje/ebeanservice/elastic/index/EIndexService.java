@@ -148,7 +148,7 @@ public class EIndexService {
     sender.indexCreate(indexName, jsonMapping);
     if (alias != null) {
       if (indexExists(alias)) {
-        logger.debug("drop alias {}", alias, indexName);
+        logger.debug("drop alias {} for index {}", alias, indexName);
         dropIndex(alias);
       }
     }

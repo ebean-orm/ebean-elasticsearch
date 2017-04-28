@@ -33,12 +33,7 @@ public class ConvertToGroups {
   }
 
   private UpdateGroup getQueue(String queueId) {
-    UpdateGroup queue = byQueue.get(queueId);
-    if (queue == null) {
-      queue = new UpdateGroup(queueId);
-      byQueue.put(queueId, queue);
-    }
-    return queue;
+    return byQueue.computeIfAbsent(queueId, UpdateGroup::new);
   }
 
   private Collection<UpdateGroup> groups() {

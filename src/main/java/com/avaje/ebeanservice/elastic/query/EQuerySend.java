@@ -38,18 +38,18 @@ public class EQuerySend {
   /**
    * Execute as find hits returning the resulting JSON response.
    */
-  public JsonParser findHits(BeanDocType type, SpiQuery<?> query) throws IOException, DocumentNotFoundException {
+  public <T> JsonParser findHits(BeanDocType<T> type, SpiQuery<T> query) throws IOException, DocumentNotFoundException {
     return findInternal(false, type, query);
   }
 
   /**
    * Execute as find scroll returning the resulting JSON response.
    */
-  public JsonParser findScroll(BeanDocType type, SpiQuery<?> query) throws IOException, DocumentNotFoundException {
+  public <T> JsonParser findScroll(BeanDocType<T> type, SpiQuery<T> query) throws IOException, DocumentNotFoundException {
     return findInternal(true, type, query);
   }
 
-  private JsonParser findInternal(boolean scroll, BeanDocType type, SpiQuery<?> query) throws IOException, DocumentNotFoundException {
+  private <T> JsonParser findInternal(boolean scroll, BeanDocType<T> type, SpiQuery<T> query) throws IOException, DocumentNotFoundException {
 
     IndexMessageResponse response = messageSender.postQuery(scroll, type.getIndexType(), type.getIndexName(), asJson(query));
     switch (response.getCode()) {
@@ -65,7 +65,7 @@ public class EQuerySend {
   /**
    * Return the query as ElasticSearch JSON format.
    */
-  private String asJson(SpiQuery<?> query) {
+  private <T> String asJson(SpiQuery<T> query) {
     return ElasticDocQueryContext.asJson(elasticJsonContext, query);
   }
 
@@ -108,7 +108,7 @@ public class EQuerySend {
     try {
       messageSender.clearScrollIds(scrollIds);
     } catch (IOException e) {
-      logger.error("Error trying to clear scrollIds: " + scrollIds, e);
+      logger.error("Error trying to clear scrollIds: {}", scrollIds, e);
     }
   }
 

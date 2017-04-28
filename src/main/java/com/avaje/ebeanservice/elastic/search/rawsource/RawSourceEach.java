@@ -33,7 +33,7 @@ public class RawSourceEach {
   /**
    * Consume initial scroll results returning true if we should continue.
    */
-  public boolean consumeInitial(QueryEachConsumer<RawSource> consumer, BeanDocType beanDocType, SpiQuery<?> query) throws IOException {
+  public <T> boolean consumeInitial(QueryEachConsumer<RawSource> consumer, BeanDocType<T> beanDocType, SpiQuery<T> query) throws IOException {
 
     JsonParser json = send.findScroll(beanDocType, query);
     consume(consumer, read(json));

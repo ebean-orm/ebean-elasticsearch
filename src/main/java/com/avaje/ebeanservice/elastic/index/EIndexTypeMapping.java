@@ -2,7 +2,7 @@ package com.avaje.ebeanservice.elastic.index;
 
 import com.avaje.ebeanservice.docstore.api.mapping.DocPropertyType;
 
-import java.util.HashMap;
+import java.util.EnumMap;
 import java.util.Map;
 
 /**
@@ -10,7 +10,7 @@ import java.util.Map;
  */
 public class EIndexTypeMapping {
 
-  final Map<DocPropertyType,String> map = new HashMap<DocPropertyType,String>();
+  final Map<DocPropertyType,String> map = new EnumMap<>(DocPropertyType.class);
 
   public EIndexTypeMapping() {
     map.put(DocPropertyType.ENUM,"keyword");
