@@ -1,6 +1,6 @@
 package integration;
 
-import com.avaje.ebean.Ebean;
+import io.ebean.Ebean;
 import org.example.domain.Customer;
 import org.example.domain.Product;
 import org.testng.annotations.Test;

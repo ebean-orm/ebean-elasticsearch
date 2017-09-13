@@ -1,7 +1,7 @@
 package org.example.domain;
 
-import com.avaje.ebean.annotation.DocCode;
-import com.avaje.ebean.annotation.DocStore;
+import io.ebean.annotation.DocCode;
+import io.ebean.annotation.DocStore;
 
 import javax.persistence.DiscriminatorColumn;
 import javax.persistence.Entity;

@@ -1,8 +1,8 @@
 package org.example.domain;
 
-import com.avaje.ebean.Model;
-import com.avaje.ebean.annotation.Cache;
-import com.avaje.ebean.annotation.DocStore;
+import io.ebean.Model;
+import io.ebean.annotation.Cache;
+import io.ebean.annotation.DocStore;
 
 import javax.persistence.Entity;
 import javax.persistence.Id;

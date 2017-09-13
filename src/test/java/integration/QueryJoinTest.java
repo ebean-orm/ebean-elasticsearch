@@ -1,8 +1,7 @@
 package integration;
 
-import com.avaje.ebean.Ebean;
-import com.avaje.ebean.FetchConfig;
-import com.avaje.ebean.QueryEachConsumer;
+import io.ebean.Ebean;
+import io.ebean.FetchConfig;
 import org.example.domain.Contact;
 import org.example.domain.Customer;
 import org.example.domain.Order;
@@ -108,12 +107,7 @@ public class QueryJoinTest extends BaseTest {
         .setMaxRows(2) // reduce size to 2 such that we get multiple scrolls
         .fetch("orders", new FetchConfig().query())
         .fetch("contacts", new FetchConfig().query())
-        .findEach(new QueryEachConsumer<Customer>() {
-          @Override
-          public void accept(Customer bean) {
-            collect.add(bean);
-          }
-        });
+        .findEach(bean -> collect.add(bean));
 
     String json = Ebean.json().toJson(collect);
     System.out.println(json);

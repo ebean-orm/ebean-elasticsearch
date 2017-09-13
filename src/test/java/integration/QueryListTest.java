@@ -1,6 +1,6 @@
 package integration;
 
-import com.avaje.ebean.Query;
+import io.ebean.Query;
 import org.example.domain.Customer;
 import org.example.domain.Order;
 import org.example.domain.Product;

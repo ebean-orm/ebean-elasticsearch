@@ -1,13 +1,12 @@
 package org.example.domain;
 
-import com.avaje.ebean.Model;
-import com.avaje.ebean.annotation.WhenCreated;
-import com.avaje.ebean.annotation.WhenModified;
+import io.ebean.Model;
+import io.ebean.annotation.WhenCreated;
+import io.ebean.annotation.WhenModified;
 
 import javax.persistence.Id;
 import javax.persistence.MappedSuperclass;
 import javax.persistence.Version;
-import java.io.Serializable;
 import java.sql.Timestamp;
 
 @MappedSuperclass

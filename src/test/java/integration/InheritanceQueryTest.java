@@ -1,6 +1,6 @@
 package integration;
 
-import com.avaje.ebean.Query;
+import io.ebean.Query;
 import org.example.domain.Vehicle;
 import org.example.domain.VehicleCar;
 import org.testng.annotations.Test;

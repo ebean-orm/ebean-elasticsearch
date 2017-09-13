@@ -1,6 +1,6 @@
 package org.example.domain;
 
-import com.avaje.ebean.annotation.DocSortable;
+import io.ebean.annotation.DocSortable;
 
 import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;

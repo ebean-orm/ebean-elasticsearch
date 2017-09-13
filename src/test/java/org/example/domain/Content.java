@@ -1,9 +1,9 @@
 package org.example.domain;
 
-import com.avaje.ebean.annotation.DocMapping;
-import com.avaje.ebean.annotation.DocProperty;
-import com.avaje.ebean.annotation.DocSortable;
-import com.avaje.ebean.annotation.DocStore;
+import io.ebean.annotation.DocMapping;
+import io.ebean.annotation.DocProperty;
+import io.ebean.annotation.DocSortable;
+import io.ebean.annotation.DocStore;
 
 import javax.persistence.Entity;
 import javax.validation.constraints.Size;
