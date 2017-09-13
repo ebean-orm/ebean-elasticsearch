@@ -4,7 +4,7 @@
 
   <groupId>io.ebean</groupId>
   <artifactId>ebean-elastic</artifactId>
-  <version>5.0.1-RC-SNAPSHOT</version>
+  <version>5.0.1-RC</version>
 
   <parent>
     <groupId>org.avaje</groupId>
@@ -14,7 +14,7 @@
 
   <scm>
     <developerConnection>scm:git:git@github.com:ebean-orm/ebean-elastic.git</developerConnection>
-    <tag>HEAD</tag>
+    <tag>ebean-elastic-5.0.1-RC</tag>
   </scm>
   
   <dependencies>
