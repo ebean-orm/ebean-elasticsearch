@@ -2,7 +2,7 @@
   "mappings" : {
     "content" : {
       "properties" : {
-        "status": { "type": "keyword" },
+        "status": { "type": "keyword", "store": true },
         "title": { "type": "text" },
         "author": { "type": "text", "store": true, "boost": 2.0, "fields": { "raw": { "type": "keyword" } } },
         "content": { "type": "text" },

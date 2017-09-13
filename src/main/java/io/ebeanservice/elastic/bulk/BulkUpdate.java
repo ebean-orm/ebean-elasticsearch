@@ -79,7 +79,7 @@ public class BulkUpdate {
 
   }
 
-  public void sendUpdateQuery(String indexName, String indexType, String script) throws IOException {
-    bulkSender.setUpdateQuery(indexName, indexType, script);
+  public Map<String, Object> sendUpdateQuery(String indexName, String indexType, String script) throws IOException {
+    return bulkSender.setUpdateQuery(indexName, indexType, script);
   }
 }

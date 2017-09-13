@@ -15,7 +15,7 @@ public class ElasticUpdateProcessorTest extends BaseTest {
   @Test
   public void processNested() throws Exception {
 
-    List<DocStoreQueueEntry> list = new ArrayList<DocStoreQueueEntry>();
+    List<DocStoreQueueEntry> list = new ArrayList<>();
     list.add(new DocStoreQueueEntry(DocStoreQueueEntry.Action.NESTED, "order", "customer.id", 2));
 
     long count = docStore.process(list);
@@ -28,7 +28,7 @@ public class ElasticUpdateProcessorTest extends BaseTest {
 
     //SeedDbData.reset(false);
 
-    List<DocStoreQueueEntry> list = new ArrayList<DocStoreQueueEntry>();
+    List<DocStoreQueueEntry> list = new ArrayList<>();
     list.add(new DocStoreQueueEntry(DocStoreQueueEntry.Action.NESTED, "order", "customer.billingAddress.id", 1));
 
     long count = docStore.process(list);

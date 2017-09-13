@@ -94,7 +94,7 @@ public class ProcessNested<T> {
       fetchEmbeddedAssocMany(nestedIds);
       processTop(nestedIds);
     } else {
-      updateByQueryAssocOne(nestedIds);
+      return updateByQueryAssocOne(nestedIds);
     }
 
     return count;
@@ -103,7 +103,7 @@ public class ProcessNested<T> {
   /**
    * Load the json map given the embedded document has cardinality one (ElasticSearch object).
    */
-  private void updateByQueryAssocOne(List<Object> nestedIds) {
+  private long updateByQueryAssocOne(List<Object> nestedIds) {
 
     Query<?> pathQuery = server.createQuery(nestedDesc.getBeanType());
     pathQuery.apply(nestedDoc);
@@ -126,11 +126,18 @@ public class ProcessNested<T> {
 
       BeanDocType<T> docType = desc.docStore();
       try {
-        txn.sendUpdateQuery(docType.getIndexName(), docType.getIndexType(), script);
+        Map<String, Object> response = txn.sendUpdateQuery(docType.getIndexName(), docType.getIndexType(), script);
+
+        Object updatedDocs = response.get("total");
+        if (updatedDocs instanceof Number) {
+          return ((Number)updatedDocs).longValue();
+        }
+
       } catch (IOException e) {
         log.error("Error performing updateByQuery", e);
       }
     }
+    return 0;
   }
 
   /**

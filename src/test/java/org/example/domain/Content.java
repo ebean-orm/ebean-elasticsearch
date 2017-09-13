@@ -23,6 +23,7 @@ public class Content extends BaseUuidDomain {
     PUBLISHED
   }
 
+  @DocProperty(store = true)
   Status status = Status.NEW;
 
   @Size(max = 100)

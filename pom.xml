@@ -4,7 +4,7 @@
 
   <groupId>io.ebean</groupId>
   <artifactId>ebean-elastic</artifactId>
-  <version>5.1.1-SNAPSHOT</version>
+  <version>5.0.1-RC-SNAPSHOT</version>
 
   <parent>
     <groupId>org.avaje</groupId>
@@ -44,7 +44,7 @@
     <dependency>
       <groupId>org.elasticsearch</groupId>
       <artifactId>elasticsearch</artifactId>
-      <version>5.0.0</version>
+      <version>5.5.0</version>
       <scope>test</scope>
     </dependency>
 

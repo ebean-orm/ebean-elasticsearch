@@ -3,6 +3,7 @@ package io.ebeanservice.elastic.bulk;
 import io.ebean.config.JsonConfig;
 import io.ebean.text.json.EJson;
 import io.ebeanservice.elastic.ElasticDocumentStore;
+import io.ebeanservice.elastic.support.IndexMessageResponse;
 import io.ebeanservice.elastic.support.IndexMessageSender;
 import io.ebeanservice.elastic.support.StringBuilderWriter;
 import com.fasterxml.jackson.core.JsonFactory;
@@ -81,7 +82,8 @@ public class BulkSender {
     return EJson.parseObject(response);
   }
 
-  public void setUpdateQuery(String indexName, String indexType, String script) throws IOException {
-    messageSender.postUpdateQuery(indexName, indexType, script);
+  public Map<String, Object> setUpdateQuery(String indexName, String indexType, String script) throws IOException {
+    IndexMessageResponse response = messageSender.postUpdateQuery(indexName, indexType, script);
+    return EJson.parseObject(response.getBody());
   }
 }

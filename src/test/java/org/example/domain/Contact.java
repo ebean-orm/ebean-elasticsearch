@@ -3,6 +3,8 @@ package org.example.domain;
 import io.ebean.annotation.Cache;
 import io.ebean.annotation.DbArray;
 import io.ebean.annotation.DocEmbedded;
+import io.ebean.annotation.DocProperty;
+import io.ebean.annotation.DocSortable;
 import io.ebean.annotation.DocStore;
 
 import javax.persistence.Entity;
@@ -26,8 +28,9 @@ public class Contact extends BasicDomain {
   @DbArray
   List<String> someTags = new ArrayList<String>();
 
+  @DocProperty(store = true)
   String firstName;
-  @DocSortable
+  @DocSortable(store = true)
   String lastName;
 
   String phone;

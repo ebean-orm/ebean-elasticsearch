@@ -25,7 +25,7 @@ public class QueryJoinTest extends BaseTest {
 
       Customer customer = contact.getCustomer();
       // invoke lazy loading
-      customer.getSmallNote();
+      customer.getWhenCreated();
     }
 
     String json = Ebean.json().toJson(contacts);
@@ -55,9 +55,9 @@ public class QueryJoinTest extends BaseTest {
 
     List<Customer> customers = server.find(Customer.class)
         .setUseDocStore(true)
-        .fetch("orders", new FetchConfig().query())
-        .fetch("contacts", new FetchConfig().query())
-        .fetch("orders.shipments", new FetchConfig().query())
+        .fetchQuery("orders")
+        .fetchQuery("contacts")
+        .fetchQuery("orders.shipments")
         .findList();
 
     String json = Ebean.json().toJson(customers);

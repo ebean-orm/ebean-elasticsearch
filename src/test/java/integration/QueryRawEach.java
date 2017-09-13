@@ -14,7 +14,7 @@ public class QueryRawEach extends BaseTest {
   @Test
   public void findEach_startsWith_product() {
 
-    String rawQuery = "{\"query\":{\"filtered\":{\"filter\":{\"prefix\":{\"sku\":\"c00\"}}}}}";
+    String rawQuery = "{\"query\":{\"bool\":{\"filter\":{\"prefix\":{\"sku\":\"c00\"}}}}}";
 
     List<RawDoc> docs = new ArrayList<>();
     AtomicInteger count = new AtomicInteger();

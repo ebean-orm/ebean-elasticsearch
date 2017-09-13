@@ -165,7 +165,7 @@ public class EQueryService {
 
     BeanDocType beanDocType = desc.docStore();
     try {
-      JsonParser parser = send.findById(indexNameType(beanDocType), id);
+      JsonParser parser = send.findById(indexNameAndType(beanDocType), id);
 
       JsonBeanReader<T> reader = new EQuery<>(desc, jsonContext, options).createReader(parser);
       T bean = reader.read();
@@ -285,6 +285,10 @@ public class EQueryService {
   }
 
   private String indexNameType(BeanDocType type) {
+    return type.getIndexName();// + "/" + type.getIndexType();
+  }
+
+  private String indexNameAndType(BeanDocType type) {
     return type.getIndexName() + "/" + type.getIndexType();
   }
 
