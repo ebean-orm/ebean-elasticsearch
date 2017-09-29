@@ -20,13 +20,13 @@ import java.util.UUID;
 public class Contact extends BasicDomain {
 
   @DbArray
-  List<UUID> uids = new ArrayList<UUID>();
+  List<UUID> uids = new ArrayList<>();
 
   @DbArray
-  List<Long> someLongs = new ArrayList<Long>();
+  List<Long> someLongs = new ArrayList<>();
 
   @DbArray
-  List<String> someTags = new ArrayList<String>();
+  List<String> someTags = new ArrayList<>();
 
   @DocProperty(store = true)
   String firstName;
