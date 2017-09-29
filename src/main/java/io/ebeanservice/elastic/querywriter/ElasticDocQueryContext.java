@@ -24,6 +24,7 @@ import com.fasterxml.jackson.core.JsonGenerator;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
@@ -445,7 +446,7 @@ public class ElasticDocQueryContext implements DocQueryContext {
    * Write an Ids expression.
    */
   @Override
-  public void writeIds(List<?> idList) throws IOException {
+  public void writeIds(Collection<?> idList) throws IOException {
 
     json.writeStartObject();
     json.writeObjectFieldStart(IDS);
@@ -464,7 +465,7 @@ public class ElasticDocQueryContext implements DocQueryContext {
   @Override
   public void writeId(Object value) throws IOException {
 
-    List<Object> ids = new ArrayList<Object>(1);
+    List<Object> ids = new ArrayList<>(1);
     ids.add(value);
     writeIds(ids);
   }

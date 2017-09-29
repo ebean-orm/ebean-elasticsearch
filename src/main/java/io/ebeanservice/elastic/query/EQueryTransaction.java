@@ -16,12 +16,17 @@ import io.ebeanservice.docstore.api.DocStoreTransaction;
 
 import javax.persistence.PersistenceException;
 import javax.persistence.RollbackException;
-import java.io.IOException;
 import java.sql.Connection;
+import java.sql.SQLException;
 
 public class EQueryTransaction implements SpiTransaction {
 
   private Object tenantId;
+
+  @Override
+  public PersistenceException translate(String message, SQLException cause) {
+    return new PersistenceException(message, cause);
+  }
 
   @Override
   public void setTenantId(Object tenantId) {
@@ -135,6 +140,11 @@ public class EQueryTransaction implements SpiTransaction {
 
   @Override
   public void flushBatch() throws PersistenceException {
+
+  }
+
+  @Override
+  public void flush() throws PersistenceException {
 
   }
 
@@ -390,7 +400,7 @@ public class EQueryTransaction implements SpiTransaction {
   }
 
   @Override
-  public void close() throws IOException {
+  public void close() {
 
   }
 }
