@@ -53,7 +53,7 @@ public class ElasticDocumentStoreTest extends BaseTest {
 
     Product prod = Ebean.find(Product.class)
         .where().eq("name", "ZChair")
-        .findUnique();
+        .findOne();
 
     assertNotNull(prod);
     prod.setSku("Z99A");

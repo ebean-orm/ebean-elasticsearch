@@ -58,6 +58,6 @@ public class SyncIudTest extends BaseTest {
         .where().idEq("SA")
         .setUseCache(false)
         .setUseDocStore(true)
-        .findUnique();
+        .findOne();
   }
 }

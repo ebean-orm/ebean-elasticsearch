@@ -17,7 +17,7 @@ public class SyncCustNameUpdateTest extends BaseTest {
     Customer cust = server.find(Customer.class)
         .where().idEq(2)
         .setUseDocStore(true)
-        .findUnique();
+        .findOne();
 
     cust.setName("Cust NonAddress");
     cust.save();

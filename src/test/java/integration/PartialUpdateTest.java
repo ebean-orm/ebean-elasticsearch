@@ -23,7 +23,7 @@ public class PartialUpdateTest extends BaseTest {
     Product partial = Ebean.find(Product.class)
         .select("name")
         .where().idEq(prod.getId())
-        .findUnique();
+        .findOne();
 
     partial.setName("Mighty Keyboard");
     Ebean.save(partial);
@@ -36,7 +36,7 @@ public class PartialUpdateTest extends BaseTest {
     Product partialWithVersion = Ebean.find(Product.class)
         .select("name,version")
         .where().idEq(prod.getId())
-        .findUnique();
+        .findOne();
 
     partialWithVersion.setName("Silly Keyboard");
     Ebean.save(partialWithVersion);
@@ -50,7 +50,7 @@ public class PartialUpdateTest extends BaseTest {
     Customer rob = server.find(Customer.class)
         .select("id, status, name, smallNote")
         .where().eq("name", "Rob")
-        .findUnique();
+        .findOne();
 
     rob.setSmallNote("Modify small note");
     server.save(rob);
@@ -59,7 +59,7 @@ public class PartialUpdateTest extends BaseTest {
 
     Customer robDoc = server.find(Customer.class)
         .setId(rob.getId()).setUseDocStore(true)
-        .findUnique();
+        .findOne();
 
     assertThat(robDoc.getSmallNote()).isEqualTo(rob.getSmallNote());
     assertThat(robDoc.getStatus()).isEqualTo(rob.getStatus());

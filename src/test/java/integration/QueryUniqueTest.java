@@ -16,7 +16,7 @@ public class QueryUniqueTest extends BaseTest {
         .where().eq("sku", "C001")
         .setUseDocStore(true);
 
-    Product product = query.findUnique();
+    Product product = query.findOne();
 
     assertEquals(query.getGeneratedSql(), "{\"query\":{\"bool\":{\"filter\":{\"term\":{\"sku.raw\":\"C001\"}}}}}");
     assertNotNull(product);
@@ -35,7 +35,7 @@ public class QueryUniqueTest extends BaseTest {
         .where()
         .eq("id", 1)
         .setUseDocStore(true)
-        .findUnique();
+        .findOne();
 
     assertNotNull(product);
     assertEquals(product.getId(), Long.valueOf(1));

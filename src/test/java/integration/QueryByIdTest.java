@@ -16,7 +16,7 @@ public class QueryByIdTest extends BaseTest {
     Product product = server.find(Product.class)
         .setId(1)
         .setUseDocStore(true)
-        .findUnique();
+        .findOne();
 
     assertNotNull(product);
     assertEquals(product.getId(), Long.valueOf(1));
@@ -28,7 +28,7 @@ public class QueryByIdTest extends BaseTest {
     Product product = server.find(Product.class)
         .where().eq("id", 1)
         .setUseDocStore(true)
-        .findUnique();
+        .findOne();
 
     assertNotNull(product);
     assertEquals(product.getId(), Long.valueOf(1));
@@ -40,7 +40,7 @@ public class QueryByIdTest extends BaseTest {
     Product product = server.find(Product.class)
         .where().idEq(1)
         .setUseDocStore(true)
-        .findUnique();
+        .findOne();
 
     assertNotNull(product);
     assertEquals(product.getId(), Long.valueOf(1));
@@ -55,7 +55,7 @@ public class QueryByIdTest extends BaseTest {
         .where()
         .idEq(1)
         .setUseDocStore(true)
-        .findUnique();
+        .findOne();
 
     assertNotNull(customer);
     assertNotNull(customer.getContacts());
@@ -68,7 +68,7 @@ public class QueryByIdTest extends BaseTest {
         .where()
         .idEq(1)
         .setUseDocStore(true)
-        .findUnique();
+        .findOne();
 
     customer.getContacts().size();
     assertNotNull(customer);
@@ -79,7 +79,7 @@ public class QueryByIdTest extends BaseTest {
 
     Customer customer = server.find(Customer.class)
         .setId(1).setUseDocStore(true)
-        .findUnique();
+        .findOne();
 
     customer.getContacts().size();
     assertNotNull(customer);

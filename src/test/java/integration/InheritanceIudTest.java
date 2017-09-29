@@ -26,7 +26,7 @@ public class InheritanceIudTest extends BaseTest {
     found = (VehicleTruck)server.find(Vehicle.class)
         .setUseDocStore(true)
         .where().eq("licenseNumber", "T30")
-        .findUnique();
+        .findOne();
 
     assertNotNull(found);
   }
@@ -74,7 +74,7 @@ public class InheritanceIudTest extends BaseTest {
     VehicleTruck truck = server.find(VehicleTruck.class)
         .where().eq("truckRef.id", 1)
         .setUseDocStore(true)
-        .findUnique();
+        .findOne();
 
     assertEquals(truck.getTruckRef().getSomething(), "other");
   }
@@ -84,6 +84,6 @@ public class InheritanceIudTest extends BaseTest {
     return (VehicleTruck)server.find(Vehicle.class)
         .setUseDocStore(true)
         .where().eq("licenseNumber", "T30")
-        .findUnique();
+        .findOne();
   }
 }

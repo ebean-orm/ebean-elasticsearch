@@ -25,7 +25,7 @@ public class UidTest extends BaseTest {
     Content found = server.find(Content.class)
         .setId(content.getId())
         .setUseDocStore(true)
-        .findUnique();
+        .findOne();
 
     assertEquals(found.getAuthor(), content.getAuthor());
     assertEquals(found.getContent(), content.getContent());
