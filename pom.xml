@@ -36,22 +36,16 @@
     <dependency>
       <groupId>io.ebean</groupId>
       <artifactId>ebean</artifactId>
-      <version>10.1.7</version>
+      <version>10.4.7</version>
     </dependency>
 
     <!-- Test Dependencies -->
 
+    <!-- use docker to run ElasticSearch, see docker-run.properties -->
     <dependency>
-      <groupId>org.elasticsearch</groupId>
-      <artifactId>elasticsearch</artifactId>
-      <version>5.5.0</version>
-      <scope>test</scope>
-    </dependency>
-
-    <dependency>
-      <groupId>net.java.dev.jna</groupId>
-      <artifactId>jna</artifactId>
-      <version>4.2.1</version>
+      <groupId>io.ebean</groupId>
+      <artifactId>ebean-docker-run</artifactId>
+      <version>1.1.1</version>
       <scope>test</scope>
     </dependency>
 
