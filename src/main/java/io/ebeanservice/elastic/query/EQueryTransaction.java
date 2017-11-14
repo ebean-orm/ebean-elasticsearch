@@ -1,17 +1,19 @@
 package io.ebeanservice.elastic.query;
 
-import io.ebean.PersistBatch;
+import io.ebean.annotation.PersistBatch;
 import io.ebean.TransactionCallback;
 import io.ebean.annotation.DocStoreMode;
 import io.ebean.bean.PersistenceContext;
 import io.ebean.event.changelog.BeanChange;
 import io.ebean.event.changelog.ChangeSet;
+import io.ebeaninternal.api.SpiProfileTransactionEvent;
 import io.ebeaninternal.api.SpiTransaction;
 import io.ebeaninternal.api.TransactionEvent;
 import io.ebeaninternal.server.core.PersistDeferredRelationship;
 import io.ebeaninternal.server.core.PersistRequest;
 import io.ebeaninternal.server.core.PersistRequestBean;
 import io.ebeaninternal.server.persist.BatchControl;
+import io.ebeaninternal.server.transaction.ProfileStream;
 import io.ebeanservice.docstore.api.DocStoreTransaction;
 
 import javax.persistence.PersistenceException;
@@ -36,6 +38,21 @@ public class EQueryTransaction implements SpiTransaction {
   @Override
   public Object getTenantId() {
     return tenantId;
+  }
+
+  @Override
+  public long profileOffset() {
+    return 0;
+  }
+
+  @Override
+  public void profileEvent(SpiProfileTransactionEvent event) {
+
+  }
+
+  @Override
+  public ProfileStream profileStream() {
+    return null;
   }
 
   @Override
@@ -226,11 +243,6 @@ public class EQueryTransaction implements SpiTransaction {
   @Override
   public Connection getInternalConnection() {
     return null;
-  }
-
-  @Override
-  public void rollbackIfActive() {
-
   }
 
   @Override

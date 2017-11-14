@@ -7,7 +7,7 @@ import io.ebean.Query;
 import io.ebean.plugin.BeanDocType;
 import io.ebean.plugin.BeanType;
 import io.ebean.plugin.Property;
-import io.ebeaninternal.server.query.SplitName;
+import io.ebean.util.SplitName;
 import io.ebeanservice.elastic.bulk.BulkUpdate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

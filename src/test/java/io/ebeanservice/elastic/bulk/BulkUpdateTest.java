@@ -2,7 +2,6 @@ package io.ebeanservice.elastic.bulk;
 
 import io.ebeanservice.elastic.testdoubles.TDBulkSender;
 import io.ebeanservice.elastic.testdoubles.TDDocStoreUpdate;
-import org.jetbrains.annotations.NotNull;
 import org.testng.annotations.Test;
 
 import java.io.IOException;
@@ -78,7 +77,6 @@ public class BulkUpdateTest {
     assertSame(buffer, tdBulkSender.request);
   }
 
-  @NotNull
   private BulkUpdate createBulkUpdate(int batchSize) throws IOException {
     return new BulkUpdate(batchSize, tdBulkSender);
   }

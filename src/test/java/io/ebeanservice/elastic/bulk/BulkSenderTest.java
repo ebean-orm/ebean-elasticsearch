@@ -3,7 +3,6 @@ package io.ebeanservice.elastic.bulk;
 import io.ebean.config.JsonConfig;
 import io.ebeanservice.elastic.testdoubles.TDIndexMessageSender;
 import com.fasterxml.jackson.core.JsonFactory;
-import org.jetbrains.annotations.NotNull;
 import org.testng.annotations.Test;
 
 import static org.testng.Assert.assertEquals;
@@ -45,7 +44,6 @@ public class BulkSenderTest {
     assertEquals(messageSender.request, "{\"name\":\"rob\"}");
   }
 
-  @NotNull
   private BulkSender createBulkSender() {
 
     messageSender.request = null;

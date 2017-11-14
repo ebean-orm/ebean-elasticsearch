@@ -4,7 +4,7 @@
 
   <groupId>io.ebean</groupId>
   <artifactId>ebean-elastic</artifactId>
-  <version>5.0.3-RC-SNAPSHOT</version>
+  <version>11.0.1-RC-SNAPSHOT</version>
 
   <parent>
     <groupId>org.avaje</groupId>
@@ -36,7 +36,7 @@
     <dependency>
       <groupId>io.ebean</groupId>
       <artifactId>ebean</artifactId>
-      <version>10.4.7</version>
+      <version>11.5.1</version>
     </dependency>
 
     <!-- Test Dependencies -->
@@ -45,7 +45,7 @@
     <dependency>
       <groupId>io.ebean</groupId>
       <artifactId>ebean-docker-run</artifactId>
-      <version>1.1.1</version>
+      <version>1.2.1</version>
       <scope>test</scope>
     </dependency>
 
@@ -75,7 +75,7 @@
         <extensions>true</extensions>
         <configuration>
           <tiles>
-            <tile>io.ebean.tile:enhancement:2.1</tile>
+            <tile>io.ebean.tile:enhancement:4.3</tile>
           </tiles>
         </configuration>
       </plugin>
