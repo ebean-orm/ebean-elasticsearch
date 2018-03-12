@@ -1,13 +1,12 @@
 package io.ebeanservice.elastic.search.bean;
 
+import com.fasterxml.jackson.core.JsonParser;
 import io.ebean.bean.EntityBean;
 import io.ebean.plugin.BeanType;
 import io.ebean.plugin.ExpressionPath;
 import io.ebean.text.json.JsonBeanReader;
 import io.ebeaninternal.server.deploy.BeanPropertyAssocMany;
-import com.fasterxml.jackson.core.JsonParser;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -16,11 +15,11 @@ import java.util.Set;
 /**
  * Reads the source and fields from an ElasticSearch search result and populates beans.
  */
-public class BeanSourceReader<T> {
+class BeanSourceReader<T> {
 
   private final BeanType<T> desc;
 
-  private final List<T> beans = new ArrayList<T>();
+  private final List<T> beans = new ArrayList<>();
 
   private final boolean hasContext;
 
@@ -30,15 +29,14 @@ public class BeanSourceReader<T> {
 
   private JsonBeanReader<T> reader;
 
-  public BeanSourceReader(BeanType<T> desc, JsonBeanReader<T> reader, BeanPropertyAssocMany<?> lazyLoadMany) {
+  BeanSourceReader(BeanType<T> desc, JsonBeanReader<T> reader, BeanPropertyAssocMany<?> lazyLoadMany) {
     this.desc = desc;
     this.reader = reader;
     this.hasContext = reader.getPersistenceContext() != null;
     this.lazyLoadMany = lazyLoadMany;
   }
 
-  public void readSource(String id) throws IOException {
-
+  void readSource(String id) {
     currentBean = reader.read();
     desc.setBeanId(currentBean, id);
     beans.add(currentBean);

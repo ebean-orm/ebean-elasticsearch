@@ -100,7 +100,7 @@ public class QueryJoinTest extends BaseTest {
   @Test
   public void findEach_with_queryJoinToIndex() {
 
-    final List<Customer> collect = new ArrayList<Customer>();
+    final List<Customer> collect = new ArrayList<>();
 
     server.find(Customer.class)
         .setUseDocStore(true)

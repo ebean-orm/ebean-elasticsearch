@@ -22,7 +22,7 @@ public class BeanSearchParser<T> extends BaseSearchResultParser {
     this.listener = new BeanSourceReader<>(desc, reader, lazyLoadMany);
   }
 
-  public BeanSearchParser(JsonParser parser, BeanSearchParser<T> source) {
+  private BeanSearchParser(JsonParser parser, BeanSearchParser<T> source) {
     super(parser);
     this.listener = source.listener;
   }
@@ -60,7 +60,7 @@ public class BeanSearchParser<T> extends BaseSearchResultParser {
   /**
    * Read the source from the response.
    */
-  public void readSource() throws IOException {
+  public void readSource() {
     listener.readSource(id);
   }
 

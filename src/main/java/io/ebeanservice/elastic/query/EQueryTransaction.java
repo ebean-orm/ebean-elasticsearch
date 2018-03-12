@@ -1,5 +1,6 @@
 package io.ebeanservice.elastic.query;
 
+import io.ebean.ProfileLocation;
 import io.ebean.annotation.PersistBatch;
 import io.ebean.TransactionCallback;
 import io.ebean.annotation.DocStoreMode;
@@ -25,6 +26,10 @@ public class EQueryTransaction implements SpiTransaction {
 
   private Object tenantId;
 
+  private String label;
+
+  private ProfileLocation profileLocation;
+
   @Override
   public PersistenceException translate(String message, SQLException cause) {
     return new PersistenceException(message, cause);
@@ -43,6 +48,31 @@ public class EQueryTransaction implements SpiTransaction {
   @Override
   public long profileOffset() {
     return 0;
+  }
+
+  @Override
+  public String getLabel() {
+    return label;
+  }
+
+  @Override
+  public void setLabel(String label) {
+    this.label = label;
+  }
+
+  @Override
+  public void setProfileStream(ProfileStream profileStream) {
+
+  }
+
+  @Override
+  public void setProfileLocation(ProfileLocation profileLocation) {
+    this.profileLocation = profileLocation;
+  }
+
+  @Override
+  public ProfileLocation getProfileLocation() {
+    return profileLocation;
   }
 
   @Override
