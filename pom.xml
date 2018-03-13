@@ -4,7 +4,7 @@
 
   <groupId>io.ebean</groupId>
   <artifactId>ebean-elastic</artifactId>
-  <version>11.0.2-RC-SNAPSHOT</version>
+  <version>11.15.1-SNAPSHOT</version>
 
   <parent>
     <groupId>org.avaje</groupId>
@@ -36,7 +36,7 @@
     <dependency>
       <groupId>io.ebean</groupId>
       <artifactId>ebean</artifactId>
-      <version>11.15.1-SNAPSHOT</version>
+      <version>11.15.1</version>
     </dependency>
 
     <!-- Test Dependencies -->
