@@ -1,9 +1,9 @@
 package io.ebeanservice.elastic.query;
 
 import io.ebean.ProfileLocation;
-import io.ebean.annotation.PersistBatch;
 import io.ebean.TransactionCallback;
 import io.ebean.annotation.DocStoreMode;
+import io.ebean.annotation.PersistBatch;
 import io.ebean.bean.PersistenceContext;
 import io.ebean.event.changelog.BeanChange;
 import io.ebean.event.changelog.ChangeSet;
@@ -11,7 +11,6 @@ import io.ebeaninternal.api.SpiProfileTransactionEvent;
 import io.ebeaninternal.api.SpiTransaction;
 import io.ebeaninternal.api.TransactionEvent;
 import io.ebeaninternal.server.core.PersistDeferredRelationship;
-import io.ebeaninternal.server.core.PersistRequest;
 import io.ebeaninternal.server.core.PersistRequestBean;
 import io.ebeaninternal.server.persist.BatchControl;
 import io.ebeaninternal.server.transaction.ProfileStream;
@@ -108,6 +107,41 @@ public class EQueryTransaction implements SpiTransaction {
   @Override
   public void logSummary(String msg) {
 
+  }
+
+  @Override
+  public long getStartMillis() {
+    return 0;
+  }
+
+  @Override
+  public boolean isBatchThisRequest() {
+    return false;
+  }
+
+  @Override
+  public boolean isNestedUseSavepoint() {
+    return false;
+  }
+
+  @Override
+  public void setNestedUseSavepoint() {
+
+  }
+
+  @Override
+  public boolean isBatchMode() {
+    return false;
+  }
+
+  @Override
+  public void setBatchOnCascade(boolean batchMode) {
+
+  }
+
+  @Override
+  public boolean isBatchOnCascade() {
+    return false;
   }
 
   @Override
@@ -242,11 +276,6 @@ public class EQueryTransaction implements SpiTransaction {
 
   @Override
   public boolean isPersistCascade() {
-    return false;
-  }
-
-  @Override
-  public boolean isBatchThisRequest(PersistRequest.Type type) {
     return false;
   }
 

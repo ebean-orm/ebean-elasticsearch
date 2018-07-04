@@ -4,7 +4,7 @@
 
   <groupId>io.ebean</groupId>
   <artifactId>ebean-elastic</artifactId>
-  <version>11.15.3-SNAPSHOT</version>
+  <version>11.18.1-SNAPSHOT</version>
 
   <parent>
     <groupId>org.avaje</groupId>
@@ -16,7 +16,7 @@
     <developerConnection>scm:git:git@github.com:ebean-orm/ebean-elastic.git</developerConnection>
     <tag>HEAD</tag>
   </scm>
-  
+
   <dependencies>
 
     <!-- Http to ElasticSearch -->
@@ -36,7 +36,7 @@
     <dependency>
       <groupId>io.ebean</groupId>
       <artifactId>ebean</artifactId>
-      <version>11.15.3</version>
+      <version>11.18.1</version>
       <scope>provided</scope>
     </dependency>
 
@@ -46,7 +46,7 @@
     <dependency>
       <groupId>io.ebean.test</groupId>
       <artifactId>ebean-test-config</artifactId>
-      <version>11.15.2</version>
+      <version>11.18.2</version>
       <scope>test</scope>
     </dependency>
 
@@ -83,7 +83,7 @@
         <extensions>true</extensions>
         <configuration>
           <tiles>
-            <tile>io.ebean.tile:enhancement:5.5</tile>
+            <tile>io.ebean.tile:enhancement:5.6</tile>
           </tiles>
         </configuration>
       </plugin>

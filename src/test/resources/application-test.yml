@@ -1,0 +1,18 @@
+ebean:
+  test:
+#    useDocker: false
+#    shutdown: stop # stop | remove
+    platform: h2 # h2, postgres, mysql, oracle, sqlserver, sqlite
+    ddlMode: dropCreate # none | dropCreate | create | migration | createOnly | migrationDropCreate
+    dbName: myapp
+
+  docstore:
+    url: http://127.0.0.1:9201
+    active: true
+    generateMapping: true
+    dropCreate: true
+    pathToResources: src/test/resources
+
+    elastic:
+      version: 5.6.0
+      port: 9201
