@@ -3,7 +3,6 @@ package io.ebeanservice.elastic.query;
 import io.ebean.ProfileLocation;
 import io.ebean.TransactionCallback;
 import io.ebean.annotation.DocStoreMode;
-import io.ebean.annotation.PersistBatch;
 import io.ebean.bean.PersistenceContext;
 import io.ebean.event.changelog.BeanChange;
 import io.ebean.event.changelog.ChangeSet;
@@ -151,11 +150,6 @@ public class EQueryTransaction implements SpiTransaction {
 
   @Override
   public void registerDeleteBean(Integer hash) {
-
-  }
-
-  @Override
-  public void unregisterDeleteBean(Integer hash) {
 
   }
 
@@ -443,26 +437,6 @@ public class EQueryTransaction implements SpiTransaction {
   @Override
   public void setBatchMode(boolean useBatch) {
 
-  }
-
-  @Override
-  public void setBatch(PersistBatch persistBatchMode) {
-
-  }
-
-  @Override
-  public PersistBatch getBatch() {
-    return null;
-  }
-
-  @Override
-  public void setBatchOnCascade(PersistBatch batchOnCascadeMode) {
-
-  }
-
-  @Override
-  public PersistBatch getBatchOnCascade() {
-    return null;
   }
 
   @Override
