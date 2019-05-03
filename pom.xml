@@ -4,7 +4,7 @@
 
   <groupId>io.ebean</groupId>
   <artifactId>ebean-elastic</artifactId>
-  <version>11.37.2-SNAPSHOT</version>
+  <version>11.38.1-SNAPSHOT</version>
 
   <parent>
     <groupId>org.avaje</groupId>
@@ -36,7 +36,7 @@
     <dependency>
       <groupId>io.ebean</groupId>
       <artifactId>ebean</artifactId>
-      <version>11.37.1</version>
+      <version>11.38.1</version>
       <scope>provided</scope>
     </dependency>
 
@@ -53,7 +53,7 @@
     <dependency>
       <groupId>io.ebean.test</groupId>
       <artifactId>ebean-test-config</artifactId>
-      <version>11.37.1</version>
+      <version>11.38.1</version>
       <scope>test</scope>
     </dependency>
 
@@ -90,7 +90,7 @@
         <extensions>true</extensions>
         <configuration>
           <tiles>
-            <tile>io.ebean.tile:enhancement:11.37.1</tile>
+            <tile>io.ebean.tile:enhancement:11.38.1</tile>
           </tiles>
         </configuration>
       </plugin>
