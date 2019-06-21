@@ -4,7 +4,7 @@
 
   <groupId>io.ebean</groupId>
   <artifactId>ebean-elastic</artifactId>
-  <version>11.38.2-SNAPSHOT</version>
+  <version>11.39.1-SNAPSHOT</version>
 
   <parent>
     <groupId>org.avaje</groupId>
