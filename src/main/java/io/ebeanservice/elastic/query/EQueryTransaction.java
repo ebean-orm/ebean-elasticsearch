@@ -109,7 +109,7 @@ public class EQueryTransaction implements SpiTransaction {
   }
 
   @Override
-  public long getStartMillis() {
+  public long getStartNanoTime() {
     return 0;
   }
 
