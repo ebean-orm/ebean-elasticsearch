@@ -24,8 +24,7 @@ class OkClientBuilder {
       builder.authenticator((route, response) -> {
         String basicAuth = Credentials.basic(username, pwd);
         Request request = response.request();
-        request.newBuilder().addHeader("Authorization", basicAuth).build();
-        return request;
+        return request.newBuilder().addHeader("Authorization", basicAuth).build();
       });
     }
 
