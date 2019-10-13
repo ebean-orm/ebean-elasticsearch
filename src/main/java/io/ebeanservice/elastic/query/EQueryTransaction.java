@@ -159,8 +159,7 @@ public class EQueryTransaction implements SpiTransaction {
   }
 
   @Override
-  public void unregisterBean(Object bean) {
-
+  public void unregisterBeans() {
   }
 
   @Override
