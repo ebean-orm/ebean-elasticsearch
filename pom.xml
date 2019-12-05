@@ -8,8 +8,8 @@
 
   <parent>
     <groupId>org.avaje</groupId>
-    <artifactId>java8-parent</artifactId>
-    <version>1.4</version>
+    <artifactId>java8-oss</artifactId>
+    <version>2.1</version>
   </parent>
 
   <scm>
@@ -43,7 +43,7 @@
     <dependency>
       <groupId>com.fasterxml.jackson.core</groupId>
       <artifactId>jackson-databind</artifactId>
-      <version>2.9.9</version>
+      <version>2.10.1</version>
       <scope>provided</scope>
     </dependency>
 
@@ -53,7 +53,7 @@
     <dependency>
       <groupId>io.ebean</groupId>
       <artifactId>ebean-test</artifactId>
-      <version>12.1.1</version>
+      <version>12.1.5</version>
       <scope>test</scope>
     </dependency>
 
@@ -86,11 +86,11 @@
       <plugin>
         <groupId>io.repaint.maven</groupId>
         <artifactId>tiles-maven-plugin</artifactId>
-        <version>2.15</version>
+        <version>2.16</version>
         <extensions>true</extensions>
         <configuration>
           <tiles>
-            <tile>io.ebean.tile:enhancement:12.1.1</tile>
+            <tile>io.ebean.tile:enhancement:12.1.5</tile>
           </tiles>
         </configuration>
       </plugin>
