@@ -9,7 +9,6 @@ import javax.persistence.Entity;
 import javax.validation.constraints.Size;
 
 @DocStore(mapping = {
-    @DocMapping(name = "other", options = @DocProperty(enabled = false)),
     @DocMapping(name = "shortNotes",
         options = @DocProperty(boost = 1.5f, includeInAll = false,
             options = DocProperty.Option.POSITIONS, store = true,

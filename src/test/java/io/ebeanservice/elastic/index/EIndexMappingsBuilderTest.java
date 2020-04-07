@@ -26,10 +26,8 @@ public class EIndexMappingsBuilderTest {
 
     assertEquals(mappingJson, "{\n" +
         "  \"mappings\" : {\n" +
-        "    \"country\" : {\n" +
-        "      \"properties\" : {\n" +
-        "        \"name\": { \"type\": \"text\" }\n" +
-        "      }\n" +
+        "    \"properties\" : {\n" +
+        "      \"name\": { \"type\": \"text\" }\n" +
         "    }\n" +
         "  }\n" +
         "}");

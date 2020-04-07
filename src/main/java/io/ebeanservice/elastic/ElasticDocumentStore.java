@@ -177,13 +177,13 @@ public class ElasticDocumentStore implements DocumentStore {
   }
 
   @Override
-  public void findEach(String indexNameType, String rawQuery, Consumer<RawDoc> consumer) {
-    queryService.findEachRaw(indexNameType, rawQuery, consumer);
+  public void findEach(String indexName, String rawQuery, Consumer<RawDoc> consumer) {
+    queryService.findEachRaw(indexName, rawQuery, consumer);
   }
 
   @Override
-  public void findEachWhile(String indexNameType, String rawQuery, Predicate<RawDoc> consumer) {
-    queryService.findEachWhile(indexNameType, rawQuery, consumer);
+  public void findEachWhile(String indexName, String rawQuery, Predicate<RawDoc> consumer) {
+    queryService.findEachWhile(indexName, rawQuery, consumer);
   }
 
   @Override

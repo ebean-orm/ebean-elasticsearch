@@ -19,7 +19,7 @@ public class EQueryEach<T> extends EQuery<T> implements EConsumeWhile<T> {
 
   private final DocQueryRequest<T> request;
   private final EQuerySend send;
-  private final String nameType;
+  private final String indexName;
   private final String jsonQuery;
 
   private final Set<String> allScrollIds = new LinkedHashSet<>();
@@ -28,11 +28,11 @@ public class EQueryEach<T> extends EQuery<T> implements EConsumeWhile<T> {
 
   private String currentScrollId;
 
-  EQueryEach(DocQueryRequest<T> request, EQuerySend send, JsonContext jsonContext, String nameType, String jsonQuery) {
+  EQueryEach(DocQueryRequest<T> request, EQuerySend send, JsonContext jsonContext, String indexName, String jsonQuery) {
     super(request.getQuery(), jsonContext, request.createJsonReadOptions());
     this.send = send;
     this.request = request;
-    this.nameType = nameType;
+    this.indexName = indexName;
     this.jsonQuery = jsonQuery;
   }
 
@@ -54,7 +54,7 @@ public class EQueryEach<T> extends EQuery<T> implements EConsumeWhile<T> {
    * Perform the initial scroll query.
    */
   private List<T> fetchInitial() throws IOException {
-    JsonParser initialJson = send.findScroll(nameType, jsonQuery);
+    JsonParser initialJson = send.findScroll(indexName, jsonQuery);
     beanParser = createParser(initialJson);
     return read();
   }

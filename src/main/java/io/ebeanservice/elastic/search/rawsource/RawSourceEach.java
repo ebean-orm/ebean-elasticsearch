@@ -18,7 +18,7 @@ import java.util.function.Predicate;
 public class RawSourceEach implements EConsumeWhile<RawDoc> {
 
   private final EQuerySend send;
-  private final String nameType;
+  private final String indexName;
   private final String jsonQuery;
 
   private final Set<String> scrollIds = new LinkedHashSet<>();
@@ -29,14 +29,14 @@ public class RawSourceEach implements EConsumeWhile<RawDoc> {
 
   private String currentScrollId;
 
-  public RawSourceEach(EQuerySend send, String nameType, String jsonQuery) {
+  public RawSourceEach(EQuerySend send, String indexName, String jsonQuery) {
     this.send = send;
-    this.nameType = nameType;
+    this.indexName = indexName;
     this.jsonQuery = jsonQuery;
   }
 
   private List<RawDoc> fetchInitial() throws IOException {
-    return read(send.findScroll(nameType, jsonQuery));
+    return read(send.findScroll(indexName, jsonQuery));
   }
 
   private List<RawDoc> fetchNextScroll() throws IOException {

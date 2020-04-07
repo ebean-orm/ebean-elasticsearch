@@ -54,11 +54,11 @@ public class QueryMatchOptionTest extends BaseTest {
   @Test
   public void matchAllPhraseOptions() {
 
-    Match options = new Match().opAnd().phrase()
+    Match options = new Match().phrase()
         .analyzer("whitespace")
         .boost(2)
-        .cutoffFrequency(1)
-        .minShouldMatch("50%")
+        //.cutoffFrequency(1)
+        //.minShouldMatch("50%")
         .zeroTerms("all")
         .maxExpansions(3) // maxExpansions is for phrasePrefix only
         .phrase();
@@ -69,18 +69,18 @@ public class QueryMatchOptionTest extends BaseTest {
         .query();
 
     List<Customer> list = query.findList();
-    assertEquals(query.getGeneratedSql(), "{\"query\":{\"match\":{\"name\":{\"query\":\"Cust DoesNotExist\",\"operator\":\"and\",\"boost\":2.0,\"cutoff_frequency\":1.0,\"minimum_should_match\":\"50%\",\"zero_terms_query\":\"all\",\"analyzer\":\"whitespace\",\"type\":\"phrase\"}}}}");
+    assertEquals(query.getGeneratedSql(), "{\"query\":{\"match_phrase\":{\"name\":{\"query\":\"Cust DoesNotExist\",\"boost\":2.0,\"zero_terms_query\":\"all\",\"analyzer\":\"whitespace\"}}}}");
     assertThat(list).hasSize(0);
   }
 
   @Test
   public void matchAllPhrasePrefixOptions() {
 
-    Match options = new Match().opAnd().phrase()
+    Match options = new Match().phrase()
         .analyzer("whitespace")
         .boost(2)
-        .cutoffFrequency(1)
-        .minShouldMatch("50%")
+        //.cutoffFrequency(1)
+        //.minShouldMatch("50%")
         .maxExpansions(3)
         .phrasePrefix();
 
@@ -90,15 +90,14 @@ public class QueryMatchOptionTest extends BaseTest {
         .query();
 
     List<Customer> list = query.findList();
-    assertEquals(query.getGeneratedSql(), "{\"query\":{\"match\":{\"name\":{\"query\":\"Cust NoAdd\",\"operator\":\"and\",\"boost\":2.0,\"cutoff_frequency\":1.0,\"minimum_should_match\":\"50%\",\"analyzer\":\"whitespace\",\"type\":\"phrase_prefix\",\"max_expansions\":3}}}}");
+    assertEquals(query.getGeneratedSql(), "{\"query\":{\"match_phrase_prefix\":{\"name\":{\"query\":\"Cust NoAdd\",\"boost\":2.0,\"analyzer\":\"whitespace\",\"max_expansions\":3}}}}");
     assertThat(list).hasSize(0);
   }
 
   @Test
   public void matchPhrasePrefix() {
 
-    Match options = new Match().opAnd().phrase()
-        .phrasePrefix();
+    Match options = new Match().phrase().phrasePrefix();
 
     Query<Customer> query = server.find(Customer.class)
         .text()
@@ -106,7 +105,7 @@ public class QueryMatchOptionTest extends BaseTest {
         .query();
 
     List<Customer> list = query.findList();
-    assertEquals(query.getGeneratedSql(), "{\"query\":{\"match\":{\"name\":{\"query\":\"Cust NoAdd\",\"operator\":\"and\",\"type\":\"phrase_prefix\"}}}}");
+    assertEquals(query.getGeneratedSql(), "{\"query\":{\"match_phrase_prefix\":{\"name\":{\"query\":\"Cust NoAdd\"}}}}");
     assertThat(list).hasSize(1);
   }
 }

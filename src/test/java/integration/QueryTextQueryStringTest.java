@@ -49,11 +49,11 @@ public class QueryTextQueryStringTest extends BaseTest {
 
     Query<Customer> query = server.find(Customer.class)
         .text()
-        .textQueryString("+Cust +New", options)
+        .textQueryString("+Cust +NoAddress", options)
         .query();
 
     List<Customer> list = query.findList();
-    assertEquals(query.getGeneratedSql(), "{\"query\":{\"query_string\":{\"query\":\"+Cust +New\"}}}");
+    assertEquals(query.getGeneratedSql(), "{\"query\":{\"query_string\":{\"query\":\"+Cust +NoAddress\"}}}");
     assertThat(list).hasSize(1);
   }
 
@@ -64,12 +64,12 @@ public class QueryTextQueryStringTest extends BaseTest {
 
     Query<Customer> query = server.find(Customer.class)
         .text()
-        .textQueryString("+Cust -New", options)
+        .textQueryString("+Cust -NoAddress", options)
         .query();
 
     List<Customer> list = query.findList();
-    assertEquals(query.getGeneratedSql(), "{\"query\":{\"query_string\":{\"query\":\"+Cust -New\"}}}");
     assertThat(list).hasSize(0);
+    assertEquals(query.getGeneratedSql(), "{\"query\":{\"query_string\":{\"query\":\"+Cust -NoAddress\"}}}");
   }
 
 
@@ -88,7 +88,6 @@ public class QueryTextQueryStringTest extends BaseTest {
         .fuzzyMaxExpansions(10)
         .fuzzyPrefixLength(3)
         .lenient(true)
-        .locale("EN")
         .lowercaseExpandedTerms(false)
         .minShouldMatch("1")
         .timeZone("UTC")
@@ -101,7 +100,7 @@ public class QueryTextQueryStringTest extends BaseTest {
 
 
     List<Customer> list = query.findList();
-    assertEquals(query.getGeneratedSql(), "{\"query\":{\"query_string\":{\"query\":\"brown\",\"default_field\":\"name\",\"default_operator\":\"and\",\"analyzer\":\"whitespace\",\"allow_leading_wildcard\":false,\"lowercase_expanded_terms\":false,\"fuzzy_max_expansions\":10,\"fuzziness\":\"1\",\"fuzzy_prefix_length\":3,\"phrase_slop\":0.5,\"boost\":2.0,\"analyze_wildcard\":true,\"auto_generate_phrase_queries\":true,\"minimum_should_match\":\"1\",\"lenient\":true,\"locale\":\"EN\",\"time_zone\":\"UTC\"}}}");
+    assertThat(query.getGeneratedSql()).isEqualTo("{\"query\":{\"query_string\":{\"query\":\"brown\",\"default_field\":\"name\",\"default_operator\":\"and\",\"analyzer\":\"whitespace\",\"allow_leading_wildcard\":false,\"fuzzy_max_expansions\":10,\"fuzziness\":\"1\",\"fuzzy_prefix_length\":3,\"phrase_slop\":0.5,\"boost\":2.0,\"analyze_wildcard\":true,\"minimum_should_match\":\"1\",\"lenient\":true,\"time_zone\":\"UTC\"}}}");
     assertThat(list).hasSize(0);
   }
 

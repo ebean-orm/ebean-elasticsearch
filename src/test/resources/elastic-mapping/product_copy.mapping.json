@@ -1,13 +1,11 @@
 {
   "mappings" : {
-    "product" : {
-      "properties" : {
-        "sku": { "type": "text", "fields": { "raw": { "type": "keyword" } } },
-        "name": { "type": "text", "fields": { "raw": { "type": "keyword" } } },
-        "whenCreated": { "type": "date" },
-        "whenModified": { "type": "date" },
-        "version": { "type": "long" }
-      }
+    "properties" : {
+      "sku": { "type": "text", "fields": { "raw": { "type": "keyword" } } },
+      "name": { "type": "text", "fields": { "raw": { "type": "keyword" } } },
+      "whenCreated": { "type": "date" },
+      "whenModified": { "type": "date" },
+      "version": { "type": "long" }
     }
   }
 }

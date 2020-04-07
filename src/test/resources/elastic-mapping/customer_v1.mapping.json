@@ -1,49 +1,47 @@
 {
   "mappings" : {
-    "customer" : {
-      "properties" : {
-        "status": { "type": "keyword" },
-        "name": { "type": "text", "fields": { "raw": { "type": "keyword" } } },
-        "smallNote": { "type": "text" },
-        "anniversary": { "type": "date" },
-        "billingAddress" : {
-          "properties" : {
-            "id": { "type": "long" },
-            "line1": { "type": "text" },
-            "line2": { "type": "text" },
-            "city": { "type": "text" },
-            "country" : {
-              "properties" : {
-                "code": { "type": "keyword" },
-                "name": { "type": "text" }
-              }
-            },
-            "whenCreated": { "type": "date" },
-            "whenModified": { "type": "date" },
-            "version": { "type": "long" }
-          }
-        },
-        "shippingAddress" : {
-          "properties" : {
-            "id": { "type": "long" },
-            "line1": { "type": "text" },
-            "line2": { "type": "text" },
-            "city": { "type": "text" },
-            "country" : {
-              "properties" : {
-                "code": { "type": "keyword" },
-                "name": { "type": "text" }
-              }
-            },
-            "whenCreated": { "type": "date" },
-            "whenModified": { "type": "date" },
-            "version": { "type": "long" }
-          }
-        },
-        "whenCreated": { "type": "date" },
-        "whenModified": { "type": "date" },
-        "version": { "type": "long" }
-      }
+    "properties" : {
+      "status": { "type": "keyword" },
+      "name": { "type": "text", "fields": { "raw": { "type": "keyword" } } },
+      "smallNote": { "type": "text" },
+      "anniversary": { "type": "date" },
+      "billingAddress" : {
+        "properties" : {
+          "id": { "type": "long" },
+          "line1": { "type": "text" },
+          "line2": { "type": "text" },
+          "city": { "type": "text" },
+          "country" : {
+            "properties" : {
+              "code": { "type": "keyword" },
+              "name": { "type": "text" }
+            }
+          },
+          "whenCreated": { "type": "date" },
+          "whenModified": { "type": "date" },
+          "version": { "type": "long" }
+        }
+      },
+      "shippingAddress" : {
+        "properties" : {
+          "id": { "type": "long" },
+          "line1": { "type": "text" },
+          "line2": { "type": "text" },
+          "city": { "type": "text" },
+          "country" : {
+            "properties" : {
+              "code": { "type": "keyword" },
+              "name": { "type": "text" }
+            }
+          },
+          "whenCreated": { "type": "date" },
+          "whenModified": { "type": "date" },
+          "version": { "type": "long" }
+        }
+      },
+      "whenCreated": { "type": "date" },
+      "whenModified": { "type": "date" },
+      "version": { "type": "long" }
     }
   }
 }

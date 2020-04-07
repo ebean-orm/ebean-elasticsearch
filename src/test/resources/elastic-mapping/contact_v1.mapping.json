@@ -1,25 +1,23 @@
 {
   "mappings" : {
-    "contact" : {
-      "properties" : {
-        "uids": { "type": "keyword" },
-        "someLongs": { "type": "long" },
-        "someTags": { "type": "text" },
-        "firstName": { "type": "text", "store": true },
-        "lastName": { "type": "text", "store": true, "fields": { "raw": { "type": "keyword" } } },
-        "phone": { "type": "text" },
-        "mobile": { "type": "text" },
-        "email": { "type": "text" },
-        "customer" : {
-          "properties" : {
-            "id": { "type": "long" },
-            "name": { "type": "text", "fields": { "raw": { "type": "keyword" } } }
-          }
-        },
-        "whenCreated": { "type": "date" },
-        "whenModified": { "type": "date" },
-        "version": { "type": "long" }
-      }
+    "properties" : {
+      "uids": { "type": "keyword" },
+      "someLongs": { "type": "long" },
+      "someTags": { "type": "text" },
+      "firstName": { "type": "text", "store": true },
+      "lastName": { "type": "text", "store": true, "fields": { "raw": { "type": "keyword" } } },
+      "phone": { "type": "text" },
+      "mobile": { "type": "text" },
+      "email": { "type": "text" },
+      "customer" : {
+        "properties" : {
+          "id": { "type": "long" },
+          "name": { "type": "text", "fields": { "raw": { "type": "keyword" } } }
+        }
+      },
+      "whenCreated": { "type": "date" },
+      "whenModified": { "type": "date" },
+      "version": { "type": "long" }
     }
   }
 }

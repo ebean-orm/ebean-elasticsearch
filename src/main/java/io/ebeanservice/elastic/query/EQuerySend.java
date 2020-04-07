@@ -30,20 +30,20 @@ public class EQuerySend {
   /**
    * Execute as find hits returning the resulting JSON response.
    */
-  JsonParser findHits(String indexNameType, String jsonQuery) throws IOException {
-    return findInternal(false, indexNameType, jsonQuery);
+  JsonParser findHits(String indexName, String jsonQuery) throws IOException {
+    return findInternal(false, indexName, jsonQuery);
   }
 
   /**
    * Execute as find scroll returning the resulting JSON response.
    */
-  public JsonParser findScroll(String indexNameType, String jsonQuery) throws IOException {
-    return findInternal(true, indexNameType, jsonQuery);
+  public JsonParser findScroll(String indexName, String jsonQuery) throws IOException {
+    return findInternal(true, indexName, jsonQuery);
   }
 
-  private JsonParser findInternal(boolean scroll, String indexNameType, String jsonQuery) throws IOException {
+  private JsonParser findInternal(boolean scroll, String indexName, String jsonQuery) throws IOException {
 
-    IndexMessageResponse response = messageSender.postQuery(scroll, indexNameType, jsonQuery);
+    IndexMessageResponse response = messageSender.postQuery(scroll, indexName, jsonQuery);
     switch (response.getCode()) {
       case 404:
         throw new DocumentNotFoundException("404 for query?");

@@ -34,7 +34,7 @@ public class RawSourceReader extends BaseSearchResultParser {
   @Override
   public void readSource() throws IOException {
     Map<String, Object> source = EJson.parseObject(parser);
-    list.add(new RawDoc(source, id, score, index, type));
+    list.add(new RawDoc(source, id, score, index, null));
   }
 
   @Override
@@ -44,7 +44,7 @@ public class RawSourceReader extends BaseSearchResultParser {
 
   @Override
   public void readIdOnly() {
-    list.add(new RawDoc(null, id, score, index, type));
+    list.add(new RawDoc(null, id, score, index, null));
   }
 
   public List<RawDoc> read() throws IOException {

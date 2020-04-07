@@ -1,17 +1,15 @@
 {
   "mappings" : {
-    "content" : {
-      "properties" : {
-        "status": { "type": "keyword", "store": true },
-        "title": { "type": "text" },
-        "author": { "type": "text", "store": true, "boost": 2.0, "fields": { "raw": { "type": "keyword" } } },
-        "content": { "type": "text" },
-        "shortNotes": { "type": "text", "index_options": "positions", "include_in_all": false, "norms": { "enabled": false }, "store": true, "boost": 1.5, "copy_to": "other", "analyzer": "english", "search_analyzer": "english" },
-        "other": { "enabled": false },
-        "whenCreated": { "type": "date" },
-        "whenModified": { "type": "date" },
-        "version": { "type": "long" }
-      }
+    "properties" : {
+      "status": { "type": "keyword", "store": true },
+      "title": { "type": "text" },
+      "author": { "type": "text", "store": true, "boost": 2.0, "fields": { "raw": { "type": "keyword" } } },
+      "content": { "type": "text" },
+      "shortNotes": { "type": "text", "index_options": "positions", "norms": false, "store": true, "boost": 1.5, "copy_to": "other", "analyzer": "english", "search_analyzer": "english" },
+      "other": { "type": "text" },
+      "whenCreated": { "type": "date" },
+      "whenModified": { "type": "date" },
+      "version": { "type": "long" }
     }
   }
 }

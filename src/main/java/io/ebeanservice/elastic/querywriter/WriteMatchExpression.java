@@ -27,9 +27,16 @@ class WriteMatchExpression extends WriteBase {
    * Write the match expression.
    */
   void writeMatch(JsonGenerator json, String propertyName, String value, Match options) throws IOException {
-
     json.writeStartObject();
-    json.writeObjectFieldStart(MATCH);
+    if (options == null) {
+      json.writeObjectFieldStart("match");
+    } else if (options.isPhrasePrefix()) {
+      json.writeObjectFieldStart("match_phrase_prefix");
+    } else if (options.isPhrase()) {
+      json.writeObjectFieldStart("match_phrase");
+    } else {
+      json.writeObjectFieldStart("match");
+    }
     json.writeFieldName(propertyName);
     if (options == null) {
       jsonContext.writeScalar(json, value);
@@ -39,11 +46,7 @@ class WriteMatchExpression extends WriteBase {
       jsonContext.writeScalar(json, value);
       writeBaseOptions(json, options);
       if (options.isPhrasePrefix()) {
-        json.writeStringField("type", "phrase_prefix");
         writeMaxExpansions(json, options.getMaxExpansions());
-
-      } else if (options.isPhrase()) {
-        json.writeStringField("type", "phrase");
       }
       json.writeEndObject();
     }

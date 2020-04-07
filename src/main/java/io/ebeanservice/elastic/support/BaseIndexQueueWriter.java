@@ -45,7 +45,7 @@ public class BaseIndexQueueWriter implements IndexQueueWriter {
       return;
     }
 
-    SqlUpdate sqlUpdate = server.createSqlUpdate(sql);
+    SqlUpdate sqlUpdate = server.sqlUpdate(sql);
     Transaction transaction = server.createTransaction();
     try {
       transaction.setBatchSize(100);

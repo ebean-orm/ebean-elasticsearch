@@ -62,14 +62,12 @@ public class EIndexMappingsBuilder {
       }
 
       gen.writeObjectFieldStart("mappings");
-      gen.writeObjectFieldStart(docMapping.getType());
       gen.writeObjectFieldStart("properties");
 
       IndexVisitor visitor = new IndexVisitor(gen, typeMapping);
 
       docMapping.visit(visitor);
 
-      gen.writeEndObject();
       gen.writeEndObject();
       gen.writeEndObject();
       gen.writeEndObject();
@@ -114,13 +112,8 @@ public class EIndexMappingsBuilder {
             if (options.isOptionsSet()) {
               gen.writeStringField("index_options", options.getOptions().name().toLowerCase());
             }
-            if (isFalse(options.getIncludeInAll())) {
-              gen.writeBooleanField("include_in_all", false);
-            }
             if (isFalse(options.getNorms())) {
-              gen.writeObjectFieldStart("norms");
-              gen.writeBooleanField("enabled", false);
-              gen.writeEndObject();
+              gen.writeBooleanField("norms", false);
             }
             if (isFalse(options.getDocValues())) {
               gen.writeBooleanField("docValues", false);

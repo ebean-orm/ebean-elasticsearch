@@ -1,21 +1,19 @@
 {
   "mappings" : {
-    "vehicle" : {
-      "properties" : {
-        "dtype": { "type": "keyword" },
-        "licenseNumber": { "type": "keyword" },
-        "registrationDate": { "type": "date" },
-        "whenCreated": { "type": "date" },
-        "whenModified": { "type": "date" },
-        "version": { "type": "long" },
-        "driver": { "type": "text", "fields": { "raw": { "type": "keyword" } } },
-        "notes": { "type": "text" },
-        "capacity": { "type": "double" },
-        "truckRef" : {
-          "properties" : {
-            "id": { "type": "integer" },
-            "something": { "type": "text" }
-          }
+    "properties" : {
+      "dtype": { "type": "keyword" },
+      "licenseNumber": { "type": "keyword" },
+      "registrationDate": { "type": "date" },
+      "whenCreated": { "type": "date" },
+      "whenModified": { "type": "date" },
+      "version": { "type": "long" },
+      "driver": { "type": "text", "fields": { "raw": { "type": "keyword" } } },
+      "notes": { "type": "text" },
+      "capacity": { "type": "double" },
+      "truckRef" : {
+        "properties" : {
+          "id": { "type": "integer" },
+          "something": { "type": "text" }
         }
       }
     }

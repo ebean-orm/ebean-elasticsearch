@@ -95,7 +95,7 @@ public class EQueryService {
   private <T> BeanSearchParser<T> findHits(SpiQuery<T> query, JsonReadOptions readOptions) {
 
     try {
-      JsonParser json = send.findHits(indexNameType(query), asJson(query));
+      JsonParser json = send.findHits(indexName(query), asJson(query));
       return createBeanParser(query, json, readOptions);
 
     } catch (IOException e) {
@@ -134,9 +134,9 @@ public class EQueryService {
 
   private <T> EQueryEach<T> createQueryEach(DocQueryRequest<T> request) {
     SpiQuery<T> query = request.getQuery();
-    String nameType = indexNameType(query);
+    String indexName = indexName(query);
     String jsonQuery = asJson(query);
-    return new EQueryEach<>(request, send, jsonContext, nameType, jsonQuery);
+    return new EQueryEach<>(request, send, jsonContext, indexName, jsonQuery);
   }
 
   /**
@@ -163,9 +163,9 @@ public class EQueryService {
    */
   private <T> T findById(BeanType<T> desc, Object id, JsonReadOptions options) {
 
-    BeanDocType beanDocType = desc.docStore();
+    BeanDocType<T> beanDocType = desc.docStore();
     try {
-      JsonParser parser = send.findById(indexNameAndType(beanDocType), id);
+      JsonParser parser = send.findById(beanDocType.getIndexName(), id);
 
       JsonBeanReader<T> reader = new EQuery<>(desc, jsonContext, options).createReader(parser);
       T bean = reader.read();
@@ -186,7 +186,7 @@ public class EQueryService {
   /**
    * Execute copyIndexSince which does a raw index to index copy.
    */
-  public long copyIndexSince(BeanType<?> desc, String newIndex, BulkUpdate txn, long epochMillis) throws IOException {
+  public long copyIndexSince(BeanType<?> desc, String newIndex, BulkUpdate txn, long epochMillis) {
 
     SpiQuery<?> query = (SpiQuery<?>) server.createQuery(desc.getBeanType());
     if (epochMillis > 0) {
@@ -202,7 +202,7 @@ public class EQueryService {
   /**
    * Execute copyIndexSince which does a raw index to index copy.
    */
-  public long copyIndexSince(SpiQuery<?> query, String newIndex, BulkUpdate txn) throws IOException {
+  public long copyIndexSince(SpiQuery<?> query, String newIndex, BulkUpdate txn) {
 
     int maxRows = query.getMaxRows();
     if (maxRows == 0) {
@@ -219,8 +219,8 @@ public class EQueryService {
   /**
    * Execute raw find each query.
    */
-  public void findEachRaw(String indexNameType, String rawQuery, Consumer<RawDoc> consumer) {
-    processEach(consumer, indexNameType, rawQuery);
+  public void findEachRaw(String indexName, String rawQuery, Consumer<RawDoc> consumer) {
+    processEach(consumer, indexName, rawQuery);
   }
 
   /**
@@ -232,11 +232,11 @@ public class EQueryService {
 
   private <T> long findEachRawSource(Query<T> query, Consumer<RawDoc> consumer) {
     SpiQuery<T> spiQuery = (SpiQuery<T>) query;
-    return processEach(consumer, indexNameType(spiQuery), asJson(spiQuery));
+    return processEach(consumer, indexName(spiQuery), asJson(spiQuery));
   }
 
-  private long processEach(Consumer<RawDoc> consumer, String nameType, String jsonQuery) {
-    RawSourceEach each = new RawSourceEach(send, nameType, jsonQuery);
+  private long processEach(Consumer<RawDoc> consumer, String indexName, String jsonQuery) {
+    RawSourceEach each = new RawSourceEach(send, indexName, jsonQuery);
     try {
       if (each.consumeInitial(consumer)) {
         while (each.consumeNext(consumer)) {
@@ -284,20 +284,12 @@ public class EQueryService {
     return ElasticDocQueryContext.asJson(elasticJsonContext, query);
   }
 
-  private String indexNameType(BeanDocType type) {
-    return type.getIndexName();// + "/" + type.getIndexType();
-  }
-
-  private String indexNameAndType(BeanDocType type) {
-    return type.getIndexName() + "/" + type.getIndexType();
-  }
-
-  private String indexNameType(SpiQuery<?> query) {
+  private String indexName(SpiQuery<?> query) {
     String docIndexName = query.getDocIndexName();
     if (docIndexName != null) {
       return docIndexName;
     } else {
-      return indexNameType(query.getBeanDescriptor().docStore());
+      return query.getBeanDescriptor().docStore().getIndexName();
     }
   }
 }

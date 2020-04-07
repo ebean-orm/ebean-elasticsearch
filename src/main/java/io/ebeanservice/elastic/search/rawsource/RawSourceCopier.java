@@ -49,7 +49,6 @@ public class RawSourceCopier implements Consumer<RawDoc> {
     gen.writeFieldName("index");
     gen.writeStartObject();
     gen.writeStringField("_id", idValue.toString());
-    gen.writeStringField("_type", targetIndexType);
     gen.writeStringField("_index", targetIndexName);
     gen.writeEndObject();
     gen.writeEndObject();

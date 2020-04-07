@@ -151,6 +151,8 @@ public abstract class BaseSearchResultParser {
       type = readString();
     } else if ("_id".equals(field)) {
       id = readString();
+//    } else if ("_type".equals(field)) {
+//      readString();
     } else if ("_score".equals(field)) {
       score = readDouble();
     } else if ("fields".equals(field)) {
@@ -171,7 +173,7 @@ public abstract class BaseSearchResultParser {
    */
   protected void readLevel1() throws IOException {
     if ("total".equals(field)) {
-      total = readLong();
+      total = readTotal();
     } else if ("max_score".equals(field)) {
       maxScore = readDouble();
     } else if ("hits".equals(field)) {
@@ -182,6 +184,12 @@ public abstract class BaseSearchResultParser {
     } else {
       throw new IllegalStateException("Unrecognized field at level 1: '" + field + "'!");
     }
+  }
+
+  protected long readTotal() throws IOException {
+    final Map<String, Object> totalObj = EJson.parseObject(parser);
+    final Long value = (Long)totalObj.get("value");
+    return (value == null) ? 0 : value;
   }
 
   /**
