@@ -449,6 +449,11 @@ public class EQueryTransaction implements SpiTransaction {
   }
 
   @Override
+  public boolean isSkipCacheExplicit() {
+    return false;
+  }
+
+  @Override
   public boolean isSkipCache() {
     return false;
   }

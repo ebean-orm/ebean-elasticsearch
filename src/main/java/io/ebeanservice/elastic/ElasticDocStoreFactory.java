@@ -1,10 +1,11 @@
 package io.ebeanservice.elastic;
 
+import com.fasterxml.jackson.core.JsonFactory;
 import io.ebean.DocumentStore;
+import io.ebean.config.DatabaseConfig;
 import io.ebean.config.DocStoreConfig;
-import io.ebean.config.ServerConfig;
-import io.ebean.plugin.SpiServer;
 import io.ebean.plugin.Plugin;
+import io.ebean.plugin.SpiServer;
 import io.ebeaninternal.server.deploy.BeanDescriptor;
 import io.ebeaninternal.server.deploy.meta.DeployBeanDescriptor;
 import io.ebeanservice.docstore.api.DocStoreBeanAdapter;
@@ -15,7 +16,6 @@ import io.ebeanservice.elastic.support.BaseHttpMessageSender;
 import io.ebeanservice.elastic.support.BaseIndexQueueWriter;
 import io.ebeanservice.elastic.support.IndexMessageSender;
 import io.ebeanservice.elastic.support.IndexQueueWriter;
-import com.fasterxml.jackson.core.JsonFactory;
 
 /**
  * Factory that creates the document store integration components.
@@ -30,20 +30,16 @@ public class ElasticDocStoreFactory implements DocStoreFactory {
   @Override
   public DocStoreIntegration create(SpiServer server) {
 
-    ServerConfig serverConfig = server.getServerConfig();
-
-    Object objectMapper = serverConfig.getObjectMapper();
-
-    DocStoreConfig docStoreConfig = serverConfig.getDocStoreConfig();
+    DatabaseConfig config = server.getServerConfig();
+    Object objectMapper = config.getObjectMapper();
+    DocStoreConfig docStoreConfig = config.getDocStoreConfig();
 
     JsonFactory jsonFactory = new JsonFactory();
     IndexQueueWriter indexQueueWriter = new BaseIndexQueueWriter(server, "eb_elastic_queue");
     IndexMessageSender messageSender = new BaseHttpMessageSender(docStoreConfig);
 
     ElasticUpdateProcessor updateProcessor = new ElasticUpdateProcessor(server, indexQueueWriter, jsonFactory, objectMapper, messageSender, docStoreConfig.getBulkBatchSize());
-
     ElasticDocumentStore docStore = new ElasticDocumentStore(server, updateProcessor, messageSender, jsonFactory);
-
     return new Components(updateProcessor, docStore);
   }
 

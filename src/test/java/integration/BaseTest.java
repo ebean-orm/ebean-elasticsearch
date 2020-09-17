@@ -12,7 +12,7 @@ public abstract class BaseTest {
 
   public static DocumentStore docStore = server.docStore();
 
-  public void sleepToPropagate() {
+  public static void sleepToPropagate() {
     try {
       Thread.sleep(1100);
     } catch (InterruptedException e) {

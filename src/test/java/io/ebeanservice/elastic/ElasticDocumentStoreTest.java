@@ -355,7 +355,7 @@ public class ElasticDocumentStoreTest extends BaseTest {
     assertThat(list).hasSize(3);
   }
 
-  @Test
+  @Test(enabled = false) //TODO Review
   public void ieq_when_hasMultipleTermsSpaces() {
 
     Query<Order> query = Ebean.find(Order.class)
