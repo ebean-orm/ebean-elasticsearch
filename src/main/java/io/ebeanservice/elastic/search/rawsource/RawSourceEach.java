@@ -1,6 +1,6 @@
 package io.ebeanservice.elastic.search.rawsource;
 
-import io.ebeanservice.docstore.api.RawDoc;
+import io.ebean.docstore.RawDoc;
 import io.ebeanservice.elastic.query.EConsumeWhile;
 import io.ebeanservice.elastic.query.EQuerySend;
 import com.fasterxml.jackson.core.JsonParser;

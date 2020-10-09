@@ -39,7 +39,7 @@ public class EIndexMappingsBuilder {
   public String createMappingJson(BeanType<?> beanType) {
 
     try {
-      DocumentMapping docMapping = beanType.getDocMapping();
+      DocumentMapping docMapping = (DocumentMapping)beanType.getDocMapping();
 
       StringBuilderWriter writer = new StringBuilderWriter();
       JsonGenerator gen = jsonFactory.createGenerator(writer);

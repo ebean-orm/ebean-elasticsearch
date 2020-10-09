@@ -5,6 +5,8 @@ import com.fasterxml.jackson.core.JsonParser;
 import io.ebean.PagedList;
 import io.ebean.PersistenceIOException;
 import io.ebean.Query;
+import io.ebean.docstore.DocQueryContext;
+import io.ebean.docstore.RawDoc;
 import io.ebean.plugin.BeanDocType;
 import io.ebean.plugin.BeanType;
 import io.ebean.plugin.Property;
@@ -16,7 +18,6 @@ import io.ebeaninternal.api.SpiQuery;
 import io.ebeaninternal.api.SpiTransaction;
 import io.ebeanservice.docstore.api.DocQueryRequest;
 import io.ebeanservice.docstore.api.DocumentNotFoundException;
-import io.ebeanservice.docstore.api.RawDoc;
 import io.ebeanservice.elastic.bulk.BulkUpdate;
 import io.ebeanservice.elastic.querywriter.ElasticDocQueryContext;
 import io.ebeanservice.elastic.querywriter.ElasticJsonContext;
@@ -55,11 +56,15 @@ public class EQueryService {
     this.elasticJsonContext = new ElasticJsonContext(jsonContext);
   }
 
+  private <T> DocQueryRequest<T> asRequest(DocQueryContext<T> req) {
+    return (DocQueryRequest<T>)req;
+  }
+
   /**
    * Execute the query returning a PagedList of hits.
    */
-  public <T> PagedList<T> findPagedList(DocQueryRequest<T> request) {
-
+  public <T> PagedList<T> findPagedList(DocQueryContext<T> req) {
+    DocQueryRequest<T> request = asRequest(req);
     SpiQuery<T> query = request.getQuery();
     int firstRow = query.getFirstRow();
     int maxRows = query.getMaxRows();
@@ -79,8 +84,8 @@ public class EQueryService {
   /**
    * Execute the findList query request.
    */
-  public <T> List<T> findList(DocQueryRequest<T> request) {
-
+  public <T> List<T> findList(DocQueryContext<T> req) {
+    DocQueryRequest<T> request = asRequest(req);
     BeanSearchParser<T> parser = findHits(request.getQuery(), request.createJsonReadOptions());
     try {
       List<T> list = parser.read();
@@ -106,15 +111,14 @@ public class EQueryService {
   /**
    * Execute the findEachWhile query request.
    */
-  public <T> void findEachWhile(DocQueryRequest<T> request, Predicate<T> consumer) {
+  public <T> void findEachWhile(DocQueryContext<T> request, Predicate<T> consumer) {
     processEachWhile(consumer, createQueryEach(request));
   }
 
   /**
    * Execute the findEach query request.
    */
-  public <T> void findEach(DocQueryRequest<T> request, Consumer<T> consumer) {
-
+  public <T> void findEach(DocQueryContext<T> request, Consumer<T> consumer) {
     EQueryEach<T> each = createQueryEach(request);
     try {
       if (each.consumeInitial(consumer)) {
@@ -132,7 +136,8 @@ public class EQueryService {
     }
   }
 
-  private <T> EQueryEach<T> createQueryEach(DocQueryRequest<T> request) {
+  private <T> EQueryEach<T> createQueryEach(DocQueryContext<T> req) {
+    DocQueryRequest<T> request = asRequest(req);
     SpiQuery<T> query = request.getQuery();
     String indexName = indexName(query);
     String jsonQuery = asJson(query);
@@ -142,10 +147,9 @@ public class EQueryService {
   /**
    * Execute the find by id query request.
    */
-  public <T> T findById(DocQueryRequest<T> request) {
-
+  public <T> T findById(DocQueryContext<T> req) {
+    DocQueryRequest<T> request = asRequest(req);
     SpiQuery<T> query = request.getQuery();
-
     SpiTransaction transaction = request.getTransaction();
     if (transaction == null) {
       transaction = new EQueryTransaction();

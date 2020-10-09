@@ -2,7 +2,7 @@ package io.ebeanservice.elastic.search.rawsource;
 
 import io.ebean.PersistenceIOException;
 import io.ebean.text.json.EJson;
-import io.ebeanservice.docstore.api.RawDoc;
+import io.ebean.docstore.RawDoc;
 import io.ebeanservice.elastic.bulk.BulkUpdate;
 import com.fasterxml.jackson.core.JsonGenerator;
 

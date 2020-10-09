@@ -1,6 +1,6 @@
 package integration;
 
-import io.ebeanservice.docstore.api.RawDoc;
+import io.ebean.docstore.RawDoc;
 import org.testng.annotations.Test;
 
 import java.util.ArrayList;

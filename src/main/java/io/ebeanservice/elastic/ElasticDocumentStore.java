@@ -1,22 +1,22 @@
 package io.ebeanservice.elastic;
 
+import com.fasterxml.jackson.core.JsonFactory;
 import io.ebean.DocStoreQueueEntry;
 import io.ebean.DocumentStore;
 import io.ebean.PagedList;
 import io.ebean.PersistenceIOException;
 import io.ebean.Query;
 import io.ebean.config.DocStoreConfig;
+import io.ebean.docstore.DocQueryContext;
+import io.ebean.docstore.RawDoc;
 import io.ebean.plugin.BeanType;
 import io.ebean.plugin.SpiServer;
 import io.ebeaninternal.api.SpiQuery;
-import io.ebeanservice.docstore.api.DocQueryRequest;
 import io.ebeanservice.docstore.api.DocStoreQueryUpdate;
-import io.ebeanservice.docstore.api.RawDoc;
 import io.ebeanservice.elastic.bulk.BulkUpdate;
 import io.ebeanservice.elastic.index.EIndexService;
 import io.ebeanservice.elastic.query.EQueryService;
 import io.ebeanservice.elastic.support.IndexMessageSender;
-import com.fasterxml.jackson.core.JsonFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -167,12 +167,12 @@ public class ElasticDocumentStore implements DocumentStore {
   }
 
   @Override
-  public <T> void findEach(DocQueryRequest<T> request, Consumer<T> consumer) {
+  public <T> void findEach(DocQueryContext<T> request, Consumer<T> consumer) {
     queryService.findEach(request, consumer);
   }
 
   @Override
-  public <T> void findEachWhile(DocQueryRequest<T> request, Predicate<T> consumer) {
+  public <T> void findEachWhile(DocQueryContext<T> request, Predicate<T> consumer) {
     queryService.findEachWhile(request, consumer);
   }
 
@@ -187,17 +187,17 @@ public class ElasticDocumentStore implements DocumentStore {
   }
 
   @Override
-  public <T> List<T> findList(DocQueryRequest<T> request) {
+  public <T> List<T> findList(DocQueryContext<T> request) {
     return queryService.findList(request);
   }
 
   @Override
-  public <T> PagedList<T> findPagedList(DocQueryRequest<T> request) {
+  public <T> PagedList<T> findPagedList(DocQueryContext<T> request) {
     return queryService.findPagedList(request);
   }
 
   @Override
-  public <T> T find(DocQueryRequest<T> request) {
+  public <T> T find(DocQueryContext<T> request) {
     return queryService.findById(request);
   }
 

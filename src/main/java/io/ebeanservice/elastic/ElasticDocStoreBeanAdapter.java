@@ -1,6 +1,7 @@
 package io.ebeanservice.elastic;
 
 import io.ebean.bean.EntityBean;
+import io.ebean.docstore.DocUpdateContext;
 import io.ebeaninternal.server.core.PersistRequestBean;
 import io.ebeaninternal.server.deploy.BeanDescriptor;
 import io.ebeaninternal.server.deploy.meta.DeployBeanDescriptor;
@@ -22,8 +23,7 @@ public class ElasticDocStoreBeanAdapter<T> extends DocStoreBeanBaseAdapter<T> {
   }
 
   @Override
-  public void deleteById(Object idValue, DocStoreUpdateContext docTxn) throws IOException {
-
+  public void deleteById(Object idValue, DocUpdateContext docTxn) throws IOException {
     BulkBuffer txn = asElasticBulkUpdate(docTxn);
     JsonGenerator gen = txn.gen();
     writeBulkHeader(gen, idValue, "delete");
@@ -31,15 +31,12 @@ public class ElasticDocStoreBeanAdapter<T> extends DocStoreBeanBaseAdapter<T> {
 
   @Override
   public void insert(Object idValue, PersistRequestBean<T> persistRequest, DocStoreUpdateContext txn) throws IOException {
-
     index(idValue, persistRequest.getBean(), txn);
   }
 
   @Override
-  public void index(Object idValue, T entityBean, DocStoreUpdateContext docTxn) throws IOException {
-
+  public void index(Object idValue, T entityBean, DocUpdateContext docTxn) throws IOException {
     BulkBuffer txn = asElasticBulkUpdate(docTxn);
-
     JsonGenerator gen = txn.gen();
     writeBulkHeader(gen, idValue, "index");
 
@@ -65,18 +62,15 @@ public class ElasticDocStoreBeanAdapter<T> extends DocStoreBeanBaseAdapter<T> {
     gen.writeRaw("\n");
   }
 
-  private BulkBuffer asElasticBulkUpdate(DocStoreUpdateContext docTxn) {
+  private BulkBuffer asElasticBulkUpdate(DocUpdateContext docTxn) {
     return (BulkBuffer)docTxn;
   }
 
   @Override
-  public void updateEmbedded(Object idValue, String embeddedProperty, String embeddedRawContent, DocStoreUpdateContext docTxn) throws IOException {
-
+  public void updateEmbedded(Object idValue, String embeddedProperty, String embeddedRawContent, DocUpdateContext docTxn) throws IOException {
     BulkBuffer txn = asElasticBulkUpdate(docTxn);
-
     JsonGenerator gen = txn.gen();
     writeBulkHeader(gen, idValue, "update");
-
     gen.writeStartObject();
     gen.writeFieldName("doc");
     gen.writeStartObject();
@@ -89,7 +83,6 @@ public class ElasticDocStoreBeanAdapter<T> extends DocStoreBeanBaseAdapter<T> {
   }
 
   private void writeBulkHeader(JsonGenerator gen, Object idValue, String event) throws IOException {
-
     gen.writeStartObject();
     gen.writeFieldName(event);
     gen.writeStartObject();
