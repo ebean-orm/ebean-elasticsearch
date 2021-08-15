@@ -1,9 +1,6 @@
 package io.ebeanservice.elastic.support;
 
-import io.ebean.DocStoreQueueEntry;
-import io.ebean.EbeanServer;
-import io.ebean.SqlUpdate;
-import io.ebean.Transaction;
+import io.ebean.*;
 
 import java.sql.Timestamp;
 import java.util.List;
@@ -17,11 +14,11 @@ public class BaseIndexQueueWriter implements IndexQueueWriter {
 
   public static final int PROCESSING_TRUE = 1;
 
-  final EbeanServer server;
+  final Database server;
 
   final String sql;
 
-  public BaseIndexQueueWriter(EbeanServer server, String tableName) {
+  public BaseIndexQueueWriter(Database server, String tableName) {
     this.server = server;
     this.sql = createSql(tableName);
   }

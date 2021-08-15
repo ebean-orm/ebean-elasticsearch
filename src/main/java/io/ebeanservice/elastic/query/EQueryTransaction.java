@@ -3,9 +3,9 @@ package io.ebeanservice.elastic.query;
 import io.ebean.ProfileLocation;
 import io.ebean.TransactionCallback;
 import io.ebean.annotation.DocStoreMode;
-import io.ebean.bean.PersistenceContext;
 import io.ebean.event.changelog.BeanChange;
 import io.ebean.event.changelog.ChangeSet;
+import io.ebeaninternal.api.SpiPersistenceContext;
 import io.ebeaninternal.api.SpiProfileTransactionEvent;
 import io.ebeaninternal.api.SpiTransaction;
 import io.ebeaninternal.api.TransactionEvent;
@@ -81,6 +81,41 @@ public class EQueryTransaction implements SpiTransaction {
   @Override
   public ProfileStream profileStream() {
     return null;
+  }
+
+  @Override
+  public boolean isAutoPersistUpdates() {
+    return false;
+  }
+
+  @Override
+  public SpiPersistenceContext getPersistenceContext() {
+    return null;
+  }
+
+  @Override
+  public void setPersistenceContext(SpiPersistenceContext context) {
+
+  }
+
+  @Override
+  public void preCommit() {
+
+  }
+
+  @Override
+  public void postCommit() {
+
+  }
+
+  @Override
+  public void postRollback(Throwable cause) {
+
+  }
+
+  @Override
+  public void setAutoPersistUpdates(boolean autoPersistUpdates) {
+
   }
 
   @Override
@@ -299,16 +334,6 @@ public class EQueryTransaction implements SpiTransaction {
 
   @Override
   public void setBatchControl(BatchControl control) {
-
-  }
-
-  @Override
-  public PersistenceContext getPersistenceContext() {
-    return null;
-  }
-
-  @Override
-  public void setPersistenceContext(PersistenceContext context) {
 
   }
 

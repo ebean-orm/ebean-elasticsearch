@@ -1,6 +1,6 @@
 package io.ebeanservice.elastic.index;
 
-import io.ebeanservice.docstore.api.mapping.DocPropertyType;
+import io.ebean.core.type.DocPropertyType;
 import org.testng.annotations.Test;
 
 import static org.testng.Assert.*;

@@ -1,9 +1,6 @@
 package io.ebeanservice.elastic.update;
 
-import io.ebean.EbeanServer;
-import io.ebean.FetchPath;
-import io.ebean.PersistenceIOException;
-import io.ebean.Query;
+import io.ebean.*;
 import io.ebean.plugin.BeanDocType;
 import io.ebean.plugin.BeanType;
 import io.ebean.plugin.Property;
@@ -24,7 +21,7 @@ public class ProcessNested<T> {
 
   private static final Logger log = LoggerFactory.getLogger(ProcessNested.class);
 
-  private final EbeanServer server;
+  private final Database server;
   private final BeanType<T> desc;
   private final BulkUpdate txn;
   private final UpdateNested nested;
@@ -46,7 +43,7 @@ public class ProcessNested<T> {
 
   private long count;
 
-  public ProcessNested(EbeanServer server, BeanType<T> desc, BulkUpdate txn, UpdateNested nested) {
+  public ProcessNested(Database server, BeanType<T> desc, BulkUpdate txn, UpdateNested nested) {
     this.server = server;
     this.desc = desc;
     this.txn = txn;

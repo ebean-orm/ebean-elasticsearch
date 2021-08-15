@@ -1,17 +1,17 @@
 package io.ebeanservice.elastic.index;
 
-import io.ebean.PersistenceIOException;
-import io.ebean.plugin.BeanType;
-import io.ebeanservice.docstore.api.mapping.DocPropertyAdapter;
-import io.ebeanservice.docstore.api.mapping.DocPropertyMapping;
-import io.ebeanservice.docstore.api.mapping.DocPropertyOptions;
-import io.ebeanservice.docstore.api.mapping.DocPropertyType;
-import io.ebeanservice.docstore.api.mapping.DocumentMapping;
-import io.ebeanservice.elastic.support.StringBuilderWriter;
 import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.PrettyPrinter;
 import com.fasterxml.jackson.core.util.DefaultPrettyPrinter;
+import io.ebean.PersistenceIOException;
+import io.ebean.core.type.DocPropertyType;
+import io.ebean.plugin.BeanType;
+import io.ebeanservice.docstore.api.mapping.DocPropertyAdapter;
+import io.ebeanservice.docstore.api.mapping.DocPropertyMapping;
+import io.ebeanservice.docstore.api.mapping.DocPropertyOptions;
+import io.ebeanservice.docstore.api.mapping.DocumentMapping;
+import io.ebeanservice.elastic.support.StringBuilderWriter;
 
 import java.io.IOException;
 

@@ -1,6 +1,6 @@
 package io.ebeanservice.elastic.index;
 
-import io.ebeanservice.docstore.api.mapping.DocPropertyType;
+import io.ebean.core.type.DocPropertyType;
 
 import java.util.HashMap;
 import java.util.Map;
