@@ -19,8 +19,8 @@ public class EIndexMappingsBuilderTest {
 
     EIndexMappingsBuilder mappingsBuilder = new EIndexMappingsBuilder(new JsonFactory());
 
-    SpiServer server = Ebean.getDefaultServer().getPluginApi();
-    BeanType<Country> countryType = server.getBeanType(Country.class);
+    SpiServer server = Ebean.getDefaultServer().pluginApi();
+    BeanType<Country> countryType = server.beanType(Country.class);
 
     String mappingJson = mappingsBuilder.createMappingJson(countryType);
 

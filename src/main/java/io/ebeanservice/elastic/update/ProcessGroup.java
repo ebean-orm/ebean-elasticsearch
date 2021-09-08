@@ -48,7 +48,7 @@ public class ProcessGroup<T> {
 
     List<Object> indexIds = group.getIndexIds();
     if (!indexIds.isEmpty()) {
-      Query<T> query = server.find(desc.getBeanType());
+      Query<T> query = server.find(desc.type());
       query.where().idIn(indexIds);
       indexUsingQuery(query, txn);
     }
@@ -68,7 +68,7 @@ public class ProcessGroup<T> {
     desc.docStore().applyPath(query);
     query.setLazyLoadBatchSize(100);
     query.findEach(bean -> {
-      Object idValue = desc.getBeanId(bean);
+      Object idValue = desc.id(bean);
       try {
         count++;
         txn.send(new DocStoreIndexEvent<>(desc, idValue, bean));

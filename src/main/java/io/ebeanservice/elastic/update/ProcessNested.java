@@ -102,7 +102,7 @@ public class ProcessNested<T> {
    */
   private long updateByQueryAssocOne(List<Object> nestedIds) {
 
-    Query<?> pathQuery = server.createQuery(nestedDesc.getBeanType());
+    Query<?> pathQuery = server.createQuery(nestedDesc.type());
     pathQuery.apply(nestedDoc);
     pathQuery.where().in(nestedIdProperty, nestedIds);
 
@@ -110,7 +110,7 @@ public class ProcessNested<T> {
     List<?> list = pathQuery.findList();
     for (Object bean : list) {
       String embedJson = server.json().toJson(bean, nestedDoc);
-      Object beanId = nestedDesc.beanId(bean);
+      Object beanId = nestedDesc.id(bean);
       jsonMap.put(beanId, embedJson);
 
       String script =
@@ -123,7 +123,7 @@ public class ProcessNested<T> {
 
       BeanDocType<T> docType = desc.docStore();
       try {
-        Map<String, Object> response = txn.sendUpdateQuery(docType.getIndexName(), docType.getIndexType(), script);
+        Map<String, Object> response = txn.sendUpdateQuery(docType.indexName(), docType.indexType(), script);
 
         Object updatedDocs = response.get("total");
         if (updatedDocs instanceof Number) {
@@ -142,23 +142,23 @@ public class ProcessNested<T> {
    */
   private void fetchEmbeddedAssocMany(List<Object> nestedIds) {
 
-    Query<T> query = server.createQuery(desc.getBeanType());
+    Query<T> query = server.createQuery(desc.type());
     query.apply(manyRootDoc);
     query.where().in(fullNestedPath, nestedIds);
 
     // hit the database and build the embedded JSON documents
     List<T> list = query.findList();
     for (T bean : list) {
-      Object manyList = nestedProperty.getVal(bean);
+      Object manyList = nestedProperty.value(bean);
       String embedJson = server.json().toJson(manyList, nestedDoc);
-      Object beanId = desc.beanId(bean);
+      Object beanId = desc.id(bean);
       jsonMap.put(beanId, embedJson);
     }
   }
 
   protected void processTop(List<Object> nestedIds) {
 
-    Query<T> topQuery = server.createQuery(desc.getBeanType());
+    Query<T> topQuery = server.createQuery(desc.type());
     topQuery.setUseDocStore(true);
     topQuery.select(selectId);
     if (!nestedMany) {
@@ -174,13 +174,13 @@ public class ProcessNested<T> {
 
   private void updateEmbedded(T bean) {
     try {
-      Object beanId = desc.getBeanId(bean);
+      Object beanId = desc.id(bean);
       Object targetId;
       if (nestedMany) {
         targetId = beanId;
       } else {
-        Object embBean = nestedProperty.getVal(bean);
-        targetId = nestedDesc.beanId(embBean);
+        Object embBean = nestedProperty.value(bean);
+        targetId = nestedDesc.id(embBean);
       }
 
       String json = jsonMap.get(targetId);
