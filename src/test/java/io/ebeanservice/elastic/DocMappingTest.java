@@ -16,9 +16,9 @@ public class DocMappingTest {
   public void docMapping() {
 
     SpiEbeanServer server = (SpiEbeanServer)Ebean.getDefaultServer();
-    BeanDescriptor<Order> desc = server.getBeanDescriptor(Order.class);
+    BeanDescriptor<Order> desc = server.descriptor(Order.class);
 
-    DocumentMapping documentMapping = desc.getDocMapping();
+    DocumentMapping documentMapping = desc.docMapping();
 
     DocPropertyMapping properties = documentMapping.getProperties();
 

@@ -30,7 +30,7 @@ public class ElasticDocStoreFactory implements DocStoreFactory {
   @Override
   public DocStoreIntegration create(SpiServer server) {
 
-    DatabaseConfig config = server.getServerConfig();
+    DatabaseConfig config = server.config();
     Object objectMapper = config.getObjectMapper();
     DocStoreConfig docStoreConfig = config.getDocStoreConfig();
 

@@ -67,16 +67,13 @@ public class ElasticUpdateProcessor implements DocStoreUpdateProcessor {
 
   private void queue(final DocStoreUpdates changesToQueue) {
     if (changesToQueue != null) {
-      server.getBackgroundExecutor().execute(new Runnable() {
-        @Override
-        public void run() {
-          try {
-            logger.debug("queue wait for changes...");
-            Thread.sleep(1000);
-            process(changesToQueue, 0);
-          } catch (Exception e) {
-            logger.error("Error processing queued changes ", e);
-          }
+      server.backgroundExecutor().execute(() -> {
+        try {
+          logger.debug("queue wait for changes...");
+          Thread.sleep(1000);
+          process(changesToQueue, 0);
+        } catch (Exception e) {
+          logger.error("Error processing queued changes ", e);
         }
       });
     }
@@ -94,7 +91,6 @@ public class ElasticUpdateProcessor implements DocStoreUpdateProcessor {
    */
   @Override
   public <T> DocStoreQueryUpdate<T> createQueryUpdate(BeanType<T> beanType, int batchSize) throws IOException {
-
     BulkUpdate bulkUpdate = createBulkUpdate(batchSize);
     return new ElasticQueryUpdate<T>(bulkUpdate, beanType);
   }
@@ -103,7 +99,6 @@ public class ElasticUpdateProcessor implements DocStoreUpdateProcessor {
    * Create the BulkUpdate for batch sending bulk API messages.
    */
   public BulkUpdate createBulkUpdate(int batchSize) throws IOException {
-
     int batch = (batchSize > 0) ? batchSize : defaultBatchSize;
     return new BulkUpdate(batch, bulkSender);
   }
@@ -145,7 +140,7 @@ public class ElasticUpdateProcessor implements DocStoreUpdateProcessor {
     Collection<UpdateGroup> groups = ConvertToGroups.groupByQueueId(entries);
 
     for (UpdateGroup group : groups) {
-      BeanType<?> desc = server.getBeanTypeForQueueId(group.getQueueId());
+      BeanType<?> desc = server.beanTypeForQueueId(group.getQueueId());
       count += ProcessGroup.process(server, desc, group, txn);
     }
 

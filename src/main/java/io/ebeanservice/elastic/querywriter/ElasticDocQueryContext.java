@@ -84,7 +84,7 @@ public class ElasticDocQueryContext implements DocQueryContext {
 
   @Override
   public ExpressionPath getExpressionPath(String propName) {
-    return desc.getExpressionPath(propName);
+    return desc.expressionPath(propName);
   }
 
   private String asElasticQuery() {
@@ -236,7 +236,7 @@ public class ElasticDocQueryContext implements DocQueryContext {
    * Return true if the path contains a many.
    */
   private boolean containsMany(String path) {
-    ExpressionPath elPath = desc.getExpressionPath(path);
+    ExpressionPath elPath = desc.expressionPath(path);
     return elPath == null || elPath.containsMany();
   }
 

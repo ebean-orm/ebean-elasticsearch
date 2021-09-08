@@ -31,7 +31,7 @@ public class ElasticDocStoreBeanAdapter<T> extends DocStoreBeanBaseAdapter<T> {
 
   @Override
   public void insert(Object idValue, PersistRequestBean<T> persistRequest, DocStoreUpdateContext txn) throws IOException {
-    index(idValue, persistRequest.getBean(), txn);
+    index(idValue, persistRequest.bean(), txn);
   }
 
   @Override
@@ -57,7 +57,7 @@ public class ElasticDocStoreBeanAdapter<T> extends DocStoreBeanBaseAdapter<T> {
     gen.writeFieldName("doc");
     // only the 'dirty' properties included in 'update' request
     WriteJson writeJson = txn.createWriteJson(server, gen, null);
-    desc.jsonWriteDirty(writeJson, persistRequest.getEntityBean(), persistRequest.getDirtyProperties());
+    desc.jsonWriteDirty(writeJson, persistRequest.entityBean(), persistRequest.dirtyProperties());
     gen.writeEndObject();
     gen.writeRaw("\n");
   }

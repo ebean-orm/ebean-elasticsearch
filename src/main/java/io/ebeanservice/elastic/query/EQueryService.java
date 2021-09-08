@@ -65,7 +65,7 @@ public class EQueryService {
    */
   public <T> PagedList<T> findPagedList(DocQueryContext<T> req) {
     DocQueryRequest<T> request = asRequest(req);
-    SpiQuery<T> query = request.getQuery();
+    SpiQuery<T> query = request.query();
     int firstRow = query.getFirstRow();
     int maxRows = query.getMaxRows();
 
@@ -86,7 +86,7 @@ public class EQueryService {
    */
   public <T> List<T> findList(DocQueryContext<T> req) {
     DocQueryRequest<T> request = asRequest(req);
-    BeanSearchParser<T> parser = findHits(request.getQuery(), request.createJsonReadOptions());
+    BeanSearchParser<T> parser = findHits(request.query(), request.createJsonReadOptions());
     try {
       List<T> list = parser.read();
       request.executeSecondaryQueries(false);
@@ -138,7 +138,7 @@ public class EQueryService {
 
   private <T> EQueryEach<T> createQueryEach(DocQueryContext<T> req) {
     DocQueryRequest<T> request = asRequest(req);
-    SpiQuery<T> query = request.getQuery();
+    SpiQuery<T> query = request.query();
     String indexName = indexName(query);
     String jsonQuery = asJson(query);
     return new EQueryEach<>(request, send, jsonContext, indexName, jsonQuery);
@@ -149,11 +149,11 @@ public class EQueryService {
    */
   public <T> T findById(DocQueryContext<T> req) {
     DocQueryRequest<T> request = asRequest(req);
-    SpiQuery<T> query = request.getQuery();
-    SpiTransaction transaction = request.getTransaction();
+    SpiQuery<T> query = request.query();
+    SpiTransaction transaction = request.transaction();
     if (transaction == null) {
       transaction = new EQueryTransaction();
-      request.setTransaction(transaction);
+      request.transaction(transaction);
       // set tenantId
     }
 
@@ -169,13 +169,13 @@ public class EQueryService {
 
     BeanDocType<T> beanDocType = desc.docStore();
     try {
-      JsonParser parser = send.findById(beanDocType.getIndexName(), id);
+      JsonParser parser = send.findById(beanDocType.indexName(), id);
 
       JsonBeanReader<T> reader = new EQuery<>(desc, jsonContext, options).createReader(parser);
       T bean = reader.read();
-      desc.setBeanId(bean, id);
+      desc.setId(bean, id);
       // register with persistence context and load context
-      reader.persistenceContextPut(desc.getBeanId(bean), bean);
+      reader.persistenceContextPut(desc.id(bean), bean);
       return bean;
 
     } catch (DocumentNotFoundException e) {
@@ -192,11 +192,11 @@ public class EQueryService {
    */
   public long copyIndexSince(BeanType<?> desc, String newIndex, BulkUpdate txn, long epochMillis) {
 
-    SpiQuery<?> query = (SpiQuery<?>) server.createQuery(desc.getBeanType());
+    SpiQuery<?> query = (SpiQuery<?>) server.createQuery(desc.type());
     if (epochMillis > 0) {
-      Property whenModified = desc.getWhenModifiedProperty();
+      Property whenModified = desc.whenModifiedProperty();
       if (whenModified != null) {
-        query.where().ge(whenModified.getName(), epochMillis);
+        query.where().ge(whenModified.name(), epochMillis);
       }
     }
 
@@ -215,7 +215,7 @@ public class EQueryService {
     }
 
     BeanType<?> desc = query.getBeanDescriptor();
-    long count = findEachRawSource(query, new RawSourceCopier(txn, desc.docStore().getIndexType(), newIndex));
+    long count = findEachRawSource(query, new RawSourceCopier(txn, desc.docStore().indexType(), newIndex));
     logger.debug("total [{}] entries copied to index:{}", count, newIndex);
     return count;
   }
@@ -293,7 +293,7 @@ public class EQueryService {
     if (docIndexName != null) {
       return docIndexName;
     } else {
-      return query.getBeanDescriptor().docStore().getIndexName();
+      return query.getBeanDescriptor().docStore().indexName();
     }
   }
 }

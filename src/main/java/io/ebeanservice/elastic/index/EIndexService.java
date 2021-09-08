@@ -47,7 +47,7 @@ public class EIndexService {
     this.server = server;
     this.jsonFactory = jsonFactory;
     this.sender = sender;
-    this.config = server.getServerConfig().getDocStoreConfig();
+    this.config = server.config().getDocStoreConfig();
     this.mappingsBuilder = new EIndexMappingsBuilder(jsonFactory);
     this.generateMapping = config.isGenerateMapping();
     this.dropCreateIndexes = config.isDropCreate();
@@ -175,7 +175,7 @@ public class EIndexService {
    */
   public void createIndexesOnStartup() throws IOException {
     if (generateMapping || createIndexes) {
-      for (BeanType<?> beanType : server.getBeanTypes()) {
+      for (BeanType<?> beanType : server.beanTypes()) {
         if (beanType.isDocStoreMapped()) {
           createIndex(beanType);
         }
@@ -185,7 +185,7 @@ public class EIndexService {
 
   private void createIndex(BeanType<?> beanType) throws IOException {
 
-    String alias = beanType.docStore().getIndexName();
+    String alias = beanType.docStore().indexName();
     // hardcode _v1 suffix until there is some plan for handling 'index migrations'
     String indexName = alias + "_v1";
 

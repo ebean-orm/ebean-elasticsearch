@@ -29,7 +29,7 @@ public class EQueryEach<T> extends EQuery<T> implements EConsumeWhile<T> {
   private String currentScrollId;
 
   EQueryEach(DocQueryRequest<T> request, EQuerySend send, JsonContext jsonContext, String indexName, String jsonQuery) {
-    super(request.getQuery(), jsonContext, request.createJsonReadOptions());
+    super(request.query(), jsonContext, request.createJsonReadOptions());
     this.send = send;
     this.request = request;
     this.indexName = indexName;

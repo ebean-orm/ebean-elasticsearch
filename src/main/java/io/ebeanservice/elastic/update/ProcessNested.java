@@ -56,23 +56,23 @@ public class ProcessNested<T> {
     this.nestedPath = nestedPathSplit[0];
     this.nestedIdProperty = nestedPathSplit[1];
 
-    this.nestedDoc = beanDocType.getEmbedded(this.nestedPath);
-    this.nestedDesc = desc.getBeanTypeAtPath(this.nestedPath);
+    this.nestedDoc = beanDocType.embedded(this.nestedPath);
+    this.nestedDesc = desc.beanTypeAtPath(this.nestedPath);
 
-    this.nestedProperty = desc.getProperty(nestedPath);
+    this.nestedProperty = desc.property(nestedPath);
     this.nestedMany = nestedProperty.isMany();
     if (nestedMany) {
-      manyRootDoc = beanDocType.getEmbeddedManyRoot(nestedPath);
+      manyRootDoc = beanDocType.embeddedManyRoot(nestedPath);
     }
 
     this.selectId = createSelectId(desc);
-    this.nestedIdPropertyName = nestedDesc.getIdProperty().getName();
+    this.nestedIdPropertyName = nestedDesc.idProperty().name();
   }
 
   private String createSelectId(BeanType<T> desc) {
-    String id = desc.getIdProperty().getName();
+    String id = desc.idProperty().name();
     if (desc.hasInheritance()) {
-      id += "," + desc.getDiscColumn();
+      id += "," + desc.discColumn();
     }
     return id;
   }

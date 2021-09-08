@@ -278,7 +278,7 @@ public class EQueryTransaction implements SpiTransaction {
   }
 
   @Override
-  public Connection getConnection() {
+  public Connection connection() {
     return null;
   }
 

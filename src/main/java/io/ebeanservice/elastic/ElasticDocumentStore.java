@@ -107,7 +107,7 @@ public class ElasticDocumentStore implements DocumentStore {
 
   @Override
   public long copyIndex(Class<?> beanType, String newIndex, long epochMillis) {
-    BeanType<?> type = checkMapped(server.getBeanType(beanType));
+    BeanType<?> type = checkMapped(server.beanType(beanType));
     try {
       BulkUpdate txn = updateProcessor.createBulkUpdate(0);
       long count = queryService.copyIndexSince(type, newIndex, txn, epochMillis);
@@ -137,7 +137,6 @@ public class ElasticDocumentStore implements DocumentStore {
 
   @Override
   public <T> void indexByQuery(Query<T> query, int bulkBatchSize) {
-
     SpiQuery<T> spiQuery = (SpiQuery<T>) query;
     BeanType<T> desc = checkMapped(spiQuery.getBeanDescriptor());
 
@@ -145,7 +144,6 @@ public class ElasticDocumentStore implements DocumentStore {
       DocStoreQueryUpdate<T> update = updateProcessor.createQueryUpdate(desc, bulkBatchSize);
       indexByQuery(desc, query, update);
       update.flush();
-
     } catch (IOException e) {
       throw new PersistenceIOException(e);
     }
@@ -153,11 +151,10 @@ public class ElasticDocumentStore implements DocumentStore {
 
 
   private <T> void indexByQuery(final BeanType<T> desc, Query<T> query, final DocStoreQueryUpdate<T> queryUpdate) throws IOException {
-
     desc.docStore().applyPath(query);
     query.setLazyLoadBatchSize(100);
     query.findEach(bean -> {
-      Object idValue = desc.getBeanId(bean);
+      Object idValue = desc.id(bean);
       try {
         queryUpdate.store(idValue, bean);
       } catch (Exception e) {
@@ -204,7 +201,7 @@ public class ElasticDocumentStore implements DocumentStore {
   void onStartup() {
 
     try {
-      DocStoreConfig docStoreConfig = server.getServerConfig().getDocStoreConfig();
+      DocStoreConfig docStoreConfig = server.config().getDocStoreConfig();
       if (docStoreConfig.isActive()) {
         indexService.createIndexesOnStartup();
       }
@@ -219,7 +216,7 @@ public class ElasticDocumentStore implements DocumentStore {
       throw new IllegalStateException("No bean type mapping found?");
     }
     if (!type.isDocStoreMapped()) {
-      throw new IllegalStateException("No doc store mapping for bean type "+type.getFullName());
+      throw new IllegalStateException("No doc store mapping for bean type "+type.fullName());
     }
     return type;
   }

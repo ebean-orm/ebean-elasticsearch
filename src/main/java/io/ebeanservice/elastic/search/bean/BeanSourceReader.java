@@ -38,7 +38,7 @@ class BeanSourceReader<T> {
 
   void readSource(String id) {
     currentBean = reader.read();
-    desc.setBeanId(currentBean, id);
+    desc.setId(currentBean, id);
     beans.add(currentBean);
     loadPersistenceContext(currentBean);
   }
@@ -46,7 +46,7 @@ class BeanSourceReader<T> {
   private void loadPersistenceContext(T bean) {
     if (hasContext) {
       EntityBean current = (EntityBean)bean;
-      Object beanId = desc.getBeanId(bean);
+      Object beanId = desc.id(bean);
       reader.persistenceContextPut(beanId, bean);
       if (lazyLoadMany != null) {
         lazyLoadMany.lazyLoadMany(current);
@@ -63,14 +63,14 @@ class BeanSourceReader<T> {
     } else {
       T bean;
       if (desc.hasInheritance()) {
-        String discCol = desc.getDiscColumn();
+        String discCol = desc.discColumn();
         List<Object> list = (List<Object>)fields.remove(discCol);
         bean = desc.createBeanUsingDisc(list.get(0));
       } else {
         bean = desc.createBean();
       }
 
-      desc.setBeanId(bean, id);
+      desc.setId(bean, id);
       applyFields(bean, fields);
       beans.add(bean);
       loadPersistenceContext(bean);
@@ -83,7 +83,7 @@ class BeanSourceReader<T> {
 
     Set<Map.Entry<String, Object>> entries = fields.entrySet();
     for (Map.Entry<String, Object> entry : entries) {
-      ExpressionPath path = desc.getExpressionPath(entry.getKey());
+      ExpressionPath path = desc.expressionPath(entry.getKey());
       List<Object> value = (List<Object>)entry.getValue();
 
       if (!path.containsMany()) {
@@ -104,7 +104,7 @@ class BeanSourceReader<T> {
 
   public void readIdOnly(String id) {
     T bean = desc.createBean();
-    desc.setBeanId(bean, id);
+    desc.setId(bean, id);
     beans.add(bean);
     loadPersistenceContext(bean);
   }

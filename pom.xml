@@ -35,8 +35,15 @@
 
     <dependency>
       <groupId>io.ebean</groupId>
+      <artifactId>ebean-ddl-generator</artifactId>
+      <version>12.11.4A</version>
+      <scope>provided</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>io.ebean</groupId>
       <artifactId>ebean</artifactId>
-      <version>12.11.0</version>
+      <version>12.11.4-SNAPSHOT</version>
       <scope>provided</scope>
     </dependency>
 
@@ -53,7 +60,7 @@
     <dependency>
       <groupId>io.ebean</groupId>
       <artifactId>ebean-test</artifactId>
-      <version>12.11.0</version>
+      <version>12.11.4-SNAPSHOT</version>
       <scope>test</scope>
     </dependency>
 
