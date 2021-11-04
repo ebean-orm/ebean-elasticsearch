@@ -169,6 +169,9 @@ public class ElasticDocQueryContext implements DocQueryContext {
   }
 
   private void writePaging(SpiQuery<?> query) throws IOException {
+    // Elasticsearch7.x the hits default is set to 10,000.
+    // When set 'track_total_hits' to 'true' the search response will always track the number of hits that match the query accurately.
+    json.writeBooleanField("track_total_hits", true);
     if (query.getFirstRow() > 0) {
       json.writeNumberField("from", query.getFirstRow());
     }
