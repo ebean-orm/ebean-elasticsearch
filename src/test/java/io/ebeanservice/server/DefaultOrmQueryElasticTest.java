@@ -23,7 +23,7 @@ public class DefaultOrmQueryElasticTest extends BaseElasticTest {
     SpiQuery<Order> spiQuery = (SpiQuery<Order>)query;
     String asJson = asJson(spiQuery);
 
-    assertThat(asJson).isEqualTo("{\"query\":{\"bool\":{\"filter\":{\"term\":{\"customer.name.raw\":\"Rob\"}}}}}");
+    assertThat(asJson).isEqualTo("{\"track_total_hits\":true,\"query\":{\"bool\":{\"filter\":{\"term\":{\"customer.name.raw\":\"Rob\"}}}}}");
   }
 
   @Test
@@ -37,7 +37,7 @@ public class DefaultOrmQueryElasticTest extends BaseElasticTest {
     SpiQuery<Order> spiQuery = (SpiQuery<Order>)query;
     String asJson = asJson(spiQuery);
 
-    assertThat(asJson).isEqualTo("{\"_source\":{\"includes\":[\"status\",\"customer.name\",\"details.product.id\"]},\"query\":{\"bool\":{\"filter\":{\"term\":{\"customer.name.raw\":\"Rob\"}}}}}");
+    assertThat(asJson).isEqualTo("{\"track_total_hits\":true,\"_source\":{\"includes\":[\"status\",\"customer.name\",\"details.product.id\"]},\"query\":{\"bool\":{\"filter\":{\"term\":{\"customer.name.raw\":\"Rob\"}}}}}");
   }
 
   @Test
@@ -50,7 +50,7 @@ public class DefaultOrmQueryElasticTest extends BaseElasticTest {
 
     String asJson = asJson((SpiQuery<Order>)query);
 
-    assertThat(asJson).isEqualTo("{\"_source\":{\"includes\":[\"status\"]},\"query\":{\"bool\":{\"filter\":{\"term\":{\"customer.name.raw\":\"Rob\"}}}}}");
+    assertThat(asJson).isEqualTo("{\"track_total_hits\":true,\"_source\":{\"includes\":[\"status\"]},\"query\":{\"bool\":{\"filter\":{\"term\":{\"customer.name.raw\":\"Rob\"}}}}}");
   }
 
   @Test
@@ -65,7 +65,7 @@ public class DefaultOrmQueryElasticTest extends BaseElasticTest {
 
     String asJson = asJson((SpiQuery<Order>)query);
 
-    assertThat(asJson).isEqualTo("{\"from\":3,\"size\":100,\"_source\":{\"includes\":[\"status\"]},\"query\":{\"bool\":{\"filter\":{\"term\":{\"customer.name.raw\":\"Rob\"}}}}}");
+    assertThat(asJson).isEqualTo("{\"track_total_hits\":true,\"from\":3,\"size\":100,\"_source\":{\"includes\":[\"status\"]},\"query\":{\"bool\":{\"filter\":{\"term\":{\"customer.name.raw\":\"Rob\"}}}}}");
   }
 
   @Test
@@ -80,6 +80,6 @@ public class DefaultOrmQueryElasticTest extends BaseElasticTest {
     SpiQuery<Order> spiQuery = (SpiQuery<Order>)query;
     String asJson = asJson(spiQuery);
 
-    assertThat(asJson).isEqualTo("{\"query\":{\"bool\":{\"filter\":{\"term\":{\"customer.id\":1}}}}}");
+    assertThat(asJson).isEqualTo("{\"track_total_hits\":true,\"query\":{\"bool\":{\"filter\":{\"term\":{\"customer.id\":1}}}}}");
   }
 }

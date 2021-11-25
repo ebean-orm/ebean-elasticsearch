@@ -24,7 +24,7 @@ public class QueryTextQueryStringTest extends BaseTest {
 
     List<Customer> list = query.findList();
     assertThat(list).hasSize(0);
-    assertEquals(query.getGeneratedSql(), "{\"query\":{\"query_string\":{\"query\":\"quick brown\"}}}");
+    assertEquals(query.getGeneratedSql(), "{\"track_total_hits\":true,\"query\":{\"query_string\":{\"query\":\"quick brown\"}}}");
   }
 
   @Test
@@ -38,7 +38,7 @@ public class QueryTextQueryStringTest extends BaseTest {
         .query();
 
     List<Customer> list = query.findList();
-    assertEquals(query.getGeneratedSql(), "{\"query\":{\"query_string\":{\"query\":\"Rob\"}}}");
+    assertEquals(query.getGeneratedSql(), "{\"track_total_hits\":true,\"query\":{\"query_string\":{\"query\":\"Rob\"}}}");
     assertThat(list).hasSize(1);
   }
 
@@ -53,7 +53,7 @@ public class QueryTextQueryStringTest extends BaseTest {
         .query();
 
     List<Customer> list = query.findList();
-    assertEquals(query.getGeneratedSql(), "{\"query\":{\"query_string\":{\"query\":\"+Cust +NoAddress\"}}}");
+    assertEquals(query.getGeneratedSql(), "{\"track_total_hits\":true,\"query\":{\"query_string\":{\"query\":\"+Cust +NoAddress\"}}}");
     //TODO: Review assertThat(list).hasSize(1);
   }
 
@@ -68,7 +68,7 @@ public class QueryTextQueryStringTest extends BaseTest {
         .query();
 
     List<Customer> list = query.findList();
-    assertEquals(query.getGeneratedSql(), "{\"query\":{\"query_string\":{\"query\":\"+Cust -NoAddress\"}}}");
+    assertEquals(query.getGeneratedSql(), "{\"track_total_hits\":true,\"query\":{\"query_string\":{\"query\":\"+Cust -NoAddress\"}}}");
     //TODO: Review assertThat(list).hasSize(0);
   }
 
@@ -100,7 +100,7 @@ public class QueryTextQueryStringTest extends BaseTest {
 
 
     List<Customer> list = query.findList();
-    assertThat(query.getGeneratedSql()).isEqualTo("{\"query\":{\"query_string\":{\"query\":\"brown\",\"default_field\":\"name\",\"default_operator\":\"and\",\"analyzer\":\"whitespace\",\"allow_leading_wildcard\":false,\"fuzzy_max_expansions\":10,\"fuzziness\":\"1\",\"fuzzy_prefix_length\":3,\"phrase_slop\":0.5,\"boost\":2.0,\"analyze_wildcard\":true,\"minimum_should_match\":\"1\",\"lenient\":true,\"time_zone\":\"UTC\"}}}");
+    assertThat(query.getGeneratedSql()).isEqualTo("{\"track_total_hits\":true,\"query\":{\"query_string\":{\"query\":\"brown\",\"default_field\":\"name\",\"default_operator\":\"and\",\"analyzer\":\"whitespace\",\"allow_leading_wildcard\":false,\"fuzzy_max_expansions\":10,\"fuzziness\":\"1\",\"fuzzy_prefix_length\":3,\"phrase_slop\":0.5,\"boost\":2.0,\"analyze_wildcard\":true,\"minimum_should_match\":\"1\",\"lenient\":true,\"time_zone\":\"UTC\"}}}");
     assertThat(list).hasSize(0);
   }
 

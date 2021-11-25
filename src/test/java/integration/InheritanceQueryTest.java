@@ -20,7 +20,7 @@ public class InheritanceQueryTest extends BaseTest {
 
     List<Vehicle> list = query.findList();
 
-    assertEquals(query.getGeneratedSql(), "{\"query\":{\"match_all\":{}}}");
+    assertEquals(query.getGeneratedSql(), "{\"track_total_hits\":true,\"query\":{\"match_all\":{}}}");
     assertThat(list.size()).isGreaterThan(4);
   }
 
@@ -34,7 +34,7 @@ public class InheritanceQueryTest extends BaseTest {
 
     List<Vehicle> list = query.findList();
 
-    assertEquals(query.getGeneratedSql(), "{\"query\":{\"bool\":{\"filter\":{\"term\":{\"licenseNumber\":\"T42\"}}}}}");
+    assertEquals(query.getGeneratedSql(), "{\"track_total_hits\":true,\"query\":{\"bool\":{\"filter\":{\"term\":{\"licenseNumber\":\"T42\"}}}}}");
     assertEquals(list.size(), 1);
   }
 
@@ -49,7 +49,7 @@ public class InheritanceQueryTest extends BaseTest {
     List<Vehicle> list = query.findList();
 
     assertEquals(list.size(), 3);
-    assertEquals(query.getGeneratedSql(), "{\"query\":{\"bool\":{\"filter\":{\"term\":{\"dtype\":\"C\"}}}}}");
+    assertEquals(query.getGeneratedSql(), "{\"track_total_hits\":true,\"query\":{\"bool\":{\"filter\":{\"term\":{\"dtype\":\"C\"}}}}}");
   }
 
   @Test
@@ -62,7 +62,7 @@ public class InheritanceQueryTest extends BaseTest {
     List<VehicleCar> list = query.findList();
 
     assertEquals(list.size(), 3);
-    assertEquals(query.getGeneratedSql(), "{\"sort\":[{\"driver.raw\":{\"order\":\"desc\"}}],\"query\":{\"bool\":{\"filter\":{\"term\":{\"dtype\":\"C\"}}}}}");
+    assertEquals(query.getGeneratedSql(), "{\"track_total_hits\":true,\"sort\":[{\"driver.raw\":{\"order\":\"desc\"}}],\"query\":{\"bool\":{\"filter\":{\"term\":{\"dtype\":\"C\"}}}}}");
   }
 
   @Test
@@ -76,7 +76,7 @@ public class InheritanceQueryTest extends BaseTest {
     List<VehicleCar> list = query.findList();
 
     assertEquals(list.size(), 1);
-    assertEquals(query.getGeneratedSql(), "{\"sort\":[{\"driver.raw\":{\"order\":\"desc\"}}],\"query\":{\"bool\":{\"filter\":{\"bool\":{\"must\":[{\"prefix\":{\"driver\":\"mari\"}},{\"term\":{\"dtype\":\"C\"}}]}}}}}");
+    assertEquals(query.getGeneratedSql(), "{\"track_total_hits\":true,\"sort\":[{\"driver.raw\":{\"order\":\"desc\"}}],\"query\":{\"bool\":{\"filter\":{\"bool\":{\"must\":[{\"prefix\":{\"driver\":\"mari\"}},{\"term\":{\"dtype\":\"C\"}}]}}}}}");
   }
 
 }

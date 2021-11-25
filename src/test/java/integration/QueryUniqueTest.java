@@ -18,7 +18,7 @@ public class QueryUniqueTest extends BaseTest {
 
     Product product = query.findOne();
 
-    assertEquals(query.getGeneratedSql(), "{\"query\":{\"bool\":{\"filter\":{\"term\":{\"sku.raw\":\"C001\"}}}}}");
+    assertEquals(query.getGeneratedSql(), "{\"track_total_hits\":true,\"query\":{\"bool\":{\"filter\":{\"term\":{\"sku.raw\":\"C001\"}}}}}");
     assertNotNull(product);
     assertEquals(product.getId(), Long.valueOf(1));
     assertEquals(product.getSku(), "C001");

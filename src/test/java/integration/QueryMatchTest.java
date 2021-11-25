@@ -22,7 +22,7 @@ public class QueryMatchTest extends BaseTest {
 
     List<Customer> list = query.findList();
     assertThat(list).hasSize(1);
-    assertEquals(query.getGeneratedSql(), "{\"query\":{\"match\":{\"name\":\"Rob\"}}}");
+    assertEquals(query.getGeneratedSql(), "{\"track_total_hits\":true,\"query\":{\"match\":{\"name\":\"Rob\"}}}");
   }
 
   @Test
@@ -36,7 +36,7 @@ public class QueryMatchTest extends BaseTest {
 
     List<Customer> list = query.findList();
     assertThat(list).hasSize(1);
-    assertEquals(query.getGeneratedSql(), "{\"query\":{\"bool\":{\"should\":[{\"match\":{\"name\":\"Rob\"}},{\"match\":{\"smallNote\":\"interesting\"}}]}}}");
+    assertEquals(query.getGeneratedSql(), "{\"track_total_hits\":true,\"query\":{\"bool\":{\"should\":[{\"match\":{\"name\":\"Rob\"}},{\"match\":{\"smallNote\":\"interesting\"}}]}}}");
   }
 
   @Test
@@ -50,7 +50,7 @@ public class QueryMatchTest extends BaseTest {
         .query();
 
     List<Customer> list = query.findList();
-    assertEquals(query.getGeneratedSql(), "{\"query\":{\"bool\":{\"must\":[{\"match\":{\"name\":\"Rob\"}},{\"match\":{\"smallNote\":\"interesting\"}}]}}}");
+    assertEquals(query.getGeneratedSql(), "{\"track_total_hits\":true,\"query\":{\"bool\":{\"must\":[{\"match\":{\"name\":\"Rob\"}},{\"match\":{\"smallNote\":\"interesting\"}}]}}}");
     assertThat(list).hasSize(0);
   }
 
@@ -69,7 +69,7 @@ public class QueryMatchTest extends BaseTest {
         .setUseDocStore(true);
 
     List<Customer> list = query.findList();
-    assertEquals(query.getGeneratedSql(), "{\"query\":{\"bool\":{\"must\":[{\"match\":{\"name\":\"Rob\"}},{\"term\":{\"status\":\"NEW\"}}],\"should\":[{\"match\":{\"smallNote\":\"foo\"}},{\"match\":{\"smallNote\":\"bar\"}}]}}}");
+    assertEquals(query.getGeneratedSql(), "{\"track_total_hits\":true,\"query\":{\"bool\":{\"must\":[{\"match\":{\"name\":\"Rob\"}},{\"term\":{\"status\":\"NEW\"}}],\"should\":[{\"match\":{\"smallNote\":\"foo\"}},{\"match\":{\"smallNote\":\"bar\"}}]}}}");
     assertThat(list).hasSize(1);
   }
 
@@ -86,7 +86,7 @@ public class QueryMatchTest extends BaseTest {
             .setUseDocStore(true);
 
     List<Customer> list = query.findList();
-    assertEquals(query.getGeneratedSql(), "{\"query\":{\"bool\":{\"must\":[{\"match\":{\"name\":\"Rob\"}},{\"bool\":{\"should\":[{\"match\":{\"smallNote\":\"foo\"}},{\"match\":{\"smallNote\":\"bar\"}}]}}]}}}");
+    assertEquals(query.getGeneratedSql(), "{\"track_total_hits\":true,\"query\":{\"bool\":{\"must\":[{\"match\":{\"name\":\"Rob\"}},{\"bool\":{\"should\":[{\"match\":{\"smallNote\":\"foo\"}},{\"match\":{\"smallNote\":\"bar\"}}]}}]}}}");
     assertThat(list).hasSize(0);
   }
 
@@ -101,7 +101,7 @@ public class QueryMatchTest extends BaseTest {
           .query();
 
     List<Order> list = query.findList();
-    assertEquals(query.getGeneratedSql(), "{\"query\":{\"bool\":{\"must\":[{\"match\":{\"customer.name\":\"Rob\"}}],\"filter\":[{\"term\":{\"status\":\"COMPLETE\"}}]}}}");
+    assertEquals(query.getGeneratedSql(), "{\"track_total_hits\":true,\"query\":{\"bool\":{\"must\":[{\"match\":{\"customer.name\":\"Rob\"}}],\"filter\":[{\"term\":{\"status\":\"COMPLETE\"}}]}}}");
     assertThat(list).hasSize(1);
   }
 
@@ -115,7 +115,7 @@ public class QueryMatchTest extends BaseTest {
         .query();
 
     List<Order> list = query.findList();
-    assertEquals(query.getGeneratedSql(), "{\"query\":{\"bool\":{\"must\":[{\"match\":{\"customer.name\":\"Rob\"}},{\"term\":{\"status\":\"COMPLETE\"}}]}}}");
+    assertEquals(query.getGeneratedSql(), "{\"track_total_hits\":true,\"query\":{\"bool\":{\"must\":[{\"match\":{\"customer.name\":\"Rob\"}},{\"term\":{\"status\":\"COMPLETE\"}}]}}}");
     assertThat(list).hasSize(1);
   }
 }

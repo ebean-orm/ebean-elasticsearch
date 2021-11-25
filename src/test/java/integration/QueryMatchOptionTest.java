@@ -22,7 +22,7 @@ public class QueryMatchOptionTest extends BaseTest {
 
     List<Customer> list = query.findList();
     assertThat(list).hasSize(1);
-    assertEquals(query.getGeneratedSql(), "{\"query\":{\"match\":{\"name\":{\"query\":\"Cust NoAddress\"}}}}");
+    assertEquals(query.getGeneratedSql(), "{\"track_total_hits\":true,\"query\":{\"match\":{\"name\":{\"query\":\"Cust NoAddress\"}}}}");
   }
 
   @Test
@@ -34,7 +34,7 @@ public class QueryMatchOptionTest extends BaseTest {
         .query();
 
     List<Customer> list = query.findList();
-    assertEquals(query.getGeneratedSql(), "{\"query\":{\"match\":{\"name\":{\"query\":\"Cust NoAddress\",\"operator\":\"and\"}}}}");
+    assertEquals(query.getGeneratedSql(), "{\"track_total_hits\":true,\"query\":{\"match\":{\"name\":{\"query\":\"Cust NoAddress\",\"operator\":\"and\"}}}}");
     //Review assertThat(list).hasSize(1);
   }
 
@@ -69,7 +69,7 @@ public class QueryMatchOptionTest extends BaseTest {
         .query();
 
     List<Customer> list = query.findList();
-    assertEquals(query.getGeneratedSql(), "{\"query\":{\"match_phrase\":{\"name\":{\"query\":\"Cust DoesNotExist\",\"boost\":2.0,\"zero_terms_query\":\"all\",\"analyzer\":\"whitespace\"}}}}");
+    assertEquals(query.getGeneratedSql(), "{\"track_total_hits\":true,\"query\":{\"match_phrase\":{\"name\":{\"query\":\"Cust DoesNotExist\",\"boost\":2.0,\"zero_terms_query\":\"all\",\"analyzer\":\"whitespace\"}}}}");
     assertThat(list).hasSize(0);
   }
 
@@ -90,7 +90,7 @@ public class QueryMatchOptionTest extends BaseTest {
         .query();
 
     List<Customer> list = query.findList();
-    assertEquals(query.getGeneratedSql(), "{\"query\":{\"match_phrase_prefix\":{\"name\":{\"query\":\"Cust NoAdd\",\"boost\":2.0,\"analyzer\":\"whitespace\",\"max_expansions\":3}}}}");
+    assertEquals(query.getGeneratedSql(), "{\"track_total_hits\":true,\"query\":{\"match_phrase_prefix\":{\"name\":{\"query\":\"Cust NoAdd\",\"boost\":2.0,\"analyzer\":\"whitespace\",\"max_expansions\":3}}}}");
     assertThat(list).hasSize(0);
   }
 
@@ -105,7 +105,7 @@ public class QueryMatchOptionTest extends BaseTest {
         .query();
 
     List<Customer> list = query.findList();
-    assertEquals(query.getGeneratedSql(), "{\"query\":{\"match_phrase_prefix\":{\"name\":{\"query\":\"Cust NoAdd\"}}}}");
+    assertEquals(query.getGeneratedSql(), "{\"track_total_hits\":true,\"query\":{\"match_phrase_prefix\":{\"name\":{\"query\":\"Cust NoAdd\"}}}}");
     // Review assertThat(list).hasSize(1);
   }
 }

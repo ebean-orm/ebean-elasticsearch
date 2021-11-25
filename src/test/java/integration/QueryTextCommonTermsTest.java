@@ -24,7 +24,7 @@ public class QueryTextCommonTermsTest extends BaseTest {
 
     List<Customer> list = query.findList();
     assertThat(list).hasSize(0);
-    assertEquals(query.getGeneratedSql(), "{\"query\":{\"common\":{\"body\":{\"query\":\"the quick brown\",\"high_freq_operator\":\"and\"}}}}");
+    assertEquals(query.getGeneratedSql(), "{\"track_total_hits\":true,\"query\":{\"common\":{\"body\":{\"query\":\"the quick brown\",\"high_freq_operator\":\"and\"}}}}");
   }
 
   @Test
@@ -43,7 +43,7 @@ public class QueryTextCommonTermsTest extends BaseTest {
 
     List<Customer> list = query.findList();
     assertThat(list).hasSize(0);
-    assertEquals(query.getGeneratedSql(), "{\"query\":{\"common\":{\"body\":{\"query\":\"the brown\",\"cutoff_frequency\":0.001,\"low_freq_operator\":\"and\",\"high_freq_operator\":\"and\",\"minimum_should_match\":\"50%\"}}}}");
+    assertEquals(query.getGeneratedSql(), "{\"track_total_hits\":true,\"query\":{\"common\":{\"body\":{\"query\":\"the brown\",\"cutoff_frequency\":0.001,\"low_freq_operator\":\"and\",\"high_freq_operator\":\"and\",\"minimum_should_match\":\"50%\"}}}}");
   }
 
   @Test
@@ -62,7 +62,7 @@ public class QueryTextCommonTermsTest extends BaseTest {
 
     List<Customer> list = query.findList();
     assertThat(list).hasSize(0);
-    assertEquals(query.getGeneratedSql(), "{\"query\":{\"common\":{\"body\":{\"query\":\"the brown\",\"cutoff_frequency\":1.0,\"low_freq_operator\":\"and\",\"high_freq_operator\":\"and\",\"minimum_should_match\":{\"low_freq\":\"50%\"}}}}}");
+    assertEquals(query.getGeneratedSql(), "{\"track_total_hits\":true,\"query\":{\"common\":{\"body\":{\"query\":\"the brown\",\"cutoff_frequency\":1.0,\"low_freq_operator\":\"and\",\"high_freq_operator\":\"and\",\"minimum_should_match\":{\"low_freq\":\"50%\"}}}}}");
   }
 
   @Test
@@ -81,7 +81,7 @@ public class QueryTextCommonTermsTest extends BaseTest {
 
     List<Customer> list = query.findList();
     assertThat(list).hasSize(0);
-    assertEquals(query.getGeneratedSql(), "{\"query\":{\"common\":{\"body\":{\"query\":\"the brown\",\"cutoff_frequency\":1.0,\"low_freq_operator\":\"and\",\"high_freq_operator\":\"and\",\"minimum_should_match\":{\"high_freq\":\"50%\"}}}}}");
+    assertEquals(query.getGeneratedSql(), "{\"track_total_hits\":true,\"query\":{\"common\":{\"body\":{\"query\":\"the brown\",\"cutoff_frequency\":1.0,\"low_freq_operator\":\"and\",\"high_freq_operator\":\"and\",\"minimum_should_match\":{\"high_freq\":\"50%\"}}}}}");
   }
 
   @Test
@@ -99,7 +99,7 @@ public class QueryTextCommonTermsTest extends BaseTest {
 
     List<Customer> list = query.findList();
     assertThat(list).hasSize(0);
-    assertEquals(query.getGeneratedSql(), "{\"query\":{\"common\":{\"body\":{\"query\":\"the brown\",\"cutoff_frequency\":1.0,\"minimum_should_match\":{\"low_freq\":\"2\",\"high_freq\":\"50%\"}}}}}");
+    assertEquals(query.getGeneratedSql(), "{\"track_total_hits\":true,\"query\":{\"common\":{\"body\":{\"query\":\"the brown\",\"cutoff_frequency\":1.0,\"minimum_should_match\":{\"low_freq\":\"2\",\"high_freq\":\"50%\"}}}}}");
   }
 
 
