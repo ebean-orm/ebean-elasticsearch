@@ -64,7 +64,7 @@ public class EQueryEach<T> extends EQuery<T> implements EConsumeWhile<T> {
    */
   private List<T> fetchNextScroll() throws IOException {
     JsonParser moreJson = send.findNextScroll(currentScrollId);
-    beanParser = beanParser.moreJson(moreJson, true);
+    beanParser = beanParser.moreJson(moreJson);
     return read();
   }
 

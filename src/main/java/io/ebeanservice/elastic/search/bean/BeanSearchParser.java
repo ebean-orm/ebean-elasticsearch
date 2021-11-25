@@ -30,8 +30,8 @@ public class BeanSearchParser<T> extends BaseSearchResultParser {
   /**
    * Create another bean parser for more JSON (aka scroll queries).
    */
-  public BeanSearchParser<T> moreJson(JsonParser moreJson, boolean resetContext) {
-    this.listener.moreJson(moreJson, resetContext);
+  public BeanSearchParser<T> moreJson(JsonParser moreJson) {
+    this.listener.moreJson(moreJson);
     return new BeanSearchParser<>(moreJson, this);
   }
 
