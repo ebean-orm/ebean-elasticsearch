@@ -1,8 +1,6 @@
 package integration.support;
 
-import io.ebean.DocumentStore;
-import io.ebean.Ebean;
-import io.ebean.EbeanServer;
+import io.ebean.*;
 import org.example.domain.Contact;
 import org.example.domain.Country;
 import org.example.domain.Customer;
@@ -16,13 +14,13 @@ public class EmbeddedServer {
 
   final boolean indexOnStart = true;
 
-  final EbeanServer server;
+  final Database server;
 
   final DocumentStore documentStore;
 
   public EmbeddedServer() {
 
-    server = Ebean.getDefaultServer();
+    server = DB.getDefault();
     documentStore = server.docStore();
 
     init();
@@ -48,7 +46,7 @@ public class EmbeddedServer {
     }
   }
 
-  public EbeanServer getServer() {
+  public Database getServer() {
     return server;
   }
 }

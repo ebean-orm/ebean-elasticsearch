@@ -1,6 +1,6 @@
 package integration;
 
-import io.ebean.Ebean;
+import io.ebean.DB;
 import org.example.domain.Customer;
 import org.example.domain.Product;
 import org.testng.annotations.Test;
@@ -16,36 +16,36 @@ public class PartialUpdateTest extends BaseTest {
     prod.setSku("KB9F");
     prod.setName("Night Keyboard");
 
-    Ebean.save(prod);
+    DB.save(prod);
 
     Thread.sleep(100);
 
-    Product partial = Ebean.find(Product.class)
+    Product partial = DB.find(Product.class)
         .select("name")
         .where().idEq(prod.getId())
         .findOne();
 
     partial.setName("Mighty Keyboard");
-    Ebean.save(partial);
+    DB.save(partial);
 
-    assertThat(Ebean.getBeanState(partial).getLoadedProps()).contains("whenModified");
-    assertThat(Ebean.getBeanState(partial).getLoadedProps()).doesNotContain("version");
+    assertThat(DB.beanState(partial).loadedProps()).contains("whenModified");
+    assertThat(DB.beanState(partial).loadedProps()).doesNotContain("version");
 
     sleepToPropagate();
 
-    Product partialWithVersion = Ebean.find(Product.class)
+    Product partialWithVersion = DB.find(Product.class)
         .select("name,version")
         .where().idEq(prod.getId())
         .findOne();
 
     partialWithVersion.setName("Silly Keyboard");
-    Ebean.save(partialWithVersion);
+    DB.save(partialWithVersion);
 
-    assertThat(Ebean.getBeanState(partialWithVersion).getLoadedProps()).contains("whenModified", "version");
+    assertThat(DB.beanState(partialWithVersion).loadedProps()).contains("whenModified", "version");
 
   }
 
-  public void partial_update() throws InterruptedException {
+  public void partial_update() {
 
     Customer rob = server.find(Customer.class)
         .select("id, status, name, smallNote")

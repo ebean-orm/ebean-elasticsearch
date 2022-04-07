@@ -1,7 +1,6 @@
 package integration;
 
-import io.ebean.Ebean;
-import io.ebean.FetchConfig;
+import io.ebean.DB;
 import io.ebean.Query;
 import org.example.domain.Order;
 import org.example.domain.Product;
@@ -24,7 +23,7 @@ public class QueryEachTest extends BaseTest {
         .where().startsWith("sku", "C00")
         .query();
 
-    final LinkedHashSet<String> skuSet = new LinkedHashSet<String>();
+    final LinkedHashSet<String> skuSet = new LinkedHashSet<>();
     final AtomicInteger count = new AtomicInteger();
 
     query.findEach(bean -> {
@@ -45,7 +44,7 @@ public class QueryEachTest extends BaseTest {
         .where().startsWith("sku", "C00")
         .query();
 
-    final LinkedHashSet<String> skuSet = new LinkedHashSet<String>();
+    final LinkedHashSet<String> skuSet = new LinkedHashSet<>();
     final AtomicInteger count = new AtomicInteger();
 
     query.findEachWhile(bean -> {
@@ -69,11 +68,11 @@ public class QueryEachTest extends BaseTest {
         //.fetch("shipments", new FetchConfig().query())
         .orderBy().asc("whenCreated");
 
-    final List<Order> collect = new ArrayList<Order>();
+    final List<Order> collect = new ArrayList<>();
 
-    query.findEach(bean -> collect.add(bean));
+    query.findEach(collect::add);
 
-    String json = Ebean.json().toJson(collect);
+    String json = DB.json().toJson(collect);
     System.out.println(json);
 
     for (Order order : collect) {

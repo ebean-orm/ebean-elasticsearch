@@ -1,6 +1,6 @@
 package io.ebeanservice.elastic;
 
-import io.ebean.Ebean;
+import io.ebean.DB;
 import io.ebeaninternal.api.SpiEbeanServer;
 import io.ebeaninternal.server.deploy.BeanDescriptor;
 import io.ebeanservice.docstore.api.mapping.DocPropertyMapping;
@@ -15,7 +15,7 @@ public class DocMappingTest {
   @Test
   public void docMapping() {
 
-    SpiEbeanServer server = (SpiEbeanServer)Ebean.getDefaultServer();
+    SpiEbeanServer server = (SpiEbeanServer) DB.getDefault();
     BeanDescriptor<Order> desc = server.descriptor(Order.class);
 
     DocumentMapping documentMapping = desc.docMapping();

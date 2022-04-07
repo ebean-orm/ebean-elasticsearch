@@ -51,7 +51,7 @@ public class QueryByIdTest extends BaseTest {
   public void customer_withQueryJoin() {
 
     Customer customer = server.find(Customer.class)
-        .fetch("contacts", new FetchConfig().query())
+        .fetch("contacts", FetchConfig.ofQuery())
         .where()
         .idEq(1)
         .setUseDocStore(true)

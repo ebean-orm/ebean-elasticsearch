@@ -1,6 +1,6 @@
 package integration;
 
-import io.ebean.Ebean;
+import io.ebean.DB;
 import io.ebean.FetchConfig;
 import org.example.domain.Contact;
 import org.example.domain.Customer;
@@ -28,7 +28,7 @@ public class QueryJoinTest extends BaseTest {
       customer.getWhenCreated();
     }
 
-    String json = Ebean.json().toJson(contacts);
+    String json = DB.json().toJson(contacts);
     System.out.println(json);
   }
 
@@ -45,7 +45,7 @@ public class QueryJoinTest extends BaseTest {
       orders.size();
     }
 
-    String json = Ebean.json().toJson(customers);
+    String json = DB.json().toJson(customers);
     System.out.println(json);
     assertThat(json).contains("\"orders\":[{\"id\":");
   }
@@ -60,7 +60,7 @@ public class QueryJoinTest extends BaseTest {
         .fetchQuery("orders.shipments")
         .findList();
 
-    String json = Ebean.json().toJson(customers);
+    String json = DB.json().toJson(customers);
     System.out.println(json);
 
     assertThat(json).contains("\"orders\":[{\"id\":");
@@ -73,10 +73,10 @@ public class QueryJoinTest extends BaseTest {
 
     List<Order> orders = server.find(Order.class)
         .setUseDocStore(true)
-        .fetch("shipments", new FetchConfig().query())
+        .fetch("shipments", FetchConfig.ofQuery())
         .findList();
 
-    String json = Ebean.json().toJson(orders);
+    String json = DB.json().toJson(orders);
     System.out.println(json);
     assertThat(json).contains("\"shipments\":[{\"id\":");
   }
@@ -92,7 +92,7 @@ public class QueryJoinTest extends BaseTest {
       order.getShipments().size();
     }
 
-    String json = Ebean.json().toJson(orders);
+    String json = DB.json().toJson(orders);
     System.out.println(json);
     assertThat(json).contains("\"shipments\":[{\"id\":");
   }
@@ -105,11 +105,11 @@ public class QueryJoinTest extends BaseTest {
     server.find(Customer.class)
         .setUseDocStore(true)
         .setMaxRows(2) // reduce size to 2 such that we get multiple scrolls
-        .fetch("orders", new FetchConfig().query())
-        .fetch("contacts", new FetchConfig().query())
+        .fetch("orders", FetchConfig.ofQuery())
+        .fetch("contacts", FetchConfig.ofQuery())
         .findEach(bean -> collect.add(bean));
 
-    String json = Ebean.json().toJson(collect);
+    String json = DB.json().toJson(collect);
     System.out.println(json);
     assertThat(json).contains("\"contacts\":[{\"id\":");
     assertThat(json).contains("\"orders\":[{\"id\":");
@@ -127,7 +127,7 @@ public class QueryJoinTest extends BaseTest {
       assertThat(order.getShipments().size()).isEqualTo(0);
     }
 
-    String json = Ebean.json().toJson(orders);
+    String json = DB.json().toJson(orders);
     System.out.println(json);
     assertThat(json).doesNotContain("\"shipments\":[{\"id\":");
   }

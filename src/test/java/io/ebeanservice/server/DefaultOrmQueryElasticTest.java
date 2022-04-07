@@ -1,5 +1,6 @@
 package io.ebeanservice.server;
 
+import io.ebean.DB;
 import io.ebean.Ebean;
 import io.ebean.Query;
 import io.ebeaninternal.api.SpiQuery;
@@ -14,9 +15,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class DefaultOrmQueryElasticTest extends BaseElasticTest {
 
   @Test
-  public void writeElastic_on_SpiExpressionList() throws IOException {
+  public void writeElastic_on_SpiExpressionList() {
 
-    Query<Order> query = Ebean.find(Order.class)
+    Query<Order> query = DB.find(Order.class)
         .where().eq("customer.name", "Rob")
         .query();
 
@@ -27,9 +28,9 @@ public class DefaultOrmQueryElasticTest extends BaseElasticTest {
   }
 
   @Test
-  public void writeElastic() throws IOException {
+  public void writeElastic() {
 
-    Query<Order> query = Ebean.find(Order.class)
+    Query<Order> query = DB.find(Order.class)
         .select("status, customer.name, details.product.id")
         .where().eq("customer.name", "Rob")
         .query();
@@ -41,9 +42,9 @@ public class DefaultOrmQueryElasticTest extends BaseElasticTest {
   }
 
   @Test
-  public void asElasticQuery() throws IOException {
+  public void asElasticQuery() {
 
-    Query<Order> query = Ebean.find(Order.class)
+    Query<Order> query = DB.find(Order.class)
         .select("status")
         .where().eq("customer.name", "Rob")
         .query();
@@ -54,9 +55,9 @@ public class DefaultOrmQueryElasticTest extends BaseElasticTest {
   }
 
   @Test
-  public void asElasticQuery_firstRowsMaxRows() throws IOException {
+  public void asElasticQuery_firstRowsMaxRows() {
 
-    Query<Order> query = Ebean.find(Order.class)
+    Query<Order> query = DB.find(Order.class)
         .select("status")
         .setFirstRow(3)
         .setMaxRows(100)
@@ -69,11 +70,11 @@ public class DefaultOrmQueryElasticTest extends BaseElasticTest {
   }
 
   @Test
-  public void simpleExpression_on_assocId() throws IOException {
+  public void simpleExpression_on_assocId() {
 
-    Customer custOne = Ebean.getReference(Customer.class, 1);
+    Customer custOne = DB.reference(Customer.class, 1);
 
-    Query<Order> query = Ebean.find(Order.class)
+    Query<Order> query = DB.find(Order.class)
         .where().eq("customer", custOne)
         .query();
 

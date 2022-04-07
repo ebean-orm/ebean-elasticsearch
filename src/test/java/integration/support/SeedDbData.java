@@ -1,20 +1,10 @@
 package integration.support;
 
-import io.ebean.Ebean;
-import io.ebean.EbeanServer;
+import io.ebean.DB;
+import io.ebean.Database;
 import io.ebean.Transaction;
 import io.ebean.annotation.DocStoreMode;
-import org.example.domain.Address;
-import org.example.domain.Contact;
-import org.example.domain.Country;
-import org.example.domain.Customer;
-import org.example.domain.Order;
-import org.example.domain.OrderDetail;
-import org.example.domain.OrderShipment;
-import org.example.domain.Product;
-import org.example.domain.TruckRef;
-import org.example.domain.VehicleCar;
-import org.example.domain.VehicleTruck;
+import org.example.domain.*;
 
 import java.sql.Date;
 import java.util.ArrayList;
@@ -25,7 +15,7 @@ public class SeedDbData {
 
   private static boolean runOnce;
 
-  private static EbeanServer server = Ebean.getServer(null);
+  private static Database server = DB.getDefault();
 
   public static synchronized void reset(boolean updateDocStore) {
 
@@ -166,7 +156,7 @@ public class SeedDbData {
     contact.getSomeLongs().add(42L);
 
 
-    Ebean.save(cust1);
+    DB.save(cust1);
 
     Customer cust2 = insertCustomerNoAddress("Cust NoAddress");
     insertCustomerFiona("Fiona");
@@ -189,7 +179,7 @@ public class SeedDbData {
     c.addContact(createContact("Fiona", "Black"));
     c.addContact(createContact("Tracy", "Red"));
 
-    Ebean.save(c);
+    DB.save(c);
     return c;
   }
 
@@ -206,7 +196,7 @@ public class SeedDbData {
     c.setName(name);
     c.setStatus(Customer.Status.ACTIVE);
 
-    Ebean.save(c);
+    DB.save(c);
     return c;
   }
 
@@ -217,7 +207,7 @@ public class SeedDbData {
     c.setStatus(Customer.Status.NEW);
     c.addContact(createContact("Jack", "Black"));
 
-    Ebean.save(c);
+    DB.save(c);
     return c;
   }
 
@@ -240,7 +230,7 @@ public class SeedDbData {
       shippingAddr.setLine1(shippingStreet);
       shippingAddr.setLine2("Sandringham");
       shippingAddr.setCity("Auckland");
-      shippingAddr.setCountry(Ebean.getReference(Country.class, "NZ"));
+      shippingAddr.setCountry(DB.reference(Country.class, "NZ"));
 
       c.setShippingAddress(shippingAddr);
     }
@@ -250,7 +240,7 @@ public class SeedDbData {
       billingAddr.setLine1(billingStreet);
       billingAddr.setLine2("St Lukes");
       billingAddr.setCity("Auckland");
-      billingAddr.setCountry(Ebean.getReference(Country.class, "NZ"));
+      billingAddr.setCountry(DB.reference(Country.class, "NZ"));
 
       c.setBillingAddress(billingAddr);
     }
@@ -260,9 +250,9 @@ public class SeedDbData {
 
   private Order createOrder1(Customer customer) {
 
-    Product product1 = Ebean.getReference(Product.class, 1);
-    Product product2 = Ebean.getReference(Product.class, 2);
-    Product product3 = Ebean.getReference(Product.class, 3);
+    Product product1 = DB.reference(Product.class, 1);
+    Product product2 = DB.reference(Product.class, 2);
+    Product product3 = DB.reference(Product.class, 3);
 
 
     Order order = new Order();
@@ -277,13 +267,13 @@ public class SeedDbData {
 
     order.getShipments().add(new OrderShipment());
 
-    Ebean.save(order);
+    DB.save(order);
     return order;
   }
 
   private void createOrder2(Customer customer) {
 
-    Product product1 = Ebean.getReference(Product.class, 1);
+    Product product1 = DB.reference(Product.class, 1);
 
     Order order = new Order();
     order.setStatus(Order.Status.SHIPPED);
@@ -295,13 +285,13 @@ public class SeedDbData {
 
     order.getShipments().add(new OrderShipment());
 
-    Ebean.save(order);
+    DB.save(order);
   }
 
   private void createOrder3(Customer customer) {
 
-    Product product1 = Ebean.getReference(Product.class, 1);
-    Product product3 = Ebean.getReference(Product.class, 3);
+    Product product1 = DB.reference(Product.class, 1);
+    Product product3 = DB.reference(Product.class, 3);
 
     Order order = new Order();
     order.setStatus(Order.Status.COMPLETE);
@@ -315,7 +305,7 @@ public class SeedDbData {
 
     order.getShipments().add(new OrderShipment());
 
-    Ebean.save(order);
+    DB.save(order);
   }
 
   private void createOrder4(Customer customer) {
@@ -325,7 +315,7 @@ public class SeedDbData {
 
     order.getShipments().add(new OrderShipment());
 
-    Ebean.save(order);
+    DB.save(order);
   }
 
   private void createOrder5(Customer customer) {
@@ -334,6 +324,6 @@ public class SeedDbData {
     order.setCustomer(customer);
     order.getShipments().add(new OrderShipment());
 
-    Ebean.save(order);
+    DB.save(order);
   }
 }

@@ -1,17 +1,16 @@
 package io.ebeanservice.elastic;
 
-import io.ebean.Ebean;
+import integration.BaseTest;
+import io.ebean.DB;
 import io.ebean.Expr;
 import io.ebean.PagedList;
 import io.ebean.Query;
-import integration.BaseTest;
 import org.example.domain.Contact;
 import org.example.domain.Customer;
 import org.example.domain.Order;
 import org.example.domain.Product;
 import org.testng.annotations.Test;
 
-import java.io.IOException;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -24,7 +23,7 @@ public class ElasticDocumentStoreTest extends BaseTest {
 
 
   @Test
-  public void indexSettings() throws IOException {
+  public void indexSettings() {
 
     Map<String,Object> settings = new HashMap<String, Object>();
     settings.put("refresh_interval", "-1");
@@ -51,13 +50,13 @@ public class ElasticDocumentStoreTest extends BaseTest {
 
     docStore.copyIndex(Product.class, newIndex);
 
-    Product prod = Ebean.find(Product.class)
+    Product prod = DB.find(Product.class)
         .where().eq("name", "ZChair")
         .findOne();
 
     assertNotNull(prod);
     prod.setSku("Z99A");
-    Ebean.save(prod);
+    DB.save(prod);
 
     Thread.sleep(3000);
 
@@ -66,9 +65,9 @@ public class ElasticDocumentStoreTest extends BaseTest {
   }
 
   @Test
-  public void sortBy_when_propertyIsAnalysed() throws InterruptedException {
+  public void sortBy_when_propertyIsAnalysed() {
 
-    Query<Order> query = Ebean.find(Order.class)
+    Query<Order> query = DB.find(Order.class)
         .setUseDocStore(true)
         .orderBy().asc("customer.name");
 
@@ -77,9 +76,9 @@ public class ElasticDocumentStoreTest extends BaseTest {
   }
 
   @Test
-  public void findPagedList() throws InterruptedException {
+  public void findPagedList() {
 
-    Query<Order> query = Ebean.find(Order.class)
+    Query<Order> query = DB.find(Order.class)
         .setUseDocStore(true)
         .where().in("customer.id", 1, 2)
         .setMaxRows(2)
@@ -92,9 +91,9 @@ public class ElasticDocumentStoreTest extends BaseTest {
   }
 
   @Test
-  public void query_useDocStore_then_lazyLoadAssocMany() throws InterruptedException {
+  public void query_useDocStore_then_lazyLoadAssocMany() {
 
-    List<Customer> customers = Ebean.find(Customer.class)
+    List<Customer> customers = DB.find(Customer.class)
         .select("*")
         .orderBy().asc("name")
         .setUseDocStore(true)
@@ -113,9 +112,9 @@ public class ElasticDocumentStoreTest extends BaseTest {
   }
 
   @Test
-  public void query_useDocStore_then_lazyLoadAssocOne() throws InterruptedException {
+  public void query_useDocStore_then_lazyLoadAssocOne() {
 
-    List<Contact> contacts = Ebean.find(Contact.class)
+    List<Contact> contacts = DB.find(Contact.class)
         .where().icontains("lastName", "bunny")
         .orderBy().asc("lastName")
         .setUseDocStore(true)
@@ -135,14 +134,14 @@ public class ElasticDocumentStoreTest extends BaseTest {
   @Test
   public void term_when_propertyIsAnalysed() {
 
-    Query<Order> query = Ebean.find(Order.class)
+    Query<Order> query = DB.find(Order.class)
         .setUseDocStore(true)
         .where().eq("customer.name", "Rob")
         .orderBy().asc("customer.name");
 
     List<Order> list1 = query.findList();
 
-    Query<Order> query2 = Ebean.find(Order.class)
+    Query<Order> query2 = DB.find(Order.class)
         .setUseDocStore(true)
         .where().ne("customer.name", "Rob")
         .orderBy().asc("customer.name");
@@ -156,7 +155,7 @@ public class ElasticDocumentStoreTest extends BaseTest {
   @Test
   public void in_when() {
 
-    Query<Order> query = Ebean.find(Order.class)
+    Query<Order> query = DB.find(Order.class)
         .setUseDocStore(true)
         .where().in("customer.id", 1, 2)
         .orderBy().asc("customer.name");
@@ -170,7 +169,7 @@ public class ElasticDocumentStoreTest extends BaseTest {
   public void idsIn_when() {
 
     List<Integer> ids = Arrays.asList(1, 3);
-    Query<Order> query = Ebean.find(Order.class)
+    Query<Order> query = DB.find(Order.class)
         .setUseDocStore(true)
         .where().idIn(ids)
         .orderBy().asc("customer.name");
@@ -183,7 +182,7 @@ public class ElasticDocumentStoreTest extends BaseTest {
   @Test
   public void exists_when() {
 
-    Query<Order> query = Ebean.find(Order.class)
+    Query<Order> query = DB.find(Order.class)
         .setUseDocStore(true)
         .where().isNotNull("status").query();
 
@@ -194,7 +193,7 @@ public class ElasticDocumentStoreTest extends BaseTest {
   @Test
   public void exists_when_multipleFields() {
 
-    Query<Order> query = Ebean.find(Order.class)
+    Query<Order> query = DB.find(Order.class)
         .setUseDocStore(true)
         .where().isNotNull("status").isNotNull("customer.id")
         .query();
@@ -206,7 +205,7 @@ public class ElasticDocumentStoreTest extends BaseTest {
   @Test
   public void notExists_when() {
 
-    Query<Order> query = Ebean.find(Order.class)
+    Query<Order> query = DB.find(Order.class)
         .setUseDocStore(true)
         .where().isNull("status").query();
 
@@ -219,7 +218,7 @@ public class ElasticDocumentStoreTest extends BaseTest {
   @Test
   public void disjunction_when() {
 
-    Query<Order> query = Ebean.find(Order.class)
+    Query<Order> query = DB.find(Order.class)
         .setUseDocStore(true)
         .where()
         .disjunction().isNotNull("status").gt("customer.id", 1)
@@ -233,7 +232,7 @@ public class ElasticDocumentStoreTest extends BaseTest {
   @Test
   public void conjunction_when() {
 
-    Query<Order> query = Ebean.find(Order.class)
+    Query<Order> query = DB.find(Order.class)
         .setUseDocStore(true)
         .where()
         .conjunction().isNotNull("status").gt("customer.id", 1)
@@ -246,7 +245,7 @@ public class ElasticDocumentStoreTest extends BaseTest {
   @Test
   public void logicConjunction_when() {
 
-    Query<Order> query = Ebean.find(Order.class)
+    Query<Order> query = DB.find(Order.class)
         .setUseDocStore(true)
         .where()
         .and(Expr.isNotNull("status"), Expr.gt("customer.id", 1))
@@ -259,7 +258,7 @@ public class ElasticDocumentStoreTest extends BaseTest {
   @Test
   public void logicDisjunction_when() {
 
-    Query<Order> query = Ebean.find(Order.class)
+    Query<Order> query = DB.find(Order.class)
         .setUseDocStore(true)
         .where()
         .or(Expr.isNotNull("status"), Expr.gt("customer.id", 1))
@@ -272,7 +271,7 @@ public class ElasticDocumentStoreTest extends BaseTest {
   @Test
   public void existsQuery_when() {
 
-    Query<Order> query = Ebean.find(Order.class)
+    Query<Order> query = DB.find(Order.class)
         .setUseDocStore(true)
         .where()
         .or(Expr.isNotNull("status"), Expr.gt("customer.id", 1))
@@ -286,7 +285,7 @@ public class ElasticDocumentStoreTest extends BaseTest {
   @Test
   public void greaterThan() {
 
-    Query<Order> query = Ebean.find(Order.class)
+    Query<Order> query = DB.find(Order.class)
         .setUseDocStore(true)
         .where()
         .gt("customer.id", 1)
@@ -299,7 +298,7 @@ public class ElasticDocumentStoreTest extends BaseTest {
   @Test
   public void between() {
 
-    Query<Order> query = Ebean.find(Order.class)
+    Query<Order> query = DB.find(Order.class)
         .setUseDocStore(true)
         .where()
         .between("customer.id", 1, 2)
@@ -314,7 +313,7 @@ public class ElasticDocumentStoreTest extends BaseTest {
 
     long now = System.currentTimeMillis();
 
-    Query<Order> query = Ebean.find(Order.class)
+    Query<Order> query = DB.find(Order.class)
         .setUseDocStore(true)
         .where()
         .betweenProperties("orderDate", "shipDate", now)
@@ -331,7 +330,7 @@ public class ElasticDocumentStoreTest extends BaseTest {
     allEq.put("status", "COMPLETE");
     allEq.put("customer.id", 1);
 
-    Query<Order> query = Ebean.find(Order.class)
+    Query<Order> query = DB.find(Order.class)
         .setUseDocStore(true)
         .where()
         .allEq(allEq)
@@ -345,7 +344,7 @@ public class ElasticDocumentStoreTest extends BaseTest {
   @Test
   public void ieq() {
 
-    Query<Order> query = Ebean.find(Order.class)
+    Query<Order> query = DB.find(Order.class)
         .setUseDocStore(true)
         .where()
         .ieq("customer.name", "Rob")
@@ -358,7 +357,7 @@ public class ElasticDocumentStoreTest extends BaseTest {
   @Test(enabled = false) //TODO Review
   public void ieq_when_hasMultipleTermsSpaces() {
 
-    Query<Order> query = Ebean.find(Order.class)
+    Query<Order> query = DB.find(Order.class)
         .setUseDocStore(true)
         .where()
         .ieq("customer.name", "Cust Noaddress")
@@ -372,7 +371,7 @@ public class ElasticDocumentStoreTest extends BaseTest {
   @Test
   public void jsonPathBetween_when() {
 
-    Query<Order> query = Ebean.find(Order.class)
+    Query<Order> query = DB.find(Order.class)
         .setUseDocStore(true)
         .where()
         .jsonBetween("customer", "id", 1, 2)
@@ -385,7 +384,7 @@ public class ElasticDocumentStoreTest extends BaseTest {
   @Test
   public void jsonPathEqualTo_when() {
 
-    Query<Order> query = Ebean.find(Order.class)
+    Query<Order> query = DB.find(Order.class)
         .setUseDocStore(true)
         .where()
         .jsonEqualTo("customer", "id", 1)
@@ -398,7 +397,7 @@ public class ElasticDocumentStoreTest extends BaseTest {
   @Test
   public void integration_test() {
 
-    Query<Order> query = Ebean.find(Order.class)
+    Query<Order> query = DB.find(Order.class)
         .setUseDocStore(true)
         .select("status")
         .fetch("customer","id,name")
@@ -415,7 +414,7 @@ public class ElasticDocumentStoreTest extends BaseTest {
   @Test
   public void integration_test_findEach() {
 
-    Query<Order> query = Ebean.find(Order.class)
+    Query<Order> query = DB.find(Order.class)
         .setUseDocStore(true)
         .select("status")
         .fetch("customer","id,name")

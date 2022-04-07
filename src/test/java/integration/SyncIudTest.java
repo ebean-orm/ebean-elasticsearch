@@ -1,6 +1,6 @@
 package integration;
 
-import io.ebean.Ebean;
+import io.ebean.DB;
 import org.example.domain.Country;
 import org.testng.annotations.Test;
 
@@ -44,7 +44,7 @@ public class SyncIudTest extends BaseTest {
   @Test(dependsOnMethods = "update")
   public void delete() {
 
-    Ebean.delete(Country.class, "SA");
+    DB.delete(Country.class, "SA");
     // give time to propagate
     sleepToPropagate();
 
@@ -54,7 +54,7 @@ public class SyncIudTest extends BaseTest {
   }
 
   private Country fetchSaFromDocStore() {
-    return Ebean.find(Country.class)
+    return DB.find(Country.class)
         .where().idEq("SA")
         .setUseCache(false)
         .setUseDocStore(true)

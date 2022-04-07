@@ -4,12 +4,12 @@
 
   <groupId>io.ebean</groupId>
   <artifactId>ebean-elastic</artifactId>
-  <version>13.0.1-SNAPSHOT</version>
+  <version>13.2.0-SNAPSHOT</version>
 
   <parent>
     <groupId>org.avaje</groupId>
     <artifactId>java11-oss</artifactId>
-    <version>3.6</version>
+    <version>3.7</version>
   </parent>
 
   <scm>
@@ -40,14 +40,14 @@
     <dependency>
       <groupId>io.ebean</groupId>
       <artifactId>ebean-ddl-generator</artifactId>
-      <version>13.0.0</version>
+      <version>13.2.0</version>
       <scope>provided</scope>
     </dependency>
 
     <dependency>
       <groupId>io.ebean</groupId>
       <artifactId>ebean</artifactId>
-      <version>13.0.0</version>
+      <version>13.2.0</version>
       <scope>provided</scope>
     </dependency>
 
@@ -64,7 +64,7 @@
     <dependency>
       <groupId>io.ebean</groupId>
       <artifactId>ebean-test</artifactId>
-      <version>13.0.0</version>
+      <version>13.2.0</version>
       <scope>test</scope>
     </dependency>
 
@@ -101,7 +101,7 @@
         <extensions>true</extensions>
         <configuration>
           <tiles>
-            <tile>io.ebean.tile:enhancement:13.0.0</tile>
+            <tile>io.ebean.tile:enhancement:13.2.0</tile>
           </tiles>
         </configuration>
       </plugin>
