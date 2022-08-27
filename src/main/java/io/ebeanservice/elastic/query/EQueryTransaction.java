@@ -233,17 +233,7 @@ public class EQueryTransaction implements SpiTransaction {
   }
 
   @Override
-  public void setBatchGetGeneratedKeys(boolean getGeneratedKeys) {
-
-  }
-
-  @Override
   public void setFlushOnMixed(boolean batchFlushOnMixed) {
-
-  }
-
-  @Override
-  public void setBatchFlushOnMixed(boolean batchFlushOnMixed) {
 
   }
 
@@ -253,23 +243,8 @@ public class EQueryTransaction implements SpiTransaction {
   }
 
   @Override
-  public void setBatchFlushOnQuery(boolean batchFlushOnQuery) {
-
-  }
-
-  @Override
   public boolean isFlushOnQuery() {
     return false;
-  }
-
-  @Override
-  public boolean isBatchFlushOnQuery() {
-    return false;
-  }
-
-  @Override
-  public void flushBatch() throws PersistenceException {
-
   }
 
   @Override

@@ -2,13 +2,10 @@ package io.ebeanservice.server;
 
 
 import io.ebean.DB;
-import io.ebean.Ebean;
 import io.ebean.plugin.SpiServer;
 import io.ebeaninternal.api.SpiQuery;
 import io.ebeanservice.elastic.querywriter.ElasticJsonContext;
 import io.ebeanservice.elastic.querywriter.ElasticDocQueryContext;
-
-import java.io.IOException;
 
 public abstract class BaseElasticTest  {
 

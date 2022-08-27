@@ -5,7 +5,7 @@ import io.ebean.docstore.DocUpdateContext;
 import io.ebeaninternal.server.core.PersistRequestBean;
 import io.ebeaninternal.server.deploy.BeanDescriptor;
 import io.ebeaninternal.server.deploy.meta.DeployBeanDescriptor;
-import io.ebeaninternal.server.text.json.WriteJson;
+import io.ebeaninternal.server.json.WriteJson;
 import io.ebeanservice.docstore.api.DocStoreUpdateContext;
 import io.ebeanservice.docstore.api.support.DocStoreBeanBaseAdapter;
 import io.ebeanservice.elastic.bulk.BulkBuffer;

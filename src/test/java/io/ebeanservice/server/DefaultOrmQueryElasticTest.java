@@ -1,14 +1,11 @@
 package io.ebeanservice.server;
 
 import io.ebean.DB;
-import io.ebean.Ebean;
 import io.ebean.Query;
 import io.ebeaninternal.api.SpiQuery;
 import org.example.domain.Customer;
 import org.example.domain.Order;
 import org.testng.annotations.Test;
-
-import java.io.IOException;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

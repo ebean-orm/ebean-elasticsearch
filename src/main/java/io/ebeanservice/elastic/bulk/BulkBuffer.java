@@ -3,7 +3,7 @@ package io.ebeanservice.elastic.bulk;
 import io.ebean.config.JsonConfig;
 import io.ebean.FetchPath;
 import io.ebeaninternal.api.SpiEbeanServer;
-import io.ebeaninternal.server.text.json.WriteJson;
+import io.ebeaninternal.server.json.WriteJson;
 import io.ebeanservice.docstore.api.DocStoreUpdateContext;
 import com.fasterxml.jackson.core.JsonGenerator;
 
