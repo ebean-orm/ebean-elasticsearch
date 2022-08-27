@@ -113,10 +113,11 @@ public class BaseIndexQueueReader {
       // read a batch of queue entries
       Transaction transaction = server.createTransaction();
       try {
-        SqlQuery sqlQuery = server.sqlQuery(sqlObtainEntries);
-        List<SqlRow> rows = server.findList(sqlQuery, transaction);
-        SqlUpdate sqlUpdate = server.sqlUpdate(markProcessingSql);
+        List<SqlRow> rows = server.sqlQuery(sqlObtainEntries)
+                .usingTransaction(transaction)
+                .findList();
 
+        SqlUpdate sqlUpdate = server.sqlUpdate(markProcessingSql);
         transaction.setBatchSize(100);
         // update the entries marking them as processing
         for (SqlRow row : rows) {

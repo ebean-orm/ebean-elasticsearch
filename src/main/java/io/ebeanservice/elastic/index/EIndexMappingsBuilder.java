@@ -47,8 +47,8 @@ public class EIndexMappingsBuilder {
 
       gen.writeStartObject();
 
-      int shards = docMapping.getShards();
-      int replicas = docMapping.getReplicas();
+      int shards = docMapping.shards();
+      int replicas = docMapping.replicas();
 
       if (shards > 0 || replicas > 0) {
         gen.writeObjectFieldStart("settings");
@@ -95,48 +95,48 @@ public class EIndexMappingsBuilder {
     public void visitProperty(DocPropertyMapping property) {
 
       try {
-        gen.writeFieldName(property.getName());
+        gen.writeFieldName(property.name());
         gen.setPrettyPrinter(compactJson);
         gen.writeStartObject();
 
-        DocPropertyOptions options = property.getOptions();
-        if (options != null && isFalse(options.getEnabled())) {
+        DocPropertyOptions options = property.options();
+        if (options != null && isFalse(options.enabled())) {
           gen.writeBooleanField("enabled", false);
         } else {
 
           // map from general document type to elastic type
-          DocPropertyType logicalType = property.getType();
+          DocPropertyType logicalType = property.type();
           gen.writeStringField("type", typeMapping.get(logicalType));
 
           if (options != null) {
             if (options.isOptionsSet()) {
-              gen.writeStringField("index_options", options.getOptions().name().toLowerCase());
+              gen.writeStringField("index_options", options.options().name().toLowerCase());
             }
-            if (isFalse(options.getNorms())) {
+            if (isFalse(options.norms())) {
               gen.writeBooleanField("norms", false);
             }
-            if (isFalse(options.getDocValues())) {
+            if (isFalse(options.docValues())) {
               gen.writeBooleanField("docValues", false);
             }
-            if (isTrue(options.getStore())) {
+            if (isTrue(options.store())) {
               gen.writeBooleanField("store", true);
             }
-            if (options.getBoost() != null) {
-              gen.writeNumberField("boost", options.getBoost());
+            if (options.boost() != null) {
+              gen.writeNumberField("boost", options.boost());
             }
-            if (options.getNullValue() != null) {
-              gen.writeStringField("null_value", options.getNullValue());
+            if (options.nullValue() != null) {
+              gen.writeStringField("null_value", options.nullValue());
             }
-            if (options.getCopyTo() != null) {
-              gen.writeStringField("copy_to", options.getCopyTo());
+            if (options.copyTo() != null) {
+              gen.writeStringField("copy_to", options.copyTo());
             }
-            if (options.getAnalyzer() != null) {
-              gen.writeStringField("analyzer", options.getAnalyzer());
+            if (options.analyzer() != null) {
+              gen.writeStringField("analyzer", options.analyzer());
             }
-            if (options.getSearchAnalyzer() != null) {
-              gen.writeStringField("search_analyzer", options.getSearchAnalyzer());
+            if (options.searchAnalyzer() != null) {
+              gen.writeStringField("search_analyzer", options.searchAnalyzer());
             }
-            if (isTrue(options.getSortable())) {
+            if (isTrue(options.sortable())) {
               // add raw field option
               gen.writeObjectFieldStart("fields");
               gen.writeObjectFieldStart("raw");
@@ -165,7 +165,7 @@ public class EIndexMappingsBuilder {
     @Override
     public void visitBeginObject(DocPropertyMapping property) {
       try {
-        gen.writeObjectFieldStart(property.getName());
+        gen.writeObjectFieldStart(property.name());
         gen.writeObjectFieldStart("properties");
       } catch (IOException e) {
         throw new PersistenceIOException(e);
@@ -185,7 +185,7 @@ public class EIndexMappingsBuilder {
     @Override
     public void visitBeginList(DocPropertyMapping property) {
       try {
-        gen.writeObjectFieldStart(property.getName());
+        gen.writeObjectFieldStart(property.name());
         gen.writeStringField("type", "nested");
         gen.writeObjectFieldStart("properties");
       } catch (IOException e) {

@@ -20,7 +20,7 @@ public class DocMappingTest {
 
     DocumentMapping documentMapping = desc.docMapping();
 
-    DocPropertyMapping properties = documentMapping.getProperties();
+    DocPropertyMapping properties = documentMapping.properties();
 
     assertThat(properties).isNotNull();
   }

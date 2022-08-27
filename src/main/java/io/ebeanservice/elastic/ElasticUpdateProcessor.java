@@ -110,14 +110,14 @@ public class ElasticUpdateProcessor implements DocStoreUpdateProcessor {
     try {
       BulkUpdate txn = createBulkUpdate(batchSize);
 
-      for (DocStoreUpdate persistEvent : updates.getPersistEvents()) {
+      for (DocStoreUpdate persistEvent : updates.persistEvents()) {
         persistEvent.docStoreUpdate(txn.obtain());
       }
-      for (DocStoreUpdate deleteEvent : updates.getDeleteEvents()) {
+      for (DocStoreUpdate deleteEvent : updates.deleteEvents()) {
         deleteEvent.docStoreUpdate(txn.obtain());
       }
 
-      processQueue(txn, updates.getNestedEvents());
+      processQueue(txn, updates.nestedEvents());
       txn.flush();
 
       sendQueueEvents(updates);
@@ -149,7 +149,7 @@ public class ElasticUpdateProcessor implements DocStoreUpdateProcessor {
    * Add the queue entries to the queue for later processing.
    */
   private void sendQueueEvents(DocStoreUpdates docStoreUpdates) {
-    queueWriter.queue(docStoreUpdates.getQueueEntries());
+    queueWriter.queue(docStoreUpdates.queueEntries());
   }
 
 }
