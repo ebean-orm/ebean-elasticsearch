@@ -2,6 +2,7 @@ package io.ebeanservice.elastic.query;
 
 import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonParser;
+import io.avaje.applog.AppLog;
 import io.ebean.PagedList;
 import io.ebean.PersistenceIOException;
 import io.ebean.Query;
@@ -26,20 +27,20 @@ import io.ebeanservice.elastic.search.bean.BeanSearchParser;
 import io.ebeanservice.elastic.search.rawsource.RawSourceCopier;
 import io.ebeanservice.elastic.search.rawsource.RawSourceEach;
 import io.ebeanservice.elastic.support.IndexMessageSender;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.List;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 
+import static java.lang.System.Logger.Level.DEBUG;
+
 /**
  * Internal query service.
  */
 public class EQueryService {
 
-  private static final Logger logger = LoggerFactory.getLogger(EQueryService.class);
+  private static final System.Logger logger = AppLog.getLogger(EQueryService.class);
 
   private final SpiServer server;
 
@@ -216,7 +217,7 @@ public class EQueryService {
 
     BeanType<?> desc = query.getBeanDescriptor();
     long count = findEachRawSource(query, new RawSourceCopier(txn, desc.docStore().indexType(), newIndex));
-    logger.debug("total [{}] entries copied to index:{}", count, newIndex);
+    logger.log(DEBUG, "total [{0}] entries copied to index:{1}", count, newIndex);
     return count;
   }
 

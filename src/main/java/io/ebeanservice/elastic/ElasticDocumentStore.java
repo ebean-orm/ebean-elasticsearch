@@ -1,11 +1,8 @@
 package io.ebeanservice.elastic;
 
 import com.fasterxml.jackson.core.JsonFactory;
-import io.ebean.DocStoreQueueEntry;
-import io.ebean.DocumentStore;
-import io.ebean.PagedList;
-import io.ebean.PersistenceIOException;
-import io.ebean.Query;
+import io.avaje.applog.AppLog;
+import io.ebean.*;
 import io.ebean.config.DocStoreConfig;
 import io.ebean.docstore.DocQueryContext;
 import io.ebean.docstore.RawDoc;
@@ -17,8 +14,6 @@ import io.ebeanservice.elastic.bulk.BulkUpdate;
 import io.ebeanservice.elastic.index.EIndexService;
 import io.ebeanservice.elastic.query.EQueryService;
 import io.ebeanservice.elastic.support.IndexMessageSender;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.List;
@@ -33,7 +28,7 @@ public class ElasticDocumentStore implements DocumentStore {
   /**
    * Logger that can be used to log Bulk API messages.
    */
-  public static final Logger BULK = LoggerFactory.getLogger("io.ebean.BULK");
+  public static final System.Logger BULK = AppLog.getLogger("io.ebean.BULK");
 
   private final SpiServer server;
 

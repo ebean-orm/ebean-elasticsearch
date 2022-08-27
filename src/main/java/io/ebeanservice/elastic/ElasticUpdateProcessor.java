@@ -1,14 +1,12 @@
 package io.ebeanservice.elastic;
 
+import com.fasterxml.jackson.core.JsonFactory;
+import io.avaje.applog.AppLog;
 import io.ebean.DocStoreQueueEntry;
 import io.ebean.config.JsonConfig;
 import io.ebean.plugin.BeanType;
 import io.ebean.plugin.SpiServer;
-import io.ebeanservice.docstore.api.DocStoreQueryUpdate;
-import io.ebeanservice.docstore.api.DocStoreTransaction;
-import io.ebeanservice.docstore.api.DocStoreUpdate;
-import io.ebeanservice.docstore.api.DocStoreUpdateProcessor;
-import io.ebeanservice.docstore.api.DocStoreUpdates;
+import io.ebeanservice.docstore.api.*;
 import io.ebeanservice.elastic.bulk.BulkSender;
 import io.ebeanservice.elastic.bulk.BulkTransaction;
 import io.ebeanservice.elastic.bulk.BulkUpdate;
@@ -17,21 +15,21 @@ import io.ebeanservice.elastic.support.IndexQueueWriter;
 import io.ebeanservice.elastic.update.ConvertToGroups;
 import io.ebeanservice.elastic.update.ProcessGroup;
 import io.ebeanservice.elastic.update.UpdateGroup;
-import com.fasterxml.jackson.core.JsonFactory;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import javax.persistence.PersistenceException;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.List;
 
+import static java.lang.System.Logger.Level.DEBUG;
+import static java.lang.System.Logger.Level.ERROR;
+
 /**
  * ElasticSearch implementation of the DocStoreUpdateProcessor.
  */
 public class ElasticUpdateProcessor implements DocStoreUpdateProcessor {
 
-  private final Logger logger = LoggerFactory.getLogger(ElasticUpdateProcessor.class);
+  private final System.Logger logger = AppLog.getLogger(ElasticUpdateProcessor.class);
 
   private final SpiServer server;
 
@@ -69,11 +67,11 @@ public class ElasticUpdateProcessor implements DocStoreUpdateProcessor {
     if (changesToQueue != null) {
       server.backgroundExecutor().execute(() -> {
         try {
-          logger.debug("queue wait for changes...");
+          logger.log(DEBUG, "queue wait for changes...");
           Thread.sleep(1000);
           process(changesToQueue, 0);
         } catch (Exception e) {
-          logger.error("Error processing queued changes ", e);
+          logger.log(ERROR, "Error processing queued changes ", e);
         }
       });
     }
@@ -126,7 +124,7 @@ public class ElasticUpdateProcessor implements DocStoreUpdateProcessor {
 
     } catch (IOException e) {
       //TODO: updates to queue entries and insert into queue
-      logger.error("Failed to send bulk updates", e);
+      logger.log(ERROR, "Failed to send bulk updates", e);
     }
   }
 

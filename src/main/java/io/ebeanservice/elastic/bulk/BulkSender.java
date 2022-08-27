@@ -1,25 +1,27 @@
 package io.ebeanservice.elastic.bulk;
 
+import com.fasterxml.jackson.core.JsonFactory;
+import com.fasterxml.jackson.core.JsonGenerator;
 import io.ebean.config.JsonConfig;
 import io.ebean.text.json.EJson;
 import io.ebeanservice.elastic.ElasticDocumentStore;
 import io.ebeanservice.elastic.support.IndexMessageResponse;
 import io.ebeanservice.elastic.support.IndexMessageSender;
 import io.ebeanservice.elastic.support.StringBuilderWriter;
-import com.fasterxml.jackson.core.JsonFactory;
-import com.fasterxml.jackson.core.JsonGenerator;
-import org.slf4j.Logger;
 
 import java.io.IOException;
 import java.util.Collections;
 import java.util.Map;
+
+import static java.lang.System.Logger.Level.DEBUG;
+import static java.lang.System.Logger.Level.TRACE;
 
 /**
  * Sends Bulk API messages to ElasticSearch.
  */
 public class BulkSender {
 
-  private static Logger bulkLogger = ElasticDocumentStore.BULK;
+  private static final System.Logger bulkLogger = ElasticDocumentStore.BULK;
 
   private final JsonFactory jsonFactory;
 
@@ -58,18 +60,18 @@ public class BulkSender {
 
     String content = buffer.getContent();
     if (content.isEmpty()) {
-      if (bulkLogger.isDebugEnabled()) {
-        bulkLogger.debug("ElasticBulkMessage is empty?");
+      if (bulkLogger.isLoggable(DEBUG)) {
+        bulkLogger.log(DEBUG, "ElasticBulkMessage is empty?");
       }
       return Collections.emptyMap();
     }
 
-    if (bulkLogger.isTraceEnabled()) {
-      bulkLogger.trace("ElasticBulkMessage Request:\n{}", content);
+    if (bulkLogger.isLoggable(TRACE)) {
+      bulkLogger.log(TRACE, "ElasticBulkMessage Request:\n{0}", content);
     }
     String response = messageSender.postBulk(content);
-    if (bulkLogger.isTraceEnabled()) {
-      bulkLogger.trace("ElasticBulkMessage Response:\n{}", response);
+    if (bulkLogger.isLoggable(TRACE)) {
+      bulkLogger.log(TRACE, "ElasticBulkMessage Response:\n{0}", response);
     }
 
     return parseBulkResponse(response);

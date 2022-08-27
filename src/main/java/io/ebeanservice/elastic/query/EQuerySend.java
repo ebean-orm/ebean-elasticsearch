@@ -2,21 +2,22 @@ package io.ebeanservice.elastic.query;
 
 import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonParser;
+import io.avaje.applog.AppLog;
 import io.ebeanservice.docstore.api.DocumentNotFoundException;
 import io.ebeanservice.elastic.support.IndexMessageResponse;
 import io.ebeanservice.elastic.support.IndexMessageSender;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.Set;
+
+import static java.lang.System.Logger.Level.ERROR;
 
 /**
  * Query request sender.
  */
 public class EQuerySend {
 
-  private static final Logger logger = LoggerFactory.getLogger(EQuerySend.class);
+  private static final System.Logger logger = AppLog.getLogger(EQuerySend.class);
 
   private final JsonFactory jsonFactory;
 
@@ -97,7 +98,7 @@ public class EQuerySend {
     try {
       messageSender.clearScrollIds(scrollIds);
     } catch (IOException e) {
-      logger.error("Error trying to clear scrollIds: " + scrollIds, e);
+      logger.log(ERROR, "Error trying to clear scrollIds: " + scrollIds, e);
     }
   }
 

@@ -1,23 +1,27 @@
 package io.ebeanservice.elastic.support;
 
+import io.avaje.applog.AppLog;
 import io.ebean.SqlQuery;
 import io.ebean.SqlRow;
 import io.ebean.SqlUpdate;
 import io.ebean.Transaction;
 import io.ebeaninternal.api.SpiEbeanServer;
-import io.ebeanservice.docstore.api.DocStoreUpdates;
 import io.ebeaninternal.server.deploy.BeanDescriptor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import io.ebeanservice.docstore.api.DocStoreUpdates;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+
+import static java.lang.System.Logger.Level.DEBUG;
 
 /**
  * Base implementation that will periodically read the queue and process the entries.
  */
 public class BaseIndexQueueReader {
 
-  protected Logger logger = LoggerFactory.getLogger(BaseIndexQueueReader.class);
+  protected System.Logger logger = AppLog.getLogger(BaseIndexQueueReader.class);
 
   protected final SpiEbeanServer server;
 
@@ -38,7 +42,7 @@ public class BaseIndexQueueReader {
 
     // obtain a cluster wide lock
     if (!obtainClusterWideLock()) {
-      logger.debug("did not obtain cluster wide lock");
+      logger.log(DEBUG, "did not obtain cluster wide lock");
       return false;
     }
 

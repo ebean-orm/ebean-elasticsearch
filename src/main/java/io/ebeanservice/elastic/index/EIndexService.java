@@ -1,31 +1,26 @@
 package io.ebeanservice.elastic.index;
 
+import com.fasterxml.jackson.core.JsonFactory;
+import com.fasterxml.jackson.core.JsonGenerator;
+import io.avaje.applog.AppLog;
 import io.ebean.PersistenceIOException;
 import io.ebean.config.DocStoreConfig;
 import io.ebean.plugin.BeanType;
 import io.ebean.plugin.SpiServer;
 import io.ebean.text.json.EJson;
 import io.ebeanservice.elastic.support.IndexMessageSender;
-import com.fasterxml.jackson.core.JsonFactory;
-import com.fasterxml.jackson.core.JsonGenerator;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.LineNumberReader;
-import java.io.StringWriter;
+import java.io.*;
 import java.util.Map;
+
+import static java.lang.System.Logger.Level.*;
 
 /**
  * Index exists, drop, create functions.
  */
 public class EIndexService {
 
-  private static final Logger logger = LoggerFactory.getLogger(EIndexService.class);
+  private static final System.Logger logger = AppLog.getLogger(EIndexService.class);
 
   private final SpiServer server;
 
@@ -138,23 +133,23 @@ public class EIndexService {
 
     if (indexExists(indexName)) {
       if (!dropCreate) {
-        logger.debug("index {} already exists", indexName);
+        logger.log(DEBUG, "index {0} already exists", indexName);
         return false;
       }
-      logger.debug("drop index {}", indexName);
+      logger.log(DEBUG, "drop index {0}", indexName);
       dropIndex(indexName);
     }
-    logger.debug("create index {}", indexName);
+    logger.log(DEBUG, "create index {0}", indexName);
     sender.indexCreate(indexName, jsonMapping);
     if (alias != null) {
       if (indexExists(alias)) {
-        logger.debug("drop alias {}", alias, indexName);
+        logger.log(DEBUG, "drop alias {0}", alias);
         dropIndex(alias);
       }
     }
     if (alias != null) {
       String aliasJson = asJson(new AliasChanges().add(indexName, alias));
-      logger.debug("add alias {} for index {}", alias, indexName);
+      logger.log(DEBUG, "add alias {0} for index {1}", alias, indexName);
       sender.indexAlias(aliasJson);
     }
     return true;
@@ -214,14 +209,14 @@ public class EIndexService {
 
     File resourceDir = new File(config.getPathToResources());
     if (!resourceDir.exists()) {
-      logger.error("docStore.pathToResources [{}] does not exist?", config.getPathToResources());
+      logger.log(ERROR, "docStore.pathToResources [{0}] does not exist?", config.getPathToResources());
       return;
     }
     try {
       String mappingPath = getMappingPath();
       File dir = new File(resourceDir, mappingPath);
       if (!dir.exists() && !dir.mkdirs()) {
-        logger.warn("Unable to make directories for {}", dir.getAbsolutePath());
+        logger.log(WARNING, "Unable to make directories for {0}", dir.getAbsolutePath());
       }
       String mappingSuffix = getMappingSuffix();
       File file = new File(dir, indexName + mappingSuffix);
@@ -230,7 +225,7 @@ public class EIndexService {
       writer.flush();
       writer.close();
     } catch (IOException e) {
-      logger.error("Error trying to write index mapping", e);
+      logger.log(ERROR, "Error trying to write index mapping", e);
     }
   }
 

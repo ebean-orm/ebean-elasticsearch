@@ -1,23 +1,24 @@
 package io.ebeanservice.elastic.support;
 
+import io.avaje.applog.AppLog;
 import io.ebean.config.DocStoreConfig;
 import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.Set;
+
+import static java.lang.System.Logger.Level.DEBUG;
 
 /**
  * Basic implementation for sending the JSON payload to the ElasticSearch Bulk API.
  */
 public class BaseHttpMessageSender implements IndexMessageSender {
 
-  public static final Logger logger = LoggerFactory.getLogger("io.ebean.ELQ");
+  public static final System.Logger logger = AppLog.getLogger("io.ebean.ELQ");
 
   public static final MediaType JSON = MediaType.parse("application/json; charset=utf-8");
 
@@ -178,8 +179,8 @@ public class BaseHttpMessageSender implements IndexMessageSender {
       sb.append(scrollId);
     }
 
-    if (logger.isDebugEnabled()) {
-      logger.debug("clearScrollIds: {}", sb.toString());
+    if (logger.isLoggable(DEBUG)) {
+      logger.log(DEBUG, "clearScrollIds: {0}", sb.toString());
     }
 
     Request request = new Request.Builder()
@@ -198,8 +199,8 @@ public class BaseHttpMessageSender implements IndexMessageSender {
     String url = baseUrl + indexName + "/_doc/" + docId + "/_source";
 
     Request request = new Request.Builder().url(url).get().build();
-    if (logger.isDebugEnabled()) {
-      logger.debug("getDocSource: {}", url);
+    if (logger.isLoggable(DEBUG)) {
+      logger.log(DEBUG, "getDocSource: {0}", url);
     }
 
     Response response = client.newCall(request).execute();
@@ -216,8 +217,8 @@ public class BaseHttpMessageSender implements IndexMessageSender {
 
   private Response putJson(String url, String json) throws IOException {
 
-    if (logger.isDebugEnabled()) {
-      logger.debug("PUT url:{} json:{}", url, json);
+    if (logger.isLoggable(DEBUG)) {
+      logger.log(DEBUG, "PUT url:{0} json:{1}", url, json);
     }
 
     RequestBody body = RequestBody.create(JSON, json);
@@ -234,8 +235,8 @@ public class BaseHttpMessageSender implements IndexMessageSender {
 
   private Response postJson(boolean debug, String url, String json) throws IOException {
 
-    if (debug && logger.isDebugEnabled()) {
-      logger.debug("POST url:{} json:{}", url, json);
+    if (debug && logger.isLoggable(DEBUG)) {
+      logger.log(DEBUG, "POST url:{0} json:{1}", url, json);
     }
 
     RequestBody body = RequestBody.create(JSON, json);
@@ -248,8 +249,8 @@ public class BaseHttpMessageSender implements IndexMessageSender {
 
   private String responseDebug(String method, String url, Response response) throws IOException {
     String responseBody = response.body().string();
-    if (logger.isDebugEnabled()) {
-      logger.debug("{} url:{} response: {}", method, url, responseBody);
+    if (logger.isLoggable(DEBUG)) {
+      logger.log(DEBUG, "{0} url:{1} response: {2}", method, url, responseBody);
     }
     return responseBody;
   }

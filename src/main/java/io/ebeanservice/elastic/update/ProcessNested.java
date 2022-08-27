@@ -1,25 +1,29 @@
 package io.ebeanservice.elastic.update;
 
-import io.ebean.*;
+import io.avaje.applog.AppLog;
+import io.ebean.Database;
+import io.ebean.FetchPath;
+import io.ebean.PersistenceIOException;
+import io.ebean.Query;
 import io.ebean.plugin.BeanDocType;
 import io.ebean.plugin.BeanType;
 import io.ebean.plugin.Property;
 import io.ebean.util.SplitName;
 import io.ebeanservice.elastic.bulk.BulkUpdate;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static java.lang.System.Logger.Level.ERROR;
+
 /**
  * Process an embedded document update.
  */
 public class ProcessNested<T> {
 
-  private static final Logger log = LoggerFactory.getLogger(ProcessNested.class);
+  private static final System.Logger log = AppLog.getLogger(ProcessNested.class);
 
   private final Database server;
   private final BeanType<T> desc;
@@ -131,7 +135,7 @@ public class ProcessNested<T> {
         }
 
       } catch (IOException e) {
-        log.error("Error performing updateByQuery", e);
+        log.log(ERROR, "Error performing updateByQuery", e);
       }
     }
     return 0;
@@ -185,7 +189,7 @@ public class ProcessNested<T> {
 
       String json = jsonMap.get(targetId);
       if (json == null) {
-        log.error("No content for updateEmbedded path:{} id:{}", nestedPath, beanId);
+        log.log(ERROR, "No content for updateEmbedded path:{0} id:{1}", nestedPath, beanId);
       } else {
         beanDocType.updateEmbedded(beanId, nestedPath, json, txn.obtain());
       }
