@@ -394,6 +394,11 @@ public class EQueryTransaction implements SpiTransaction {
   }
 
   @Override
+  public void rollbackAndContinue() {
+
+  }
+
+  @Override
   public void rollback() throws PersistenceException {
 
   }
@@ -420,7 +425,7 @@ public class EQueryTransaction implements SpiTransaction {
 
   @Override
   public boolean isActive() {
-    return false;
+    return true;
   }
 
   @Override
