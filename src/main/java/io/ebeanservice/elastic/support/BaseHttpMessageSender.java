@@ -196,7 +196,7 @@ public class BaseHttpMessageSender implements IndexMessageSender {
   @Override
   public IndexMessageResponse getDocSource(String indexName, String docId) throws IOException {
 
-    String url = baseUrl + indexName + "/_doc/" + docId + "/_source";
+    String url = baseUrl + indexName + "/_source/" + docId;// + "/_source";
 
     Request request = new Request.Builder().url(url).get().build();
     if (logger.isLoggable(DEBUG)) {
