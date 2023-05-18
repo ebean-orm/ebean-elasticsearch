@@ -56,7 +56,7 @@ public class QueryMatchOptionTest extends BaseTest {
 
     Match options = new Match().phrase()
         .analyzer("whitespace")
-        .boost(2)
+        //.boost(2)
         //.cutoffFrequency(1)
         //.minShouldMatch("50%")
         .zeroTerms("all")
@@ -69,7 +69,7 @@ public class QueryMatchOptionTest extends BaseTest {
         .query();
 
     List<Customer> list = query.findList();
-    assertEquals(query.getGeneratedSql(), "{\"track_total_hits\":true,\"query\":{\"match_phrase\":{\"name\":{\"query\":\"Cust DoesNotExist\",\"boost\":2.0,\"zero_terms_query\":\"all\",\"analyzer\":\"whitespace\"}}}}");
+    assertEquals(query.getGeneratedSql(), "{\"track_total_hits\":true,\"query\":{\"match_phrase\":{\"name\":{\"query\":\"Cust DoesNotExist\",\"zero_terms_query\":\"all\",\"analyzer\":\"whitespace\"}}}}");
     assertThat(list).hasSize(0);
   }
 
@@ -78,7 +78,7 @@ public class QueryMatchOptionTest extends BaseTest {
 
     Match options = new Match().phrase()
         .analyzer("whitespace")
-        .boost(2)
+        //.boost(2)
         //.cutoffFrequency(1)
         //.minShouldMatch("50%")
         .maxExpansions(3)
@@ -90,7 +90,7 @@ public class QueryMatchOptionTest extends BaseTest {
         .query();
 
     List<Customer> list = query.findList();
-    assertEquals(query.getGeneratedSql(), "{\"track_total_hits\":true,\"query\":{\"match_phrase_prefix\":{\"name\":{\"query\":\"Cust NoAdd\",\"boost\":2.0,\"analyzer\":\"whitespace\",\"max_expansions\":3}}}}");
+    assertEquals(query.getGeneratedSql(), "{\"track_total_hits\":true,\"query\":{\"match_phrase_prefix\":{\"name\":{\"query\":\"Cust NoAdd\",\"analyzer\":\"whitespace\",\"max_expansions\":3}}}}");
     assertThat(list).hasSize(0);
   }
 

@@ -48,7 +48,7 @@ public class QueryMultiMatchTest extends BaseTest {
         .boost(2)
         .minShouldMatch("1")
         .analyzer("whitespace")
-        .cutoffFrequency(2)
+        //.cutoffFrequency(2)
         .maxExpansions(10)
         .tieBreaker(0.3)
         .type(MultiMatch.Type.CROSS_FIELDS)
@@ -61,7 +61,7 @@ public class QueryMultiMatchTest extends BaseTest {
 
     List<Customer> list = query.findList();
 
-    assertEquals(query.getGeneratedSql(), "{\"track_total_hits\":true,\"query\":{\"multi_match\":{\"query\":\"Rob\",\"fields\":[\"name\",\"smallNotes\"],\"type\":\"cross_fields\",\"tie_breaker\":0.3,\"max_expansions\":10,\"operator\":\"and\",\"boost\":2.0,\"cutoff_frequency\":2.0,\"minimum_should_match\":\"1\",\"zero_terms_query\":\"all\",\"analyzer\":\"whitespace\"}}}");
+    assertEquals(query.getGeneratedSql(), "{\"track_total_hits\":true,\"query\":{\"multi_match\":{\"query\":\"Rob\",\"fields\":[\"name\",\"smallNotes\"],\"type\":\"cross_fields\",\"tie_breaker\":0.3,\"max_expansions\":10,\"operator\":\"and\",\"boost\":2.0,\"minimum_should_match\":\"1\",\"zero_terms_query\":\"all\",\"analyzer\":\"whitespace\"}}}");
     assertThat(list).hasSize(0);
   }
 

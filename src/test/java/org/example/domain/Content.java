@@ -10,7 +10,7 @@ import javax.validation.constraints.Size;
 
 @DocStore(mapping = {
     @DocMapping(name = "shortNotes",
-        options = @DocProperty(boost = 1.5f, includeInAll = false,
+        options = @DocProperty(includeInAll = false,
             options = DocProperty.Option.POSITIONS, store = true,
             analyzer = "english", searchAnalyzer = "english", copyTo = "other", norms = false))
 })
@@ -29,7 +29,7 @@ public class Content extends BaseUuidDomain {
   String title;
 
   @DocSortable()
-  @DocProperty(sortable = true, boost = 2f, store = true)
+  @DocProperty(sortable = true, store = true)
   @Size(max = 100)
   String author;
 

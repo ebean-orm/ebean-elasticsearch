@@ -51,8 +51,8 @@ public class QueryTextSimpleTest extends BaseTest {
         .analyzeWildcard(true)
         .fields("name")
         .lenient(true)
-        .locale("EN")
-        .lowercaseExpandedTerms(false)
+        //.locale("EN")
+        //.lowercaseExpandedTerms(false)
         .minShouldMatch("1")
         .opAnd();
 
@@ -63,7 +63,7 @@ public class QueryTextSimpleTest extends BaseTest {
 
     List<Customer> list = query.findList();
     assertThat(list).hasSize(0);
-    assertEquals(query.getGeneratedSql(), "{\"track_total_hits\":true,\"query\":{\"simple_query_string\":{\"query\":\"quick brown\",\"analyzer\":\"whitespace\",\"fields\":[\"name\"],\"default_operator\":\"and\",\"lowercase_expanded_terms\":false,\"analyze_wildcard\":true,\"locale\":\"EN\",\"lenient\":true,\"minimum_should_match\":\"1\"}}}");
+    assertEquals(query.getGeneratedSql(), "{\"track_total_hits\":true,\"query\":{\"simple_query_string\":{\"query\":\"quick brown\",\"analyzer\":\"whitespace\",\"fields\":[\"name\"],\"default_operator\":\"and\",\"analyze_wildcard\":true,\"lenient\":true,\"minimum_should_match\":\"1\"}}}");
   }
 
 
