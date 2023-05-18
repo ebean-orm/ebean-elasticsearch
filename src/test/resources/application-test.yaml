@@ -16,7 +16,7 @@ ebean:
     pathToResources: src/test/resources
 
     elastic:
-      version: 8.7.1
+      version: 7.17.0
       port: 9201
 #      image: docker.elastic.co/elasticsearch/elasticsearch:7.17.0
 #      image: docker.elastic.co/elasticsearch/elasticsearch:6.8.23
